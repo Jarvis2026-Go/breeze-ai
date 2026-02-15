@@ -4,13 +4,11 @@ import { cn } from "@/lib/utils";
 import { ChartCard } from "@/components/chart-card";
 import {
   yearlyData,
-  insights,
   industryBenchmarks,
   financialHealthScores,
   primeCostData,
-  expenseCategories2025,
 } from "@/lib/data";
-import { formatCurrency, formatPercent } from "@/lib/formatting";
+import { formatCurrency } from "@/lib/formatting";
 import {
   BarChart,
   Bar,
@@ -20,494 +18,529 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
   Cell,
   ComposedChart,
   Line,
   Area,
   ReferenceLine,
+  PieChart,
+  Pie,
 } from "recharts";
 import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  TrendingDown,
-  TrendingUp,
   MapPin,
   Leaf,
   ArrowDown,
   ArrowUp,
-  Minus,
-  Info,
   Target,
   ShieldAlert,
   Flame,
+  DollarSign,
+  Users,
+  UtensilsCrossed,
+  TrendingDown,
+  Lightbulb,
+  HelpCircle,
 } from "lucide-react";
 
-// ── Derived Data ──────────────────────────────────────────────
+// ── Numbers we need ─────────────────────────────────────────
 
 const d25 = yearlyData[2];
 const d24 = yearlyData[1];
 const d23 = yearlyData[0];
 
-const revenueYoY = ((d25.foodSales - d24.foodSales) / d24.foodSales) * 100;
-const grossMargin = (d25.grossProfit / d25.foodSales) * 100;
-const laborPct = (d25.payroll / d25.foodSales) * 100;
-const cogsPct = (d25.totalCOGS / d25.foodSales) * 100;
-const primeCostPct = cogsPct + laborPct;
-const netMargin = (d25.netIncome / d25.foodSales) * 100;
-const opMargin = (d25.netOrdinaryIncome / d25.foodSales) * 100;
-const occupancyPct = (36000 / d25.foodSales) * 100;
-const revPerEmployee = d25.foodSales / 14;
-const overallHealthScore = financialHealthScores.reduce((s, h) => s + h.score, 0);
-const overallMaxScore = financialHealthScores.reduce((s, h) => s + h.maxScore, 0);
-const overallHealthPct = Math.round((overallHealthScore / overallMaxScore) * 100);
+const overallScore = financialHealthScores.reduce((s, h) => s + h.score, 0);
+const overallMax = financialHealthScores.reduce((s, h) => s + h.maxScore, 0);
+const overallPct = Math.round((overallScore / overallMax) * 100);
 
-// Financial health radar data
-const radarData = financialHealthScores.map((h) => ({
-  category: h.category,
-  score: h.score,
-  fullMark: h.maxScore,
-}));
-
-// Margin bridge: what eats the gross margin
-const marginBridgeData = [
-  { name: "Gross Margin", value: grossMargin, fill: "#22C55E", display: grossMargin },
-  { name: "Labour", value: laborPct, fill: "#FF6B6B", display: -laborPct },
-  { name: "Rent", value: occupancyPct, fill: "#6366F1", display: -occupancyPct },
-  { name: "Other OpEx", value: +((d25.totalExpenses - d25.payroll - d25.totalCOGS - 36000) / d25.foodSales * 100).toFixed(1), fill: "#F59E0B", display: -((d25.totalExpenses - d25.payroll - d25.totalCOGS - 36000) / d25.foodSales * 100) },
-  { name: "Operating Margin", value: Math.abs(opMargin), fill: opMargin >= 0 ? "#22C55E" : "#FF6B6B", display: opMargin },
+// For the "Where every dollar goes" chart
+const dollarBreakdown = [
+  { name: "Food & Supplies", value: 23.2, fill: "#2EC4B6", dollars: "$0.23" },
+  { name: "Staff Wages", value: 48.6, fill: "#FF6B6B", dollars: "$0.49" },
+  { name: "Rent", value: 11.3, fill: "#6366F1", dollars: "$0.11" },
+  { name: "Other Costs", value: 19.2, fill: "#F59E0B", dollars: "$0.19" },
+  { name: "Loss", value: -2.3, fill: "#EF4444", dollars: "-$0.02" },
 ];
-
-// Benchmark comparison data
-const benchmarkBarData = industryBenchmarks.map((b) => ({
-  label: b.label,
-  CHOG: b.chogValue,
-  "Industry Median": b.industryMedian,
-  "Industry Range Low": b.industryLow,
-  "Industry Range High": b.industryHigh,
+// For pie chart, make loss positive for display
+const dollarPieData = dollarBreakdown.map((d) => ({
+  ...d,
+  value: Math.abs(d.value),
 }));
 
-// Prime cost trend
-const primeCostChartData = primeCostData.map((p) => ({
-  year: p.year.toString(),
-  "Food Cost %": +((p.cogs / p.revenue) * 100).toFixed(1),
-  "Labour Cost %": +((p.labor / p.revenue) * 100).toFixed(1),
-  "Prime Cost %": p.primeCostPct,
-  "Target (65%)": 65,
-}));
-
-// Revenue + net income combo
-const trendData = yearlyData.map((d, i) => ({
+// Simple sales trend
+const salesTrend = yearlyData.map((d) => ({
   year: d.year.toString(),
-  Revenue: d.foodSales,
-  "Net Income": d.netIncome,
-  "Operating Income": d.netOrdinaryIncome,
-  "Gross Profit": d.grossProfit,
+  Sales: d.foodSales,
+  "What You Kept": d.netIncome,
 }));
 
-// ── Status helpers ──────────────────────────────────────────
+// Staff + food cost trend (simple)
+const costTrend = primeCostData.map((p) => ({
+  year: p.year.toString(),
+  "Food & Supplies": +((p.cogs / p.revenue) * 100).toFixed(1),
+  "Staff Wages": +((p.labor / p.revenue) * 100).toFixed(1),
+}));
 
-function StatusBadge({ status }: { status: string }) {
-  const config: Record<string, { bg: string; text: string; label: string }> = {
-    critical: { bg: "bg-red-100", text: "text-red-700", label: "Critical" },
-    warning: { bg: "bg-amber-100", text: "text-amber-700", label: "At Risk" },
-    fair: { bg: "bg-blue-100", text: "text-blue-700", label: "Fair" },
-    good: { bg: "bg-green-100", text: "text-green-700", label: "Strong" },
-  };
-  const c = config[status] || config.fair;
+// ── Helpers ────────────────────────────────────────────────
+
+function GradeCircle({ score, max }: { score: number; max: number }) {
+  const pct = (score / max) * 100;
+  let grade = "F";
+  let color = "text-red-500";
+  let bg = "bg-red-50";
+  let ring = "ring-red-200";
+  if (pct >= 80) { grade = "A"; color = "text-green-600"; bg = "bg-green-50"; ring = "ring-green-200"; }
+  else if (pct >= 60) { grade = "B"; color = "text-blue-500"; bg = "bg-blue-50"; ring = "ring-blue-200"; }
+  else if (pct >= 40) { grade = "C"; color = "text-amber-500"; bg = "bg-amber-50"; ring = "ring-amber-200"; }
+  else if (pct >= 20) { grade = "D"; color = "text-orange-500"; bg = "bg-orange-50"; ring = "ring-orange-200"; }
+
   return (
-    <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full", c.bg, c.text)}>
-      {c.label}
-    </span>
+    <div className={cn("w-14 h-14 rounded-full flex items-center justify-center ring-4", bg, ring)}>
+      <span className={cn("text-2xl font-black", color)}>{grade}</span>
+    </div>
   );
 }
 
-function ChangeIndicator({ value, suffix = "%", inverse = false }: { value: number; suffix?: string; inverse?: boolean }) {
-  const isGood = inverse ? value < 0 : value > 0;
-  const isNeutral = value === 0;
-  return (
-    <span className={cn("inline-flex items-center gap-0.5 text-xs font-semibold",
-      isNeutral ? "text-slate-400" : isGood ? "text-positive" : "text-negative"
-    )}>
-      {isNeutral ? <Minus className="w-3 h-3" /> : isGood ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-      {Math.abs(value).toFixed(1)}{suffix}
-    </span>
-  );
-}
-
-// ── Page Component ──────────────────────────────────────────
+// ── Page ────────────────────────────────────────────────────
 
 export default function OverviewPage() {
   return (
-    <div className="space-y-6 max-w-[1400px]">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-3xl font-bold text-slate-900">CHOG</h1>
-            <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded-full flex items-center gap-1">
-              <Leaf className="w-3 h-3" /> Local, Organic, Seasonal
-            </span>
-            <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded-full flex items-center gap-1">
-              <MapPin className="w-3 h-3" /> Toronto, ON
-            </span>
+    <div className="space-y-8 max-w-[1400px]">
+
+      {/* ── Header ── */}
+      <div>
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-3xl font-bold text-slate-900">CHOG</h1>
+          <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full flex items-center gap-1">
+            <Leaf className="w-3 h-3" /> Local, Organic, Seasonal
+          </span>
+          <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full flex items-center gap-1">
+            <MapPin className="w-3 h-3" /> Toronto, ON
+          </span>
+        </div>
+        <p className="text-slate-500">
+          A clear look at how CHOG is doing financially — covering 2023, 2024, and 2025.
+        </p>
+      </div>
+
+      {/* ── The Big Picture — 3 cards that tell the story ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+        {/* Card 1: Sales */}
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2.5 rounded-lg bg-teal/10">
+              <DollarSign className="w-5 h-5 text-teal" />
+            </div>
+            <div>
+              <p className="text-sm text-slate-500">Total Sales (2025)</p>
+              <p className="text-2xl font-bold text-slate-900">$319,177</p>
+            </div>
           </div>
-          <p className="text-slate-500 text-sm">
-            Mexican-inspired restaurant &middot; FP&A Executive Summary &middot; FY2023–2025
+          <div className="flex items-center gap-2 mb-3">
+            <ArrowDown className="w-4 h-4 text-red-500" />
+            <span className="text-sm font-semibold text-red-600">Down 9.5% from last year</span>
+          </div>
+          <p className="text-sm text-slate-500 leading-relaxed">
+            Sales fell by about <strong>$33,000</strong> compared to 2024. Meanwhile, most restaurants in
+            Toronto and Ontario saw their sales <em>grow</em>. This means fewer customers are coming in,
+            or they&apos;re spending less per visit.
           </p>
         </div>
-        <div className="text-right">
-          <div className="text-xs text-slate-400 uppercase tracking-wide font-medium">Financial Health</div>
-          <div className={cn(
-            "text-3xl font-bold",
-            overallHealthPct < 30 ? "text-red-500" : overallHealthPct < 50 ? "text-amber-500" : "text-green-500"
-          )}>
-            {overallHealthPct}/100
+
+        {/* Card 2: Profit / Loss */}
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-red-100">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2.5 rounded-lg bg-red-50">
+              <TrendingDown className="w-5 h-5 text-red-500" />
+            </div>
+            <div>
+              <p className="text-sm text-slate-500">Bottom Line (2025)</p>
+              <p className="text-2xl font-bold text-red-600">-$7,369</p>
+            </div>
           </div>
-          <div className="text-xs text-slate-400 mt-0.5">{overallHealthScore} of {overallMaxScore} points</div>
+          <div className="flex items-center gap-2 mb-3">
+            <XCircle className="w-4 h-4 text-red-500" />
+            <span className="text-sm font-semibold text-red-600">Lost money this year</span>
+          </div>
+          <p className="text-sm text-slate-500 leading-relaxed">
+            After paying for everything — food, staff, rent, and all other bills — the restaurant
+            lost <strong>$7,369</strong>. In 2024 it made $7,569, and in 2023 it made $18,512.
+            The trend is going the wrong way.
+          </p>
+        </div>
+
+        {/* Card 3: The hidden story */}
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-amber-100">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2.5 rounded-lg bg-amber-50">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+            </div>
+            <div>
+              <p className="text-sm text-slate-500">Without Tips & Subsidies</p>
+              <p className="text-2xl font-bold text-red-600">-$51,583</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 mb-3">
+            <ShieldAlert className="w-4 h-4 text-amber-500" />
+            <span className="text-sm font-semibold text-amber-600">The real operating loss</span>
+          </div>
+          <p className="text-sm text-slate-500 leading-relaxed">
+            The day-to-day restaurant operations actually <strong>lost $51,583</strong> in 2025.
+            Tips and government subsidies ($43,191) covered most of it, but that outside help
+            has been shrinking every year — from $82K in 2023 to $43K now.
+          </p>
         </div>
       </div>
 
-      {/* Executive Situation Banner */}
-      <div className="bg-gradient-to-r from-red-50 to-amber-50 border border-red-200 rounded-xl p-5">
-        <div className="flex items-start gap-3">
-          <ShieldAlert className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
-          <div>
-            <h3 className="font-semibold text-red-800 text-sm">Executive Summary: Structural Operating Loss</h3>
-            <p className="text-sm text-slate-700 mt-1 leading-relaxed">
-              CHOG has generated <strong>negative operating income in all 3 years</strong> (-$61K, -$35K, -$52K).
-              The business survives on <strong>$43–82K in annual other income</strong> (tips/subsidies), which
-              masked the deterioration until 2025 when net income turned negative (-$7.4K).
-              <strong> Prime cost of 71.8%</strong> — driven almost entirely by labour at 48.6% of revenue —
-              leaves only 28.2% to cover rent, utilities, insurance, and profit. The industry target is 65%.
-              Revenue declined 9.5% in 2025, compressing margins further. Without restructuring labour costs or
-              growing revenue, the business will exhaust its remaining $44K asset base within 18–24 months.
-            </p>
-          </div>
+      {/* ── Where Every Dollar Goes (the most important visual) ── */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+        <div className="mb-2">
+          <h2 className="text-lg font-bold text-slate-900">For Every $1 in Sales, Here&apos;s Where It Goes</h2>
+          <p className="text-sm text-slate-500 mt-1">
+            This shows how each dollar of sales gets split up. In a healthy restaurant, you&apos;d want about
+            5-10 cents left over as profit. Right now, CHOG is losing about 2 cents on every dollar.
+          </p>
         </div>
-      </div>
-
-      {/* KPI Row — FP&A focused */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-        {[
-          { label: "Revenue", value: formatCurrency(d25.foodSales, true), yoy: revenueYoY, icon: "dollar" },
-          { label: "Gross Margin", value: formatPercent(grossMargin), yoy: grossMargin - (d24.grossProfit / d24.foodSales * 100), icon: "up" },
-          { label: "Prime Cost", value: formatPercent(primeCostPct), yoy: primeCostPct - primeCostData[1].primeCostPct, icon: "fire", inverse: true },
-          { label: "Labour %", value: formatPercent(laborPct), yoy: laborPct - (d24.payroll / d24.foodSales * 100), icon: "labor", inverse: true },
-          { label: "COGS %", value: formatPercent(cogsPct), yoy: cogsPct - (d24.totalCOGS / d24.foodSales * 100), icon: "cogs", inverse: true },
-          { label: "Op. Income", value: formatCurrency(d25.netOrdinaryIncome, true), yoy: ((d25.netOrdinaryIncome - d24.netOrdinaryIncome) / Math.abs(d24.netOrdinaryIncome)) * 100, icon: "op" },
-          { label: "Net Income", value: formatCurrency(d25.netIncome, true), yoy: 0, icon: "net" },
-          { label: "Total Assets", value: formatCurrency(d25.totalAssets, true), yoy: ((d25.totalAssets - d24.totalAssets) / d24.totalAssets) * 100, icon: "assets" },
-        ].map((kpi, i) => (
-          <div key={i} className="bg-white rounded-lg p-3 shadow-sm border border-slate-100">
-            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide truncate">{kpi.label}</p>
-            <p className={cn("text-lg font-bold mt-0.5",
-              kpi.label === "Net Income" || kpi.label === "Op. Income"
-                ? (parseFloat(kpi.value.replace(/[^-\d.]/g, '')) < 0 ? "text-red-600" : "text-green-600")
-                : "text-slate-900"
-            )}>
-              {kpi.value}
-            </p>
-            <ChangeIndicator value={kpi.yoy} inverse={kpi.inverse} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+          <div className="flex items-center justify-center">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={dollarPieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={65}
+                  outerRadius={120}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {dollarPieData.map((entry, i) => (
+                    <Cell key={i} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value: unknown) => `${value}%`}
+                  contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0" }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
-        ))}
-      </div>
-
-      {/* Row 2: Financial Health Scorecard + Industry Benchmark */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Financial Health Scorecard */}
-        <ChartCard title="Financial Health Scorecard" subtitle="7 key dimensions rated against industry standards">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-            <div className="space-y-3">
-              {financialHealthScores.map((h, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-28 shrink-0">
-                    <p className="text-xs font-medium text-slate-700 truncate">{h.category}</p>
+          <div className="space-y-3 flex flex-col justify-center">
+            {dollarBreakdown.map((item, i) => (
+              <div key={i} className="flex items-center gap-4">
+                <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.fill }} />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-slate-700">{item.name}</span>
+                    <span className="text-sm font-bold text-slate-900">{item.dollars}</span>
                   </div>
-                  <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-slate-100 rounded-full mt-1 overflow-hidden">
                     <div
-                      className={cn("h-full rounded-full transition-all",
-                        h.status === "critical" ? "bg-red-400" :
-                        h.status === "warning" ? "bg-amber-400" :
-                        h.status === "fair" ? "bg-blue-400" : "bg-green-400"
-                      )}
-                      style={{ width: `${(h.score / h.maxScore) * 100}%` }}
+                      className="h-full rounded-full"
+                      style={{ width: `${Math.abs(item.value)}%`, backgroundColor: item.fill }}
                     />
                   </div>
-                  <span className="text-xs font-bold text-slate-500 w-8 text-right">{h.score}/{h.maxScore}</span>
-                  <StatusBadge status={h.status} />
                 </div>
-              ))}
-            </div>
-            <div className="mt-4 md:mt-0">
-              <ResponsiveContainer width="100%" height={220}>
-                <RadarChart data={radarData}>
-                  <PolarGrid stroke="#e2e8f0" />
-                  <PolarAngleAxis dataKey="category" tick={{ fontSize: 9, fill: "#64748b" }} />
-                  <PolarRadiusAxis domain={[0, 10]} tick={false} axisLine={false} />
-                  <Radar name="CHOG" dataKey="score" stroke="#2EC4B6" fill="#2EC4B6" fillOpacity={0.2} strokeWidth={2} />
-                </RadarChart>
-              </ResponsiveContainer>
+              </div>
+            ))}
+            <div className="mt-2 p-3 bg-slate-50 rounded-lg">
+              <p className="text-xs text-slate-600">
+                <strong>What this means:</strong> Staff wages take the biggest bite — almost 49 cents of every
+                dollar. The typical Canadian restaurant spends about 34 cents. That extra 15 cents is the main
+                reason the restaurant isn&apos;t profitable.
+              </p>
             </div>
           </div>
-        </ChartCard>
+        </div>
+      </div>
 
-        {/* Industry Benchmark Comparison */}
-        <ChartCard title="CHOG vs. Canadian Full-Service Restaurants" subtitle="Key operating ratios vs. industry median (2024-2025)">
+      {/* ── Report Card + How You Compare ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* Report Card */}
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">Business Report Card</h2>
+              <p className="text-sm text-slate-500 mt-0.5">How CHOG scores across 7 areas</p>
+            </div>
+            <div className="text-center">
+              <div className={cn(
+                "text-3xl font-black",
+                overallPct < 30 ? "text-red-500" : overallPct < 50 ? "text-amber-500" : "text-green-500"
+              )}>
+                {overallPct}
+              </div>
+              <div className="text-[10px] text-slate-400 uppercase font-medium">out of 100</div>
+            </div>
+          </div>
           <div className="space-y-4">
+            {financialHealthScores.map((h, i) => (
+              <div key={i}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <GradeCircle score={h.score} max={h.maxScore} />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{h.category}</p>
+                      <p className="text-xs text-slate-500">{h.detail}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* How You Compare */}
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+          <div className="mb-5">
+            <h2 className="text-lg font-bold text-slate-900">How Does CHOG Compare?</h2>
+            <p className="text-sm text-slate-500 mt-0.5">
+              CHOG vs. the typical full-service restaurant in Canada.
+              Green = doing better than average. Red = needs attention.
+            </p>
+          </div>
+          <div className="space-y-5">
             {industryBenchmarks.map((b, i) => {
-              const isOutperforming = b.lowerIsBetter
+              const isGood = b.lowerIsBetter
                 ? b.chogValue < b.industryMedian
                 : b.chogValue > b.industryMedian;
-              const diff = b.chogValue - b.industryMedian;
-              const rangeWidth = b.industryHigh - b.industryLow;
-              const chogPos = Math.max(0, Math.min(100, ((b.chogValue - b.industryLow + rangeWidth * 0.15) / (rangeWidth * 1.3)) * 100));
-              const medianPos = ((b.industryMedian - b.industryLow + rangeWidth * 0.15) / (rangeWidth * 1.3)) * 100;
 
               return (
                 <div key={i}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-slate-700">{b.label}</span>
-                    <div className="flex items-center gap-2">
-                      <span className={cn("text-xs font-bold", isOutperforming ? "text-green-600" : "text-red-600")}>
-                        {b.chogValue > 0 ? "+" : ""}{diff.toFixed(1)}pp vs median
+                    <span className="text-sm font-medium text-slate-700">{b.label}</span>
+                    <div className="flex items-center gap-3">
+                      <span className={cn(
+                        "text-xs font-bold px-2 py-0.5 rounded-full",
+                        isGood ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      )}>
+                        {isGood ? "Better than avg." : "Needs work"}
                       </span>
                     </div>
                   </div>
-                  <div className="relative h-3 bg-slate-100 rounded-full">
-                    {/* Industry range */}
-                    <div
-                      className="absolute h-full bg-slate-200 rounded-full"
-                      style={{ left: "15%", width: "70%" }}
-                    />
-                    {/* Median marker */}
-                    <div
-                      className="absolute top-0 w-0.5 h-full bg-slate-400"
-                      style={{ left: `${medianPos}%` }}
-                    />
-                    {/* CHOG marker */}
-                    <div
-                      className={cn("absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-white shadow",
-                        isOutperforming ? "bg-green-500" : "bg-red-500"
-                      )}
-                      style={{ left: `${chogPos}%`, marginLeft: "-6px" }}
-                    />
-                  </div>
-                  <div className="flex justify-between mt-0.5">
-                    <span className="text-[9px] text-slate-400">{b.industryLow}{b.unit === "percent" ? "%" : ""}</span>
-                    <span className="text-[9px] text-slate-400">Median: {b.industryMedian}{b.unit === "percent" ? "%" : ""}</span>
-                    <span className="text-[9px] text-slate-400">{b.industryHigh}{b.unit === "percent" ? "%" : ""}</span>
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="font-bold text-teal">CHOG: {b.chogValue}%</span>
+                        <span className="text-slate-400">Average restaurant: {b.industryMedian}%</span>
+                      </div>
+                      <div className="relative h-3 bg-slate-100 rounded-full">
+                        {/* Average marker */}
+                        <div
+                          className="absolute top-0 w-0.5 h-full bg-slate-400 z-10"
+                          style={{ left: `${Math.min(95, Math.max(5, (b.industryMedian / (b.industryHigh * 1.15)) * 100))}%` }}
+                        />
+                        {/* CHOG bar */}
+                        <div
+                          className={cn("h-full rounded-full", isGood ? "bg-green-400" : "bg-red-400")}
+                          style={{ width: `${Math.min(100, Math.max(3, (b.chogValue / (b.industryHigh * 1.15)) * 100))}%` }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
-          <div className="mt-3 flex items-center gap-4 text-[10px] text-slate-400">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500" /> Outperforming</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> Underperforming</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-0.5 bg-slate-400" /> Industry Median</span>
-          </div>
-        </ChartCard>
-      </div>
-
-      {/* Row 3: Prime Cost Trend + Margin Bridge */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Prime Cost Trend */}
-        <ChartCard
-          title="Prime Cost Analysis"
-          subtitle="COGS + Labour as % of Revenue — the #1 restaurant profitability driver"
-        >
-          <ResponsiveContainer width="100%" height={280}>
-            <ComposedChart data={primeCostChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="year" stroke="#94a3b8" fontSize={12} />
-              <YAxis stroke="#94a3b8" fontSize={11} tickFormatter={(v) => `${v}%`} domain={[0, 90]} />
-              <Tooltip
-                formatter={(value: unknown) => `${typeof value === "number" ? value.toFixed(1) : value}%`}
-                contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "12px" }}
-              />
-              <Legend wrapperStyle={{ fontSize: "11px" }} />
-              <Bar dataKey="Food Cost %" stackId="prime" fill="#2EC4B6" />
-              <Bar dataKey="Labour Cost %" stackId="prime" fill="#FF6B6B" radius={[4, 4, 0, 0]} />
-              <Line type="monotone" dataKey="Target (65%)" stroke="#94a3b8" strokeWidth={2} strokeDasharray="6 4" dot={false} />
-              <ReferenceLine y={65} stroke="#94a3b8" strokeDasharray="6 4" />
-            </ComposedChart>
-          </ResponsiveContainer>
-          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-xs text-red-800">
-              <strong>FP&A Note:</strong> Prime cost improved from 79.3% (2023) to 71.8% (2025) — but remains
-              6.8pp above the 65% industry target. The improvement came entirely from COGS reduction;
-              labour actually increased from 44.9% to 48.6%. COGS savings are nearing a floor —
-              further improvement must come from labour optimization or revenue growth.
-            </p>
-          </div>
-        </ChartCard>
-
-        {/* Margin Bridge / Waterfall */}
-        <ChartCard
-          title="Where Does the Gross Margin Go?"
-          subtitle="Margin bridge: Gross Margin → Operating Margin (2025)"
-        >
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={marginBridgeData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
-              <XAxis type="number" stroke="#94a3b8" fontSize={11} tickFormatter={(v) => `${v}%`} />
-              <YAxis type="category" dataKey="name" stroke="#94a3b8" fontSize={11} width={100} />
-              <Tooltip
-                formatter={(value: unknown, name: unknown, props: unknown) => {
-                  const p = props as { payload?: { display?: number } };
-                  return [`${(p.payload?.display ?? 0).toFixed(1)}%`, "% of Revenue"];
-                }}
-                contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "12px" }}
-              />
-              <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                {marginBridgeData.map((entry, i) => (
-                  <Cell key={i} fill={entry.fill} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-          <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <p className="text-xs text-amber-800">
-              <strong>FP&A Note:</strong> Despite a strong 76.8% gross margin (8.8pp above industry median),
-              labour alone consumes 48.6pp, leaving only 28.2% for all other costs. The business generates
-              excellent food margins but cannot convert them to operating profit due to overstaffing
-              relative to revenue volume.
-            </p>
-          </div>
-        </ChartCard>
-      </div>
-
-      {/* Row 4: Revenue + Profit Trend + Key Insights */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <ChartCard
-          title="Revenue & Profitability Trend"
-          subtitle="3-year P&L trajectory"
-          className="lg:col-span-2"
-        >
-          <ResponsiveContainer width="100%" height={300}>
-            <ComposedChart data={trendData}>
-              <defs>
-                <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2EC4B6" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#2EC4B6" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="year" stroke="#94a3b8" fontSize={12} />
-              <YAxis
-                yAxisId="left"
-                stroke="#94a3b8"
-                fontSize={11}
-                tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`}
-              />
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                stroke="#94a3b8"
-                fontSize={11}
-                tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`}
-              />
-              <Tooltip
-                formatter={(value: unknown) => typeof value === "number" ? formatCurrency(value) : "N/A"}
-                contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "12px" }}
-              />
-              <Legend wrapperStyle={{ fontSize: "11px" }} />
-              <ReferenceLine yAxisId="right" y={0} stroke="#94a3b8" strokeDasharray="3 3" />
-              <Area yAxisId="left" type="monotone" dataKey="Revenue" fill="url(#revGrad)" stroke="#2EC4B6" strokeWidth={2} />
-              <Area yAxisId="left" type="monotone" dataKey="Gross Profit" fill="none" stroke="#22C55E" strokeWidth={1.5} strokeDasharray="4 2" />
-              <Line yAxisId="right" type="monotone" dataKey="Operating Income" stroke="#FF6B6B" strokeWidth={2} dot={{ r: 4, fill: "#FF6B6B" }} />
-              <Line yAxisId="right" type="monotone" dataKey="Net Income" stroke="#6366F1" strokeWidth={2} dot={{ r: 4, fill: "#6366F1" }} />
-            </ComposedChart>
-          </ResponsiveContainer>
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            {[
-              { label: "3-Year Revenue CAGR", value: `${(((d25.foodSales / d23.foodSales) ** (1/2) - 1) * 100).toFixed(1)}%`, color: "text-red-600" },
-              { label: "Avg. Operating Loss", value: formatCurrency(Math.round((d23.netOrdinaryIncome + d24.netOrdinaryIncome + d25.netOrdinaryIncome) / 3), true), color: "text-red-600" },
-              { label: "Cumulative Net Income", value: formatCurrency(d23.netIncome + d24.netIncome + d25.netIncome, true), color: d23.netIncome + d24.netIncome + d25.netIncome >= 0 ? "text-green-600" : "text-red-600" },
-            ].map((stat, i) => (
-              <div key={i} className="text-center p-2 bg-slate-50 rounded-lg">
-                <p className="text-[10px] text-slate-400 uppercase tracking-wide">{stat.label}</p>
-                <p className={cn("text-sm font-bold mt-0.5", stat.color)}>{stat.value}</p>
-              </div>
-            ))}
-          </div>
-        </ChartCard>
-
-        {/* AI Insights — rewritten for FP&A */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-            <h3 className="font-semibold text-slate-900 text-sm">FP&A Key Findings</h3>
-          </div>
-          <div className="space-y-3">
-            {[
-              {
-                icon: XCircle,
-                iconColor: "text-red-500",
-                bg: "bg-red-50",
-                border: "border-red-200",
-                title: "Labour is the #1 Problem",
-                desc: "At 48.6% of revenue, CHOG's labour cost is 14.4pp above the Canadian full-service median (34.2%). This single line item erases the entire gross margin advantage.",
-              },
-              {
-                icon: CheckCircle2,
-                iconColor: "text-green-500",
-                bg: "bg-green-50",
-                border: "border-green-200",
-                title: "Best-in-Class Food Costs",
-                desc: "23.2% COGS ratio is 8.8pp below industry median. Organic/local sourcing hasn't hurt procurement — likely strong supplier relationships and minimal waste.",
-              },
-              {
-                icon: AlertTriangle,
-                iconColor: "text-amber-500",
-                bg: "bg-amber-50",
-                border: "border-amber-200",
-                title: "Revenue Risk: Toronto Market",
-                desc: "9.5% revenue decline in a market where Ontario restaurant sales grew ~14%. CHOG is losing market share — menu pricing, foot traffic, or competitive positioning needs review.",
-              },
-              {
-                icon: Flame,
-                iconColor: "text-red-500",
-                bg: "bg-red-50",
-                border: "border-red-200",
-                title: "Cash Runway: ~18 Months",
-                desc: "With $44K in assets and a $7.4K annual net loss (worsening), plus declining other income ($82K→$43K), the business has limited runway without intervention.",
-              },
-              {
-                icon: Target,
-                iconColor: "text-blue-500",
-                bg: "bg-blue-50",
-                border: "border-blue-200",
-                title: "Path to Breakeven",
-                desc: "Either grow revenue to ~$360K (at current cost structure) or reduce labour to 40% of current revenue ($128K, saving $27K) to reach operating breakeven.",
-              },
-            ].map((item, i) => (
-              <div key={i} className={cn("p-3 rounded-lg border", item.bg, item.border)}>
-                <div className="flex gap-2">
-                  <item.icon className={cn("w-4 h-4 mt-0.5 shrink-0", item.iconColor)} />
-                  <div>
-                    <p className="font-semibold text-xs text-slate-800">{item.title}</p>
-                    <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="mt-4 flex items-center gap-3 text-xs text-slate-400">
+            <span className="flex items-center gap-1"><span className="w-0.5 h-3 bg-slate-400 inline-block" /> Average restaurant</span>
           </div>
         </div>
       </div>
 
-      {/* Footer: Data sources */}
-      <div className="text-[10px] text-slate-400 pt-4 border-t border-slate-100">
+      {/* ── Sales Over Time — simple chart ── */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+        <h2 className="text-lg font-bold text-slate-900">How Are Sales Doing?</h2>
+        <p className="text-sm text-slate-500 mt-1 mb-4">
+          Total food sales each year, and what was left over after all expenses (the green/red line).
+        </p>
+        <ResponsiveContainer width="100%" height={300}>
+          <ComposedChart data={salesTrend}>
+            <defs>
+              <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#2EC4B6" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#2EC4B6" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="year" stroke="#94a3b8" fontSize={13} />
+            <YAxis
+              yAxisId="left"
+              stroke="#94a3b8"
+              fontSize={12}
+              tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              stroke="#94a3b8"
+              fontSize={12}
+              tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`}
+            />
+            <Tooltip
+              formatter={(value: unknown) => typeof value === "number" ? formatCurrency(value) : "N/A"}
+              contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0" }}
+            />
+            <Legend wrapperStyle={{ fontSize: "13px" }} />
+            <ReferenceLine yAxisId="right" y={0} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: "Break even", fontSize: 11, fill: "#94a3b8" }} />
+            <Area yAxisId="left" type="monotone" dataKey="Sales" fill="url(#salesGrad)" stroke="#2EC4B6" strokeWidth={3} />
+            <Line yAxisId="right" type="monotone" dataKey="What You Kept" stroke="#6366F1" strokeWidth={3} dot={{ r: 6, fill: "#6366F1", strokeWidth: 2, stroke: "#fff" }} />
+          </ComposedChart>
+        </ResponsiveContainer>
+        <div className="grid grid-cols-3 gap-4 mt-4">
+          {yearlyData.map((d) => (
+            <div key={d.year} className="text-center p-3 bg-slate-50 rounded-lg">
+              <p className="text-sm font-bold text-slate-400">{d.year}</p>
+              <p className="text-lg font-bold text-slate-900">{formatCurrency(d.foodSales, true)}</p>
+              <p className={cn("text-sm font-semibold",
+                d.netIncome >= 0 ? "text-green-600" : "text-red-600"
+              )}>
+                {d.netIncome >= 0 ? "Kept" : "Lost"} {formatCurrency(Math.abs(d.netIncome), true)}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── The Biggest Cost Problem ── */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+        <h2 className="text-lg font-bold text-slate-900">The Biggest Cost Problem: Staffing</h2>
+        <p className="text-sm text-slate-500 mt-1 mb-4">
+          Here&apos;s how much of each sales dollar goes to food costs vs. staff wages each year.
+          The dashed line shows where most successful restaurants keep this combined number.
+        </p>
+        <ResponsiveContainer width="100%" height={280}>
+          <ComposedChart data={costTrend}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="year" stroke="#94a3b8" fontSize={13} />
+            <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => `${v}%`} domain={[0, 85]} />
+            <Tooltip
+              formatter={(value: unknown) => `${typeof value === "number" ? value.toFixed(1) : value}%`}
+              contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0" }}
+            />
+            <Legend wrapperStyle={{ fontSize: "13px" }} />
+            <Bar dataKey="Food & Supplies" stackId="a" fill="#2EC4B6" radius={[0, 0, 0, 0]} />
+            <Bar dataKey="Staff Wages" stackId="a" fill="#FF6B6B" radius={[4, 4, 0, 0]} />
+            <ReferenceLine y={65} stroke="#22C55E" strokeWidth={2} strokeDasharray="8 4" label={{ value: "Healthy target: 65%", fontSize: 11, fill: "#22C55E", position: "top" }} />
+          </ComposedChart>
+        </ResponsiveContainer>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center gap-2 mb-1">
+              <CheckCircle2 className="w-4 h-4 text-green-500" />
+              <span className="text-sm font-semibold text-green-800">Good: Food costs</span>
+            </div>
+            <p className="text-xs text-slate-600">
+              You spend 23 cents per dollar on ingredients — much less than the 32-cent average.
+              Great purchasing and low waste.
+            </p>
+          </div>
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center gap-2 mb-1">
+              <XCircle className="w-4 h-4 text-red-500" />
+              <span className="text-sm font-semibold text-red-800">Problem: Staff costs</span>
+            </div>
+            <p className="text-xs text-slate-600">
+              You spend 49 cents per dollar on staff — the average is 34 cents. That&apos;s an
+              extra $46,000/year more than a typical restaurant your size.
+            </p>
+          </div>
+          <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-center gap-2 mb-1">
+              <AlertTriangle className="w-4 h-4 text-amber-500" />
+              <span className="text-sm font-semibold text-amber-800">Combined: 72%</span>
+            </div>
+            <p className="text-xs text-slate-600">
+              Together, food and staff take 72 cents of every dollar. The healthy target is
+              65 cents. That 7-cent gap = ~$22,000/year in lost profit.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── What You Should Know (insights) ── */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+        <div className="flex items-center gap-2 mb-5">
+          <Lightbulb className="w-5 h-5 text-teal" />
+          <h2 className="text-lg font-bold text-slate-900">What You Should Know</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[
+            {
+              icon: XCircle,
+              iconColor: "text-red-500",
+              bg: "bg-red-50",
+              border: "border-red-200",
+              title: "Staffing costs are too high",
+              desc: "For every dollar in sales, 49 cents goes to staff. The average restaurant pays about 34 cents. If CHOG could get closer to average, it would save roughly $46,000 a year — enough to turn the losses into a profit.",
+            },
+            {
+              icon: CheckCircle2,
+              iconColor: "text-green-500",
+              bg: "bg-green-50",
+              border: "border-green-200",
+              title: "Food costs are excellent",
+              desc: "Only 23 cents of every dollar goes to food and supplies — well below the 32-cent average. For a restaurant focused on local and organic ingredients, this is impressive. Whoever manages purchasing is doing a great job.",
+            },
+            {
+              icon: AlertTriangle,
+              iconColor: "text-amber-500",
+              bg: "bg-amber-50",
+              border: "border-amber-200",
+              title: "Sales are falling while others are growing",
+              desc: "CHOG's sales dropped 9.5% in 2025, but restaurant sales across Ontario actually grew about 14% during this period. The restaurant is losing ground to competitors — this could be a location, marketing, or pricing issue.",
+            },
+            {
+              icon: Flame,
+              iconColor: "text-red-500",
+              bg: "bg-red-50",
+              border: "border-red-200",
+              title: "The business depends on tips and subsidies to survive",
+              desc: "Without $43,000 in tip income and subsidies, CHOG would have lost $51,583 in 2025. That outside help has been shrinking ($82K in 2023, down to $43K now). The restaurant needs to be able to stand on its own.",
+            },
+            {
+              icon: TrendingDown,
+              iconColor: "text-red-500",
+              bg: "bg-red-50",
+              border: "border-red-200",
+              title: "The business is getting smaller",
+              desc: "What the business owns (assets) dropped from $99,600 to $44,200 in three years — a 56% decline. This means less cushion for unexpected expenses and less ability to invest in improvements or growth.",
+            },
+            {
+              icon: Target,
+              iconColor: "text-blue-500",
+              bg: "bg-blue-50",
+              border: "border-blue-200",
+              title: "Here's what it would take to break even",
+              desc: "Two paths: (1) Grow sales to about $360,000/year without increasing costs, or (2) Reduce staff costs by about $27,000/year (from $155K down to $128K) at current sales. Ideally, a combination of both.",
+            },
+          ].map((item, i) => (
+            <div key={i} className={cn("p-4 rounded-xl border", item.bg, item.border)}>
+              <div className="flex gap-3">
+                <item.icon className={cn("w-5 h-5 mt-0.5 shrink-0", item.iconColor)} />
+                <div>
+                  <p className="font-semibold text-sm text-slate-800">{item.title}</p>
+                  <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Footer ── */}
+      <div className="text-xs text-slate-400 pt-4 border-t border-slate-100 space-y-1">
         <p>
-          Industry benchmarks sourced from Restaurants Canada (2024), Statistics Canada ISED, National Restaurant Association,
-          Toast POS Restaurant Benchmarks (2025), NetSuite Industry Benchmarks. CHOG data from P&L, Balance Sheet, and Wage
-          reports (2023–2025). All figures in CAD.
+          <strong>Where do the comparison numbers come from?</strong> The &quot;average restaurant&quot; figures are based on
+          2024-2025 data from Restaurants Canada, Statistics Canada, the National Restaurant Association, and
+          Toast POS industry reports. They represent typical full-service restaurants in Canada.
+        </p>
+        <p>
+          CHOG data is from its own Profit & Loss statements, Balance Sheets, and Wage reports (2023–2025). All amounts in CAD.
         </p>
       </div>
     </div>

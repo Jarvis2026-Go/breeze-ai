@@ -151,7 +151,7 @@ export const netIncomeForecast: ForecastPoint[] = [
 // Sources: Restaurants Canada, Statistics Canada ISED, NRA, Toast POS, NetSuite
 export const industryBenchmarks: BenchmarkMetric[] = [
   {
-    label: "Food Cost %",
+    label: "Spent on Food & Supplies",
     chogValue: 23.2,
     industryLow: 28,
     industryMedian: 32,
@@ -160,7 +160,7 @@ export const industryBenchmarks: BenchmarkMetric[] = [
     lowerIsBetter: true,
   },
   {
-    label: "Labour Cost %",
+    label: "Spent on Staff",
     chogValue: 48.6,
     industryLow: 25,
     industryMedian: 34.2,
@@ -169,7 +169,7 @@ export const industryBenchmarks: BenchmarkMetric[] = [
     lowerIsBetter: true,
   },
   {
-    label: "Prime Cost %",
+    label: "Food + Staff Combined",
     chogValue: 71.8,
     industryLow: 55,
     industryMedian: 63,
@@ -178,7 +178,7 @@ export const industryBenchmarks: BenchmarkMetric[] = [
     lowerIsBetter: true,
   },
   {
-    label: "Occupancy Cost %",
+    label: "Spent on Rent",
     chogValue: 11.3,
     industryLow: 6,
     industryMedian: 8,
@@ -187,7 +187,7 @@ export const industryBenchmarks: BenchmarkMetric[] = [
     lowerIsBetter: true,
   },
   {
-    label: "Net Profit Margin",
+    label: "Profit Kept per Dollar",
     chogValue: -2.3,
     industryLow: 0,
     industryMedian: 5,
@@ -196,7 +196,7 @@ export const industryBenchmarks: BenchmarkMetric[] = [
     lowerIsBetter: false,
   },
   {
-    label: "Gross Margin",
+    label: "Money Left After Food Costs",
     chogValue: 76.8,
     industryLow: 62,
     industryMedian: 68,
@@ -208,53 +208,53 @@ export const industryBenchmarks: BenchmarkMetric[] = [
 
 export const financialHealthScores: FinancialHealthScore[] = [
   {
-    category: "Revenue Trend",
+    category: "Sales",
     score: 2,
     maxScore: 10,
     status: "critical",
-    detail: "9.5% decline; below Toronto restaurant sector growth of ~3-5%",
+    detail: "Sales dropped 9.5% — most Toronto restaurants grew during this period",
   },
   {
-    category: "Cost Control (COGS)",
+    category: "Food & Supply Costs",
     score: 9,
     maxScore: 10,
     status: "good",
-    detail: "23.2% COGS ratio outperforms industry median of 32% by 8.8pp",
+    detail: "You spend less on ingredients than most restaurants — great job here",
   },
   {
-    category: "Labour Efficiency",
+    category: "Staffing Costs",
     score: 2,
     maxScore: 10,
     status: "critical",
-    detail: "48.6% labour cost is 14.4pp above industry median of 34.2%",
+    detail: "Almost half of every dollar earned goes to staff — way above average",
   },
   {
-    category: "Profitability",
+    category: "Profit",
     score: 1,
     maxScore: 10,
     status: "critical",
-    detail: "Operating loss of -$51.6K; net margin of -2.3% vs industry 3-6%",
+    detail: "The restaurant lost money from day-to-day operations every year",
   },
   {
-    category: "Prime Cost",
+    category: "Food + Staff Combined",
     score: 2,
     maxScore: 10,
     status: "critical",
-    detail: "71.8% prime cost exceeds 65% target by 6.8pp — no margin for rent/overhead",
+    detail: "Food and staff costs together eat up 72 cents of every dollar earned",
   },
   {
-    category: "Balance Sheet",
+    category: "What You Own",
     score: 3,
     maxScore: 10,
     status: "warning",
-    detail: "Assets declined 56% over 3 years; limited runway for investment",
+    detail: "The value of things the business owns has dropped by more than half",
   },
   {
-    category: "Cash Sustainability",
+    category: "Cash Runway",
     score: 3,
     maxScore: 10,
     status: "warning",
-    detail: "Depends on $43K other income; ~8 months runway at current burn rate",
+    detail: "Without tips and subsidies, the business would run out of cash quickly",
   },
 ];
 
