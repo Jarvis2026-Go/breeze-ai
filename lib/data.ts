@@ -1,4 +1,4 @@
-import { YearlyFinancial, COGSBreakdown, ExpenseCategory, WageEmployee, Insight, ForecastPoint } from "./types";
+import { YearlyFinancial, COGSBreakdown, ExpenseCategory, WageEmployee, Insight, ForecastPoint, BenchmarkMetric, FinancialHealthScore, PrimeCostData } from "./types";
 
 export const yearlyData: YearlyFinancial[] = [
   {
@@ -145,4 +145,142 @@ export const netIncomeForecast: ForecastPoint[] = [
   { year: 2025, actual: -7369 },
   { year: 2026, projected: -15000, lower: -30000, upper: 5000 },
   { year: 2027, projected: -22000, lower: -45000, upper: 5000 },
+];
+
+// Canadian Full-Service Restaurant Industry Benchmarks (2024-2025)
+// Sources: Restaurants Canada, Statistics Canada ISED, NRA, Toast POS, NetSuite
+export const industryBenchmarks: BenchmarkMetric[] = [
+  {
+    label: "Food Cost %",
+    chogValue: 23.2,
+    industryLow: 28,
+    industryMedian: 32,
+    industryHigh: 38,
+    unit: "percent",
+    lowerIsBetter: true,
+  },
+  {
+    label: "Labour Cost %",
+    chogValue: 48.6,
+    industryLow: 25,
+    industryMedian: 34.2,
+    industryHigh: 40,
+    unit: "percent",
+    lowerIsBetter: true,
+  },
+  {
+    label: "Prime Cost %",
+    chogValue: 71.8,
+    industryLow: 55,
+    industryMedian: 63,
+    industryHigh: 70,
+    unit: "percent",
+    lowerIsBetter: true,
+  },
+  {
+    label: "Occupancy Cost %",
+    chogValue: 11.3,
+    industryLow: 6,
+    industryMedian: 8,
+    industryHigh: 10,
+    unit: "percent",
+    lowerIsBetter: true,
+  },
+  {
+    label: "Net Profit Margin",
+    chogValue: -2.3,
+    industryLow: 0,
+    industryMedian: 5,
+    industryHigh: 10,
+    unit: "percent",
+    lowerIsBetter: false,
+  },
+  {
+    label: "Gross Margin",
+    chogValue: 76.8,
+    industryLow: 62,
+    industryMedian: 68,
+    industryHigh: 75,
+    unit: "percent",
+    lowerIsBetter: false,
+  },
+];
+
+export const financialHealthScores: FinancialHealthScore[] = [
+  {
+    category: "Revenue Trend",
+    score: 2,
+    maxScore: 10,
+    status: "critical",
+    detail: "9.5% decline; below Toronto restaurant sector growth of ~3-5%",
+  },
+  {
+    category: "Cost Control (COGS)",
+    score: 9,
+    maxScore: 10,
+    status: "good",
+    detail: "23.2% COGS ratio outperforms industry median of 32% by 8.8pp",
+  },
+  {
+    category: "Labour Efficiency",
+    score: 2,
+    maxScore: 10,
+    status: "critical",
+    detail: "48.6% labour cost is 14.4pp above industry median of 34.2%",
+  },
+  {
+    category: "Profitability",
+    score: 1,
+    maxScore: 10,
+    status: "critical",
+    detail: "Operating loss of -$51.6K; net margin of -2.3% vs industry 3-6%",
+  },
+  {
+    category: "Prime Cost",
+    score: 2,
+    maxScore: 10,
+    status: "critical",
+    detail: "71.8% prime cost exceeds 65% target by 6.8pp — no margin for rent/overhead",
+  },
+  {
+    category: "Balance Sheet",
+    score: 3,
+    maxScore: 10,
+    status: "warning",
+    detail: "Assets declined 56% over 3 years; limited runway for investment",
+  },
+  {
+    category: "Cash Sustainability",
+    score: 3,
+    maxScore: 10,
+    status: "warning",
+    detail: "Depends on $43K other income; ~8 months runway at current burn rate",
+  },
+];
+
+export const primeCostData: PrimeCostData[] = [
+  {
+    year: 2023,
+    cogs: 117810,
+    labor: 153551,
+    primeCost: 271361,
+    primeCostPct: 79.3,
+    revenue: 342055,
+  },
+  {
+    year: 2024,
+    cogs: 95914,
+    labor: 147944,
+    primeCost: 243858,
+    primeCostPct: 69.2,
+    revenue: 352510,
+  },
+  {
+    year: 2025,
+    cogs: 74148,
+    labor: 155137,
+    primeCost: 229285,
+    primeCostPct: 71.8,
+    revenue: 319177,
+  },
 ];

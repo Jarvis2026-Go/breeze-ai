@@ -53,3 +53,30 @@ export interface ForecastPoint {
   lower?: number;
   upper?: number;
 }
+
+export interface BenchmarkMetric {
+  label: string;
+  chogValue: number;
+  industryLow: number;
+  industryMedian: number;
+  industryHigh: number;
+  unit: "percent" | "currency" | "ratio";
+  lowerIsBetter?: boolean;
+}
+
+export interface FinancialHealthScore {
+  category: string;
+  score: number;
+  maxScore: number;
+  status: "critical" | "warning" | "fair" | "good";
+  detail: string;
+}
+
+export interface PrimeCostData {
+  year: number;
+  cogs: number;
+  labor: number;
+  primeCost: number;
+  primeCostPct: number;
+  revenue: number;
+}
