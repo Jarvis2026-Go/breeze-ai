@@ -9,16 +9,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        navy: {
-          DEFAULT: "#1B2A4A",
-          light: "#243556",
-          dark: "#141F38",
+        "breeze-dark": {
+          DEFAULT: "#2F3E46",
+          light: "#3A4F58",
+          dark: "#243238",
         },
         teal: {
-          DEFAULT: "#2EC4B6",
-          light: "#5DD4C8",
-          dark: "#1FA396",
+          DEFAULT: "#4ECDC4",
+          light: "#7EDBD5",
+          dark: "#3AB5AD",
         },
+        "breeze-gray": "#F0F4F3",
         coral: {
           DEFAULT: "#FF6B6B",
           light: "#FF9999",

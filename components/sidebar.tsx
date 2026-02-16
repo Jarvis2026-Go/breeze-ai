@@ -23,14 +23,14 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-navy text-white flex flex-col">
-      <div className="p-6 border-b border-navy-light">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-breeze-dark text-white flex flex-col">
+      <div className="p-6 border-b border-breeze-dark-light">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-teal flex items-center justify-center font-bold text-navy text-lg">
-            C
+          <div className="w-10 h-10 rounded-lg bg-teal flex items-center justify-center font-bold text-breeze-dark text-lg">
+            B
           </div>
           <div>
-            <h1 className="font-bold text-lg leading-tight">CHOG</h1>
+            <h1 className="font-bold text-lg leading-tight">Breeze</h1>
             <p className="text-xs text-slate-400">Financial Dashboard</p>
           </div>
         </div>
@@ -47,7 +47,7 @@ export function Sidebar() {
                 "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                 isActive
                   ? "bg-teal/20 text-teal"
-                  : "text-slate-300 hover:bg-navy-light hover:text-white"
+                  : "text-slate-300 hover:bg-breeze-dark-light hover:text-white"
               )}
             >
               <item.icon className="w-5 h-5" />
@@ -57,8 +57,8 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-navy-light">
-        <div className="px-4 py-3 rounded-lg bg-navy-light">
+      <div className="p-4 border-t border-breeze-dark-light">
+        <div className="px-4 py-3 rounded-lg bg-breeze-dark-light">
           <p className="text-xs text-slate-400">Powered by</p>
           <p className="text-sm font-semibold text-teal">Breeze AI</p>
         </div>
