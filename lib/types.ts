@@ -72,6 +72,16 @@ export interface FinancialHealthScore {
   detail: string;
 }
 
+export interface PnLLineItem {
+  account: string;
+  values: [number, number, number]; // [2023, 2024, 2025]
+  industryPctMedian?: string;       // typical % of revenue (e.g. "30-33%")
+  isCost: boolean;
+  indent?: boolean;   // sub-account
+  bold?: boolean;     // subtotal/total rows
+  separator?: boolean; // section divider
+}
+
 export interface PrimeCostData {
   year: number;
   cogs: number;

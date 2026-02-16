@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { yearlyData } from "@/lib/data";
+import { yearlyData, pnlLineItems } from "@/lib/data";
 import { formatCurrency } from "@/lib/formatting";
 import {
   BarChart,
@@ -17,10 +17,9 @@ import {
   Legend,
   ReferenceLine,
 } from "recharts";
-import { ArrowDown, ArrowUp, HelpCircle } from "lucide-react";
 
 const d25 = yearlyData[2];
-const d24 = yearlyData[1];
+const revenue2025 = d25.foodSales;
 
 // Waterfall: show the journey from sales to what's left
 const waterfallData = [
@@ -33,18 +32,6 @@ const waterfallData = [
   { name: "What's Left", value: d25.netIncome, fill: d25.netIncome >= 0 ? "#22C55E" : "#EF4444", label: "Bottom line" },
 ];
 
-// Simplified P&L table with plain names
-const tableRows = [
-  { label: "Total Sales", key: "foodSales" as const, help: "All the money customers paid", isCost: false },
-  { label: "Food & Supply Costs", key: "totalCOGS" as const, help: "Ingredients, alcohol, supplies", isCost: true },
-  { label: "Money Left After Food Costs", key: "grossProfit" as const, help: "Sales minus food costs", isCost: false },
-  { label: "All Operating Costs", key: "totalExpenses" as const, help: "Everything it costs to run the restaurant", isCost: true },
-  { label: "Staff Wages", key: "payroll" as const, help: "Salaries for all employees", isCost: true },
-  { label: "Operating Result", key: "netOrdinaryIncome" as const, help: "Profit or loss from running the restaurant", isCost: false },
-  { label: "Tips & Subsidies", key: "otherIncome" as const, help: "Tip income and government help", isCost: false },
-  { label: "Final Bottom Line", key: "netIncome" as const, help: "What's truly left after everything", isCost: false },
-];
-
 // How much of each dollar is kept at different stages
 const marginData = yearlyData.map((d) => ({
   year: d.year.toString(),
@@ -53,18 +40,177 @@ const marginData = yearlyData.map((d) => ({
   "After Everything": +((d.netIncome / d.foodSales) * 100).toFixed(1),
 }));
 
+function getStatus(item: typeof pnlLineItems[number]): { label: string; color: string } | null {
+  if (!item.industryPctMedian || item.industryPctMedian === "N/A" || item.industryPctMedian === "100%") return null;
+
+  const pctOfSales = (item.values[2] / revenue2025) * 100;
+
+  // Parse industry median — take the midpoint of ranges like "30-35%"
+  const cleaned = item.industryPctMedian.replace(/[~%]/g, "");
+  let median: number;
+  if (cleaned.includes("-")) {
+    const [lo, hi] = cleaned.split("-").map(Number);
+    median = (lo + hi) / 2;
+  } else {
+    median = Number(cleaned);
+  }
+
+  if (isNaN(median)) return null;
+
+  const actual = Math.abs(pctOfSales);
+  const diff = actual - median;
+
+  if (item.isCost) {
+    // For costs: being below median is good
+    if (diff <= 0) return { label: "On track", color: "bg-green-100 text-green-700" };
+    if (diff <= 3) return { label: "Watch", color: "bg-amber-100 text-amber-700" };
+    return { label: "Above avg", color: "bg-red-100 text-red-700" };
+  } else {
+    // For profits: being above median is good
+    if (item.bold && (item.account.includes("Income") || item.account === "Net Income" || item.account === "Gross Profit")) {
+      if (pctOfSales >= median) return { label: "On track", color: "bg-green-100 text-green-700" };
+      if (median - pctOfSales <= 5) return { label: "Watch", color: "bg-amber-100 text-amber-700" };
+      return { label: "Below avg", color: "bg-red-100 text-red-700" };
+    }
+    return null;
+  }
+}
+
+// Benchmark gap cards
+const benchmarkGaps = [
+  {
+    title: "Payroll",
+    actual: ((155137 / revenue2025) * 100).toFixed(1),
+    industry: "30-35%",
+    gap: "~14% over",
+    description: "Staff costs eat 48.6¢ of every dollar — industry norm is about 33¢. This is the single biggest drag on profitability.",
+    color: "border-red-200 bg-red-50",
+    textColor: "text-red-700",
+  },
+  {
+    title: "Rent",
+    actual: ((36000 / revenue2025) * 100).toFixed(1),
+    industry: "6-10%",
+    gap: "~3% over",
+    description: "Rent is 11.3% of revenue vs. the 8% median. Revenue needs to grow or a lease renegotiation is needed.",
+    color: "border-amber-200 bg-amber-50",
+    textColor: "text-amber-700",
+  },
+  {
+    title: "Net Margin",
+    actual: ((-7369 / revenue2025) * 100).toFixed(1),
+    industry: "3-5%",
+    gap: "~6% below",
+    description: "Typical restaurants keep 3-5% profit. CHOG is at -2.3% — a swing of about $17K/year needed to reach industry average.",
+    color: "border-red-200 bg-red-50",
+    textColor: "text-red-700",
+  },
+  {
+    title: "Food Costs (COGS)",
+    actual: ((74148 / revenue2025) * 100).toFixed(1),
+    industry: "30-33%",
+    gap: "~8% under",
+    description: "At 23.2%, food costs are well below the 32% median — excellent purchasing and waste management.",
+    color: "border-green-200 bg-green-50",
+    textColor: "text-green-700",
+  },
+];
+
 export default function PnLPage() {
   return (
     <div className="space-y-8 max-w-[1400px]">
+      {/* Section 1: Header */}
       <div>
         <h1 className="text-4xl font-black tracking-tight text-slate-900">Profit & Loss</h1>
         <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-          Where the money comes from, where it goes, and what&apos;s left — for 2023, 2024, and 2025.
+          Full account detail for 2023–2025, with Canadian restaurant industry benchmarks.
         </p>
       </div>
 
-      {/* The Journey of a Dollar */}
+      {/* Section 2: Full P&L Table */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <h2 className="text-lg font-bold text-slate-900">Complete Profit & Loss Statement</h2>
+        <p className="text-sm text-slate-500 mt-1 mb-4">
+          Every account line, with industry benchmarks for a Canadian full-service restaurant. The &quot;Status&quot; column shows how CHOG compares.
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b-2 border-slate-200">
+                <th className="text-left py-3 px-4 font-semibold text-slate-600">Account</th>
+                <th className="text-right py-3 px-4 font-semibold text-slate-600">2023</th>
+                <th className="text-right py-3 px-4 font-semibold text-slate-600">2024</th>
+                <th className="text-right py-3 px-4 font-semibold text-slate-600">2025</th>
+                <th className="text-right py-3 px-4 font-semibold text-slate-600">% of Sales</th>
+                <th className="text-right py-3 px-4 font-semibold text-slate-600">Industry Avg</th>
+                <th className="text-center py-3 px-4 font-semibold text-slate-600">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pnlLineItems.map((item, i) => {
+                const pctOfSales = ((item.values[2] / revenue2025) * 100).toFixed(1);
+                const status = getStatus(item);
+
+                return (
+                  <tr
+                    key={i}
+                    className={cn(
+                      "border-b border-slate-100 hover:bg-slate-50/50",
+                      item.separator && "border-t-2 border-t-slate-200",
+                      item.bold && "bg-slate-50/70"
+                    )}
+                  >
+                    <td className={cn("py-2.5 px-4", item.indent && "pl-10")}>
+                      <span className={cn(
+                        "text-slate-900",
+                        item.bold ? "font-bold" : "font-medium",
+                        item.indent && "text-slate-600"
+                      )}>
+                        {item.indent && <span className="text-slate-300 mr-1">—</span>}
+                        {item.account}
+                      </span>
+                    </td>
+                    {item.values.map((val, vi) => (
+                      <td
+                        key={vi}
+                        className={cn(
+                          "py-2.5 px-4 text-right tabular-nums",
+                          item.bold && "font-bold",
+                          val < 0 && "text-red-600"
+                        )}
+                      >
+                        {formatCurrency(val)}
+                      </td>
+                    ))}
+                    <td className={cn(
+                      "py-2.5 px-4 text-right tabular-nums",
+                      item.bold && "font-bold",
+                      item.values[2] < 0 && "text-red-600"
+                    )}>
+                      {pctOfSales}%
+                    </td>
+                    <td className="py-2.5 px-4 text-right text-slate-500">
+                      {item.industryPctMedian ?? "—"}
+                    </td>
+                    <td className="py-2.5 px-4 text-center">
+                      {status ? (
+                        <span className={cn("inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold", status.color)}>
+                          {status.label}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Section 3: Existing Charts */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">The Journey of CHOG&apos;s Money (2025)</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
@@ -103,80 +249,6 @@ export default function PnLPage() {
         </div>
       </div>
 
-      {/* Year by Year Comparison */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900">Year-by-Year Numbers</h2>
-        <p className="text-sm text-slate-500 mt-1 mb-4">
-          Every major financial line for all 3 years. The last column shows whether things got better or worse in 2025 vs. 2024.
-        </p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b-2 border-slate-200">
-                <th className="text-left py-3 px-4 font-semibold text-slate-600">What It Is</th>
-                {yearlyData.map((d) => (
-                  <th key={d.year} className="text-right py-3 px-4 font-semibold text-slate-600">
-                    {d.year}
-                  </th>
-                ))}
-                <th className="text-right py-3 px-4 font-semibold text-slate-600">vs. Last Year</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tableRows.map((item) => {
-                const val24 = yearlyData[1][item.key];
-                const val25 = yearlyData[2][item.key];
-                const change = val24 !== 0
-                  ? ((val25 - val24) / Math.abs(val24)) * 100
-                  : 0;
-                // For costs, going down is good. For income, going up is good.
-                const isGoodChange = item.isCost ? change < 0 : change > 0;
-                const isHighlight = item.key === "netIncome" || item.key === "netOrdinaryIncome";
-
-                return (
-                  <tr
-                    key={item.key}
-                    className={cn(
-                      "border-b border-slate-100 hover:bg-slate-50",
-                      isHighlight && "bg-slate-50 font-semibold"
-                    )}
-                  >
-                    <td className="py-3 px-4">
-                      <div className="font-medium text-slate-900">{item.label}</div>
-                      <div className="text-xs text-slate-400">{item.help}</div>
-                    </td>
-                    {yearlyData.map((d) => (
-                      <td
-                        key={d.year}
-                        className={cn(
-                          "py-3 px-4 text-right tabular-nums",
-                          d[item.key] < 0 && "text-red-600"
-                        )}
-                      >
-                        {formatCurrency(d[item.key])}
-                      </td>
-                    ))}
-                    <td className="py-3 px-4 text-right">
-                      <span className={cn(
-                        "inline-flex items-center gap-1 text-sm font-semibold",
-                        isGoodChange ? "text-green-600" : "text-red-600"
-                      )}>
-                        {isGoodChange
-                          ? <ArrowUp className="w-3.5 h-3.5" />
-                          : <ArrowDown className="w-3.5 h-3.5" />
-                        }
-                        {Math.abs(change).toFixed(1)}%
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* How Much You Keep */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">How Much of Each Dollar Do You Keep?</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
@@ -219,6 +291,28 @@ export default function PnLPage() {
             <p className="text-lg font-bold text-red-600">-2¢</p>
             <p className="text-xs text-slate-400">still a loss</p>
           </div>
+        </div>
+      </div>
+
+      {/* Section 4: Key Benchmark Callout Cards */}
+      <div>
+        <h2 className="text-lg font-bold text-slate-900 mb-4">Biggest Gaps vs. Industry</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {benchmarkGaps.map((gap) => (
+            <div key={gap.title} className={cn("rounded-2xl border p-5", gap.color)}>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className={cn("font-bold text-base", gap.textColor)}>{gap.title}</h3>
+                <span className={cn("text-xs font-semibold px-2.5 py-0.5 rounded-full", gap.color, gap.textColor)}>
+                  {gap.gap}
+                </span>
+              </div>
+              <div className="flex items-baseline gap-3 mb-2">
+                <span className="text-2xl font-black tabular-nums">{gap.actual}%</span>
+                <span className="text-sm text-slate-500">vs. {gap.industry} industry</span>
+              </div>
+              <p className="text-sm text-slate-600">{gap.description}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

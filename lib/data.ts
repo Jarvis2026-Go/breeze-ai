@@ -1,4 +1,4 @@
-import { YearlyFinancial, COGSBreakdown, ExpenseCategory, WageEmployee, Insight, ForecastPoint, BenchmarkMetric, FinancialHealthScore, PrimeCostData } from "./types";
+import { YearlyFinancial, COGSBreakdown, ExpenseCategory, WageEmployee, Insight, ForecastPoint, BenchmarkMetric, FinancialHealthScore, PrimeCostData, PnLLineItem } from "./types";
 
 export const yearlyData: YearlyFinancial[] = [
   {
@@ -256,6 +256,31 @@ export const financialHealthScores: FinancialHealthScore[] = [
     status: "warning",
     detail: "Without tips and subsidies, the business would run out of cash quickly",
   },
+];
+
+export const pnlLineItems: PnLLineItem[] = [
+  // Revenue
+  { account: "Food & Beverage Sales", values: [342055, 352510, 319177], industryPctMedian: "100%", isCost: false, bold: true },
+  // COGS
+  { account: "Alcohol", values: [18250, 14120, 10890], industryPctMedian: "~8%", isCost: true, indent: true },
+  { account: "Food Purchases", values: [82340, 66580, 49250], industryPctMedian: "~22%", isCost: true, indent: true },
+  { account: "Restaurant Supplies", values: [17220, 15214, 14008], industryPctMedian: "~3%", isCost: true, indent: true },
+  { account: "Total COGS", values: [117810, 95914, 74148], industryPctMedian: "30-33%", isCost: true, bold: true, separator: true },
+  { account: "Gross Profit", values: [224245, 256596, 245029], industryPctMedian: "67-70%", isCost: false, bold: true, separator: true },
+  // Operating Expenses
+  { account: "Payroll", values: [153551, 147944, 155137], industryPctMedian: "30-35%", isCost: true, indent: true },
+  { account: "Tips Paid Out", values: [32400, 38200, 35420], industryPctMedian: "8-12%", isCost: true, indent: true },
+  { account: "Rent", values: [36000, 36000, 36000], industryPctMedian: "6-10%", isCost: true, indent: true },
+  { account: "Insurance", values: [17200, 17800, 18500], industryPctMedian: "2-4%", isCost: true, indent: true },
+  { account: "Utilities", values: [13500, 13800, 14200], industryPctMedian: "3-5%", isCost: true, indent: true },
+  { account: "Marketing", values: [7800, 9200, 8500], industryPctMedian: "2-4%", isCost: true, indent: true },
+  { account: "Repairs & Maintenance", values: [10200, 11500, 12000], industryPctMedian: "1.5-3%", isCost: true, indent: true },
+  { account: "Other Operating", values: [14812, 17026, 16856], industryPctMedian: "3-6%", isCost: true, indent: true },
+  { account: "Total Operating Expenses", values: [285463, 291470, 296613], industryPctMedian: "85-93%", isCost: true, bold: true, separator: true },
+  { account: "Operating Income (Loss)", values: [-61218, -34874, -51583], industryPctMedian: "3-7%", isCost: false, bold: true, separator: true },
+  // Other Income
+  { account: "Tips Received & Subsidies", values: [82487, 44248, 43191], industryPctMedian: "N/A", isCost: false, indent: true },
+  { account: "Net Income", values: [18512, 7569, -7369], industryPctMedian: "3-5%", isCost: false, bold: true, separator: true },
 ];
 
 export const primeCostData: PrimeCostData[] = [
