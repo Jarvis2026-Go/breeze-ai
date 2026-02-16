@@ -40,10 +40,15 @@ interface InsightPanelProps {
 
 export function InsightPanel({ insights, title = "AI Insights" }: InsightPanelProps) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-        <h3 className="font-semibold text-slate-900">{title}</h3>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-teal to-teal-dark">
+          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+          <span className="text-xs font-bold text-white">AI</span>
+        </span>
+        <h3 className="font-bold bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
+          {title}
+        </h3>
       </div>
       <div className="space-y-3">
         {insights.map((insight, i) => {
@@ -53,7 +58,7 @@ export function InsightPanel({ insights, title = "AI Insights" }: InsightPanelPr
             <div
               key={i}
               className={cn(
-                "p-4 rounded-lg border",
+                "p-4 rounded-xl border-2 transition-shadow hover:shadow-lg",
                 config.bg,
                 config.border
               )}

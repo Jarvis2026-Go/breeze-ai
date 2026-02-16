@@ -2,11 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background-color: #F7FAF9;
+  background: linear-gradient(135deg, #F7FAF9, #EDF5F4);
+  min-height: 100vh;
 }
 
 /* Custom scrollbar */
@@ -25,4 +26,13 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Utility classes for glow effects */
+.shadow-glow-teal {
+  box-shadow: 0 4px 24px -4px rgba(78, 205, 196, 0.25);
+}
+
+.shadow-glow-coral {
+  box-shadow: 0 4px 24px -4px rgba(255, 107, 107, 0.25);
 }

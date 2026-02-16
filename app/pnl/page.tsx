@@ -57,14 +57,15 @@ export default function PnLPage() {
   return (
     <div className="space-y-8 max-w-[1400px]">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Profit & Loss</h1>
-        <p className="text-slate-500 mt-1">
+        <h1 className="text-4xl font-black tracking-tight text-slate-900">Profit & Loss</h1>
+        <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
+        <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
           Where the money comes from, where it goes, and what&apos;s left — for 2023, 2024, and 2025.
         </p>
       </div>
 
       {/* The Journey of a Dollar */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">The Journey of CHOG&apos;s Money (2025)</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
           Starting with total sales on the left, each bar shows a major cost that takes a bite.
@@ -103,7 +104,7 @@ export default function PnLPage() {
       </div>
 
       {/* Year by Year Comparison */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">Year-by-Year Numbers</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
           Every major financial line for all 3 years. The last column shows whether things got better or worse in 2025 vs. 2024.
@@ -176,7 +177,7 @@ export default function PnLPage() {
       </div>
 
       {/* How Much You Keep */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">How Much of Each Dollar Do You Keep?</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
           Three ways to look at it: after paying for food, after paying all bills, and after truly everything

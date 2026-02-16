@@ -31,6 +31,12 @@ const config: Config = {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
+      boxShadow: {
+        "glow-teal": "0 4px 24px -4px rgba(78, 205, 196, 0.25)",
+        "glow-coral": "0 4px 24px -4px rgba(255, 107, 107, 0.25)",
+        "glow-purple": "0 4px 24px -4px rgba(99, 102, 241, 0.25)",
+        "glow-emerald": "0 4px 24px -4px rgba(16, 185, 129, 0.25)",
+      },
     },
   },
   plugins: [],

@@ -107,10 +107,11 @@ export default function ExpensesPage() {
   return (
     <div className="space-y-8 max-w-[1400px]">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">
+        <h1 className="text-4xl font-black tracking-tight text-slate-900">
           Expenses & Wages
         </h1>
-        <p className="text-slate-500 mt-1">
+        <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
+        <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
           Where the money goes after food is bought — staff, rent, utilities,
           and everything else it costs to keep the restaurant running.
         </p>
@@ -118,7 +119,7 @@ export default function ExpensesPage() {
 
       {/* ── Quick Summary — 3 cards ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 rounded-lg bg-slate-100">
               <DollarSign className="w-5 h-5 text-slate-600" />
@@ -137,7 +138,7 @@ export default function ExpensesPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-red-100">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-red-100">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 rounded-lg bg-red-50">
               <Users className="w-5 h-5 text-red-500" />
@@ -161,7 +162,7 @@ export default function ExpensesPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 rounded-lg bg-slate-100">
               <DollarSign className="w-5 h-5 text-slate-600" />
@@ -180,7 +181,7 @@ export default function ExpensesPage() {
       </div>
 
       {/* ── Where Do the Bills Go? (Pie + breakdown) ── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
           Where Does the Money Go?
         </h2>
@@ -260,7 +261,7 @@ export default function ExpensesPage() {
       </div>
 
       {/* ── How Bills Have Changed Over Time ── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
           How Have Bills Changed Over 3 Years?
         </h2>
@@ -357,7 +358,7 @@ export default function ExpensesPage() {
       </div>
 
       {/* ── The Staff Cost Problem ── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
           How Much of Each Dollar Goes to Staff?
         </h2>
@@ -446,7 +447,7 @@ export default function ExpensesPage() {
       </div>
 
       {/* ── Who Gets Paid What ── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
           Who Gets Paid What? (2025)
         </h2>
@@ -567,7 +568,7 @@ export default function ExpensesPage() {
       </div>
 
       {/* ── Key Takeaways ── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <div className="flex items-center gap-2 mb-5">
           <Lightbulb className="w-5 h-5 text-teal" />
           <h2 className="text-lg font-bold text-slate-900">Key Takeaways</h2>

@@ -51,10 +51,11 @@ export default function ForecastPage() {
   return (
     <div className="space-y-8 max-w-[1400px]">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">
+        <h1 className="text-4xl font-black tracking-tight text-slate-900">
           What Happens Next?
         </h1>
-        <p className="text-slate-500 mt-1">
+        <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
+        <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
           Based on the last 3 years of data, here&apos;s where the restaurant
           is heading if nothing changes — and what it would take to turn things
           around.
@@ -63,7 +64,7 @@ export default function ForecastPage() {
 
       {/* ── The Quick Outlook — 3 cards ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-red-100">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-red-100">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 rounded-lg bg-red-50">
               <TrendingDown className="w-5 h-5 text-red-500" />
@@ -85,7 +86,7 @@ export default function ForecastPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-red-100">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-red-100">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 rounded-lg bg-red-50">
               <XCircle className="w-5 h-5 text-red-500" />
@@ -109,7 +110,7 @@ export default function ForecastPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-amber-100">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-amber-100">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 rounded-lg bg-amber-50">
               <Target className="w-5 h-5 text-amber-500" />
@@ -128,7 +129,7 @@ export default function ForecastPage() {
       </div>
 
       {/* ── Sales Forecast Chart ── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
           Where Are Sales Heading?
         </h2>
@@ -226,7 +227,7 @@ export default function ForecastPage() {
       </div>
 
       {/* ── Net Income Forecast Chart ── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
           Will the Restaurant Make or Lose Money?
         </h2>
@@ -324,7 +325,7 @@ export default function ForecastPage() {
       {/* ── What Could Go Wrong + What Could Go Right ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Risks */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <h2 className="text-lg font-bold text-slate-900 mb-1">
             What Could Go Wrong
           </h2>
@@ -394,7 +395,7 @@ export default function ForecastPage() {
         </div>
 
         {/* What to do about it */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <div className="flex items-center gap-2 mb-1">
             <Lightbulb className="w-5 h-5 text-teal" />
             <h2 className="text-lg font-bold text-slate-900">
@@ -460,7 +461,7 @@ export default function ForecastPage() {
       </div>
 
       {/* ── The Bottom Line ── */}
-      <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6 shadow-sm">
+      <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 shadow-sm">
         <h2 className="text-lg font-bold text-white mb-3">The Bottom Line</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>

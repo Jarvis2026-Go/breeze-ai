@@ -54,15 +54,16 @@ export default function RevenuePage() {
   return (
     <div className="space-y-8 max-w-[1400px]">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Sales & Food Costs</h1>
-        <p className="text-slate-500 mt-1">
+        <h1 className="text-4xl font-black tracking-tight text-slate-900">Sales & Food Costs</h1>
+        <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
+        <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
           How much is coming in the door, what it costs to buy ingredients, and how much is left after food costs.
         </p>
       </div>
 
       {/* Quick Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
           <p className="text-sm text-slate-500">2025 Sales</p>
           <p className="text-2xl font-bold text-slate-900 mt-1">$319,177</p>
           <div className="flex items-center gap-1.5 mt-2">
@@ -70,7 +71,7 @@ export default function RevenuePage() {
             <span className="text-sm font-semibold text-red-600">Down $33,333 from 2024</span>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
           <p className="text-sm text-slate-500">Spent on Food & Supplies</p>
           <p className="text-2xl font-bold text-slate-900 mt-1">$74,148</p>
           <div className="flex items-center gap-1.5 mt-2">
@@ -78,7 +79,7 @@ export default function RevenuePage() {
             <span className="text-sm font-semibold text-green-600">Down $21,766 — great cost control</span>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
           <p className="text-sm text-slate-500">Left After Food Costs</p>
           <p className="text-2xl font-bold text-green-600 mt-1">$245,029</p>
           <div className="flex items-center gap-1.5 mt-2">
@@ -88,7 +89,7 @@ export default function RevenuePage() {
       </div>
 
       {/* Sales Trend */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">Are Sales Growing or Shrinking?</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
           The bars show total sales. The purple line shows whether sales went up or down compared to the year before.
@@ -137,7 +138,7 @@ export default function RevenuePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* What's in the food costs */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <h2 className="text-lg font-bold text-slate-900">What Are You Buying?</h2>
           <p className="text-sm text-slate-500 mt-1 mb-4">
             Your food cost breaks down into three categories. All three have been going down — this is a strong area.
@@ -164,7 +165,7 @@ export default function RevenuePage() {
         </div>
 
         {/* How much per dollar goes to food */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <h2 className="text-lg font-bold text-slate-900">Food Cost Per Dollar of Sales</h2>
           <p className="text-sm text-slate-500 mt-1 mb-4">
             This shows how many cents of each sales dollar goes to buying food and supplies.
@@ -214,7 +215,7 @@ export default function RevenuePage() {
       </div>
 
       {/* What's Left After Food */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">What&apos;s Left After Paying for Food?</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
           This is the money available to pay for everything else — staff, rent, utilities, and (hopefully) profit.

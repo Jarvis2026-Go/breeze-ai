@@ -111,8 +111,14 @@ export default function OverviewPage() {
 
       {/* ── Header ── */}
       <div>
+        <h1 className="text-4xl font-black tracking-tight text-slate-900">CHOG</h1>
+        <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-3xl font-bold text-slate-900">CHOG</h1>
+          <span className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
+            A clear look at how CHOG is doing financially — covering 2023, 2024, and 2025.
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full flex items-center gap-1">
             <Leaf className="w-3 h-3" /> Local, Organic, Seasonal
           </span>
@@ -120,16 +126,13 @@ export default function OverviewPage() {
             <MapPin className="w-3 h-3" /> Toronto, ON
           </span>
         </div>
-        <p className="text-slate-500">
-          A clear look at how CHOG is doing financially — covering 2023, 2024, and 2025.
-        </p>
       </div>
 
       {/* ── The Big Picture — 3 cards that tell the story ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
         {/* Card 1: Sales */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2.5 rounded-lg bg-teal/10">
               <DollarSign className="w-5 h-5 text-teal" />
@@ -151,7 +154,7 @@ export default function OverviewPage() {
         </div>
 
         {/* Card 2: Profit / Loss */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-red-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-red-100 hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2.5 rounded-lg bg-red-50">
               <TrendingDown className="w-5 h-5 text-red-500" />
@@ -173,7 +176,7 @@ export default function OverviewPage() {
         </div>
 
         {/* Card 3: The hidden story */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-amber-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-amber-100 hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2.5 rounded-lg bg-amber-50">
               <AlertTriangle className="w-5 h-5 text-amber-500" />
@@ -196,7 +199,7 @@ export default function OverviewPage() {
       </div>
 
       {/* ── Where Every Dollar Goes (the most important visual) ── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <div className="mb-2">
           <h2 className="text-lg font-bold text-slate-900">For Every $1 in Sales, Here&apos;s Where It Goes</h2>
           <p className="text-sm text-slate-500 mt-1">
@@ -261,7 +264,7 @@ export default function OverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* Report Card */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-lg font-bold text-slate-900">Business Report Card</h2>
@@ -295,7 +298,7 @@ export default function OverviewPage() {
         </div>
 
         {/* How You Compare */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <div className="mb-5">
             <h2 className="text-lg font-bold text-slate-900">How Does CHOG Compare?</h2>
             <p className="text-sm text-slate-500 mt-0.5">
@@ -353,7 +356,7 @@ export default function OverviewPage() {
       </div>
 
       {/* ── Sales Over Time — simple chart ── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">How Are Sales Doing?</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
           Total food sales each year, and what was left over after all expenses (the green/red line).
@@ -407,7 +410,7 @@ export default function OverviewPage() {
       </div>
 
       {/* ── The Biggest Cost Problem ── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">The Biggest Cost Problem: Staffing</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
           Here&apos;s how much of each sales dollar goes to food costs vs. staff wages each year.
@@ -463,7 +466,7 @@ export default function OverviewPage() {
       </div>
 
       {/* ── What You Should Know (insights) ── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <div className="flex items-center gap-2 mb-5">
           <Lightbulb className="w-5 h-5 text-teal" />
           <h2 className="text-lg font-bold text-slate-900">What You Should Know</h2>
