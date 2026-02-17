@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { yearlyData, pnlLineItems, wageData } from "@/lib/data";
+import { yearlyData, pnlLineItems, wageData, wageData2023, wageData2024 } from "@/lib/data";
+import { WageEmployee } from "@/lib/types";
 import { formatCurrency, calcYoYChange } from "@/lib/formatting";
 import {
   BarChart,
@@ -110,35 +111,56 @@ const payrollRatioData = yearlyData.map((d) => ({
   "Cents per Dollar": +((d.payroll / d.foodSales) * 100).toFixed(1),
 }));
 
-// Wage analysis — real payroll data
-const totalPayroll = yearlyData[2].payroll; // $155,137 from P&L
-const totalGrossPay = wageData.reduce((s, w) => s + w.grossPay, 0);
-const totalEmployerTaxes = wageData.reduce((s, w) => s + w.employerTaxes, 0);
-const totalHoursAll = wageData.reduce((s, w) => s + w.hoursWorked, 0);
+// Wage analysis — real payroll data (all 3 years)
 const openHoursPerYear = 5 * 8 * 52; // Tue-Sat, 8am-4pm = 2,080 hrs
-const fteCount = totalHoursAll / openHoursPerYear; // ~3.9 FTEs
+const ontarioMinWages = [15.50, 16.55, 17.20]; // 2023, 2024, 2025
 
-// Staffing tiers
-const mgmt = wageData.filter((w) => w.isSalaried);
-const coreStaff = wageData.filter((w) => !w.isSalaried && w.hoursWorked >= 500);
-const casualStaff = wageData.filter((w) => !w.isSalaried && w.hoursWorked >= 100 && w.hoursWorked < 500);
-const trialStaff = wageData.filter((w) => !w.isSalaried && w.hoursWorked < 100);
-const mgmtTotal = mgmt.reduce((s, w) => s + w.grossPay, 0);
-const coreTotal = coreStaff.reduce((s, w) => s + w.grossPay, 0);
-const casualTotal = casualStaff.reduce((s, w) => s + w.grossPay, 0);
-const trialTotal = trialStaff.reduce((s, w) => s + w.grossPay, 0);
+const wageDataByYear: WageEmployee[][] = [wageData2023, wageData2024, wageData];
 
-// Ontario min wage reference
-const ontarioMinWage = 17.20; // 2025
+function computePayrollStats(data: WageEmployee[], minWage: number) {
+  const headcount = data.length;
+  const totalHours = data.reduce((s, w) => s + w.hoursWorked, 0);
+  const ftes = totalHours / openHoursPerYear;
+  const gross = data.reduce((s, w) => s + w.grossPay, 0);
+  const taxes = data.reduce((s, w) => s + w.employerTaxes, 0);
+  const mgmt = data.filter((w) => w.isSalaried);
+  const core = data.filter((w) => !w.isSalaried && w.hoursWorked >= 500);
+  const casual = data.filter((w) => !w.isSalaried && w.hoursWorked >= 100 && w.hoursWorked < 500);
+  const trial = data.filter((w) => !w.isSalaried && w.hoursWorked < 100);
+  const hourly = data.filter((w) => w.hourlyRate !== null);
+  const atMin = hourly.filter((w) => w.hourlyRate === minWage);
+  const aboveMin = hourly.filter((w) => w.hourlyRate! > minWage);
+  const weightedAvgRate = hourly.length > 0
+    ? hourly.reduce((s, w) => s + w.hourlyRate! * w.hoursWorked, 0) / hourly.reduce((s, w) => s + w.hoursWorked, 0)
+    : 0;
+  return {
+    headcount, totalHours, ftes, gross, taxes, minWage,
+    mgmt, core, casual, trial, hourly, atMin, aboveMin, weightedAvgRate,
+    mgmtTotal: mgmt.reduce((s, w) => s + w.grossPay, 0),
+    coreTotal: core.reduce((s, w) => s + w.grossPay, 0),
+    casualTotal: casual.reduce((s, w) => s + w.grossPay, 0),
+    trialTotal: trial.reduce((s, w) => s + w.grossPay, 0),
+  };
+}
 
-// Rate distribution
-const hourlyStaff = wageData.filter((w) => w.hourlyRate !== null);
-const atMinWage = hourlyStaff.filter((w) => w.hourlyRate === ontarioMinWage);
-const aboveMinWage = hourlyStaff.filter((w) => w.hourlyRate! > ontarioMinWage);
+const payrollStats = [0, 1, 2].map((i) => computePayrollStats(wageDataByYear[i], ontarioMinWages[i]));
+
+// Current year (2025) stats for KPI cards
+const totalPayroll = yearlyData[2].payroll;
+const stats25 = payrollStats[2];
+
+// Retention analysis — who appears across years
+const names2023 = new Set(wageData2023.map((w) => w.name));
+const names2024 = new Set(wageData2024.map((w) => w.name));
+const names2025 = new Set(wageData.map((w) => w.name));
+const allNamesArr = Array.from(names2023).concat(Array.from(names2024)).concat(Array.from(names2025));
+const allNames = new Set(allNamesArr);
+const threeYearVets = Array.from(allNames).filter((n) => names2023.has(n) && names2024.has(n) && names2025.has(n));
+const uniqueTotal = allNames.size;
 
 // Labor efficiency metrics
 const revenue25 = yearlyData[2].foodSales;
-const revenuePerFte = revenue25 / fteCount;
+const revenuePerFte = revenue25 / stats25.ftes;
 const revenuePerLaborDollar = revenue25 / totalPayroll;
 const salesPerHour = revenue25 / openHoursPerYear;
 const payrollPerHour = totalPayroll / openHoursPerYear;
@@ -183,6 +205,7 @@ const catBadge: Record<CostCategory, string> = {
 
 export default function ExpensesPage() {
   const [selectedScenario, setSelectedScenario] = useState(0);
+  const [payrollYear, setPayrollYear] = useState(2);
 
   return (
     <div className="space-y-8 max-w-[1400px]">
@@ -458,8 +481,7 @@ export default function ExpensesPage() {
           Labor Cost Deep Dive
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Payroll is the single biggest expense. Here&apos;s how it stacks up against revenue,
-          industry benchmarks, and efficiency metrics.
+          Payroll is the single biggest expense. Real data from the payroll system for all 3 years.
         </p>
 
         {/* Cents per dollar chart */}
@@ -499,13 +521,124 @@ export default function ExpensesPage() {
           </LineChart>
         </ResponsiveContainer>
 
-        {/* Efficiency metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        {/* Payroll YoY Summary Table */}
+        <h3 className="text-base font-bold text-slate-900 mt-8 mb-3">
+          Payroll Year over Year
+        </h3>
+        <div className="overflow-x-auto mb-6">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b-2 border-slate-200">
+                <th className="text-left py-3 px-3 font-semibold text-slate-600">Metric</th>
+                {[2023, 2024, 2025].map((y) => (
+                  <th key={y} className="text-right py-3 px-3 font-semibold text-slate-600">{y}</th>
+                ))}
+                <th className="text-right py-3 px-3 font-semibold text-slate-600">Trend</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                {
+                  label: "Headcount",
+                  values: payrollStats.map((s) => s.headcount.toString()),
+                  trend: `${payrollStats[0].headcount} → ${payrollStats[1].headcount} → ${payrollStats[2].headcount}`,
+                  trendColor: "text-slate-600",
+                },
+                {
+                  label: "FTEs (hrs / 2,080)",
+                  values: payrollStats.map((s) => s.ftes.toFixed(1)),
+                  trend: (() => {
+                    const d = payrollStats[2].ftes - payrollStats[0].ftes;
+                    return `${d >= 0 ? "+" : ""}${d.toFixed(1)} since 2023`;
+                  })(),
+                  trendColor: "text-slate-600",
+                },
+                {
+                  label: "P&L Payroll Cost",
+                  values: [0, 1, 2].map((i) => formatCurrency(yearlyData[i].payroll)),
+                  trend: `${calcYoYChange(yearlyData[2].payroll, yearlyData[1].payroll) >= 0 ? "+" : ""}${calcYoYChange(yearlyData[2].payroll, yearlyData[1].payroll).toFixed(1)}% YoY`,
+                  trendColor: calcYoYChange(yearlyData[2].payroll, yearlyData[1].payroll) > 0 ? "text-red-600" : "text-green-600",
+                },
+                {
+                  label: "Gross Pay (payroll sys)",
+                  values: payrollStats.map((s) => formatCurrency(Math.round(s.gross))),
+                  trend: "",
+                  trendColor: "text-slate-400",
+                },
+                {
+                  label: "Employer Taxes",
+                  values: payrollStats.map((s) => formatCurrency(Math.round(s.taxes))),
+                  trend: "",
+                  trendColor: "text-slate-400",
+                },
+                {
+                  label: "Avg Hourly Rate (wtd)",
+                  values: payrollStats.map((s) => `$${s.weightedAvgRate.toFixed(2)}`),
+                  trend: `+$${(payrollStats[2].weightedAvgRate - payrollStats[0].weightedAvgRate).toFixed(2)} since 2023`,
+                  trendColor: "text-amber-600",
+                },
+                {
+                  label: "Ontario Min Wage",
+                  values: ontarioMinWages.map((w) => `$${w.toFixed(2)}`),
+                  trend: `+$${(ontarioMinWages[2] - ontarioMinWages[0]).toFixed(2)} (+${(((ontarioMinWages[2] - ontarioMinWages[0]) / ontarioMinWages[0]) * 100).toFixed(0)}%)`,
+                  trendColor: "text-amber-600",
+                },
+                {
+                  label: "Core Staff (500+ hrs)",
+                  values: payrollStats.map((s) => s.core.length.toString()),
+                  trend: "",
+                  trendColor: "text-slate-400",
+                },
+                {
+                  label: "Trial Staff (<100 hrs)",
+                  values: payrollStats.map((s) => s.trial.length.toString()),
+                  trend: "",
+                  trendColor: "text-slate-400",
+                },
+              ].map((row) => (
+                <tr key={row.label} className="border-b border-slate-100 hover:bg-slate-50/50">
+                  <td className="py-2 px-3 font-medium text-slate-700">{row.label}</td>
+                  {row.values.map((v, vi) => (
+                    <td key={vi} className="py-2 px-3 text-right tabular-nums text-slate-700">{v}</td>
+                  ))}
+                  <td className={cn("py-2 px-3 text-right text-xs font-semibold", row.trendColor)}>
+                    {row.trend}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Retention & Turnover */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="p-4 rounded-lg border bg-red-50 border-red-200">
+            <p className="text-xs text-slate-500 font-medium">Total Unique Employees (3 yr)</p>
+            <p className="text-xl font-black text-red-700 mt-1">{uniqueTotal} people</p>
+            <p className="text-xs text-slate-500 mt-1">Only {threeYearVets.length} stayed all 3 years</p>
+          </div>
+          <div className="p-4 rounded-lg border bg-teal/5 border-teal/20">
+            <p className="text-xs text-slate-500 font-medium">3-Year Veterans</p>
+            <p className="text-xl font-black text-teal mt-1">{threeYearVets.length} of {uniqueTotal}</p>
+            <p className="text-xs text-slate-500 mt-1">{threeYearVets.map((n) => n.split(" ")[0]).join(", ")}</p>
+          </div>
+          <div className="p-4 rounded-lg border bg-amber-50 border-amber-200">
+            <p className="text-xs text-slate-500 font-medium">Min Wage Increase (3 yr)</p>
+            <p className="text-xl font-black text-amber-700 mt-1">+${(ontarioMinWages[2] - ontarioMinWages[0]).toFixed(2)}/hr</p>
+            <p className="text-xs text-slate-500 mt-1">${ontarioMinWages[0].toFixed(2)} → ${ontarioMinWages[2].toFixed(2)} = +{(((ontarioMinWages[2] - ontarioMinWages[0]) / ontarioMinWages[0]) * 100).toFixed(0)}%</p>
+          </div>
+        </div>
+
+        {/* Efficiency metrics (2025) */}
+        <h3 className="text-base font-bold text-slate-900 mt-4 mb-3">
+          Efficiency Metrics (2025)
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             {
               label: "Revenue per FTE",
               value: formatCurrency(Math.round(revenuePerFte)),
-              benchmark: `${fteCount.toFixed(1)} FTEs from ${wageData.length} people`,
+              benchmark: `${stats25.ftes.toFixed(1)} FTEs from ${wageData.length} people`,
               status: revenuePerFte >= 70000 ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200",
               verdict: revenuePerFte >= 70000 ? "On track" : "Low for restaurant",
               verdictColor: revenuePerFte >= 70000 ? "text-green-600" : "text-red-600",
@@ -544,48 +677,76 @@ export default function ExpensesPage() {
           ))}
         </div>
 
-        {/* Staffing tiers */}
-        <h3 className="text-base font-bold text-slate-900 mt-8 mb-3">
-          Staffing by Tier (2025)
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          {[
-            { label: "GM / Salaried", total: mgmtTotal, count: mgmt.length, hours: mgmt.reduce((s, w) => s + w.hoursWorked, 0), color: "bg-blue-50 border-blue-200" },
-            { label: "Core (500+ hrs)", total: coreTotal, count: coreStaff.length, hours: coreStaff.reduce((s, w) => s + w.hoursWorked, 0), color: "bg-teal/5 border-teal/20" },
-            { label: "Casual (100-499 hrs)", total: casualTotal, count: casualStaff.length, hours: casualStaff.reduce((s, w) => s + w.hoursWorked, 0), color: "bg-amber-50 border-amber-200" },
-            { label: "Trial (<100 hrs)", total: trialTotal, count: trialStaff.length, hours: trialStaff.reduce((s, w) => s + w.hoursWorked, 0), color: "bg-slate-50 border-slate-200" },
-          ].map((g) => (
-            <div key={g.label} className={cn("p-3 rounded-lg border text-center", g.color)}>
-              <p className="text-xs text-slate-500 font-medium">{g.label}</p>
-              <p className="text-lg font-bold text-slate-900 tabular-nums">{formatCurrency(g.total, true)}</p>
-              <p className="text-xs text-slate-400">{g.count} {g.count === 1 ? "person" : "people"} &middot; {Math.round(g.hours).toLocaleString()} hrs</p>
-            </div>
-          ))}
+        {/* Year-selectable payroll detail */}
+        <div className="flex items-center justify-between mt-8 mb-3">
+          <h3 className="text-base font-bold text-slate-900">
+            Full Payroll Detail — {2023 + payrollYear}
+          </h3>
+          <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+            {[2023, 2024, 2025].map((y, i) => (
+              <button
+                key={y}
+                onClick={() => setPayrollYear(i)}
+                className={cn(
+                  "px-3 py-1.5 rounded-md text-xs font-bold transition-all",
+                  payrollYear === i
+                    ? "bg-white text-teal shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                )}
+              >
+                {y}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Rate analysis insight */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="p-4 rounded-lg border bg-amber-50 border-amber-200">
-            <p className="text-xs text-slate-500 font-medium">At Minimum Wage ($17.20)</p>
-            <p className="text-xl font-black text-amber-700 mt-1">{atMinWage.length} of {hourlyStaff.length}</p>
-            <p className="text-xs text-slate-500 mt-1">No room to attract or retain talent</p>
-          </div>
-          <div className="p-4 rounded-lg border bg-slate-50 border-slate-200">
-            <p className="text-xs text-slate-500 font-medium">Above Minimum ($17.60–$20)</p>
-            <p className="text-xl font-black text-slate-900 mt-1">{aboveMinWage.length} of {hourlyStaff.length}</p>
-            <p className="text-xs text-slate-500 mt-1">$0.40–$2.80 above floor</p>
-          </div>
-          <div className="p-4 rounded-lg border bg-red-50 border-red-200">
-            <p className="text-xs text-slate-500 font-medium">Turnover Signal</p>
-            <p className="text-xl font-black text-red-700 mt-1">{trialStaff.length} trials, {casualStaff.length} casual</p>
-            <p className="text-xs text-slate-500 mt-1">{trialStaff.length + casualStaff.length} of 15 didn&apos;t become core staff</p>
-          </div>
-        </div>
+        {/* Staffing tier cards for selected year */}
+        {(() => {
+          const s = payrollStats[payrollYear];
+          return (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              {[
+                { label: "GM / Salaried", total: s.mgmtTotal, count: s.mgmt.length, hours: s.mgmt.reduce((a: number, w: WageEmployee) => a + w.hoursWorked, 0), color: "bg-blue-50 border-blue-200" },
+                { label: "Core (500+ hrs)", total: s.coreTotal, count: s.core.length, hours: s.core.reduce((a: number, w: WageEmployee) => a + w.hoursWorked, 0), color: "bg-teal/5 border-teal/20" },
+                { label: "Casual (100-499 hrs)", total: s.casualTotal, count: s.casual.length, hours: s.casual.reduce((a: number, w: WageEmployee) => a + w.hoursWorked, 0), color: "bg-amber-50 border-amber-200" },
+                { label: "Trial (<100 hrs)", total: s.trialTotal, count: s.trial.length, hours: s.trial.reduce((a: number, w: WageEmployee) => a + w.hoursWorked, 0), color: "bg-slate-50 border-slate-200" },
+              ].map((g) => (
+                <div key={g.label} className={cn("p-3 rounded-lg border text-center", g.color)}>
+                  <p className="text-xs text-slate-500 font-medium">{g.label}</p>
+                  <p className="text-lg font-bold text-slate-900 tabular-nums">{formatCurrency(g.total, true)}</p>
+                  <p className="text-xs text-slate-400">{g.count} {g.count === 1 ? "person" : "people"} &middot; {Math.round(g.hours).toLocaleString()} hrs</p>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
+        {/* Rate analysis for selected year */}
+        {(() => {
+          const s = payrollStats[payrollYear];
+          const yearLabel = 2023 + payrollYear;
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="p-4 rounded-lg border bg-amber-50 border-amber-200">
+                <p className="text-xs text-slate-500 font-medium">At Min Wage (${s.minWage.toFixed(2)})</p>
+                <p className="text-xl font-black text-amber-700 mt-1">{s.atMin.length} of {s.hourly.length}</p>
+                <p className="text-xs text-slate-500 mt-1">Ontario minimum in {yearLabel}</p>
+              </div>
+              <div className="p-4 rounded-lg border bg-slate-50 border-slate-200">
+                <p className="text-xs text-slate-500 font-medium">Above Minimum</p>
+                <p className="text-xl font-black text-slate-900 mt-1">{s.aboveMin.length} of {s.hourly.length}</p>
+                <p className="text-xs text-slate-500 mt-1">Avg: ${s.weightedAvgRate.toFixed(2)}/hr (weighted)</p>
+              </div>
+              <div className="p-4 rounded-lg border bg-red-50 border-red-200">
+                <p className="text-xs text-slate-500 font-medium">Turnover Signal</p>
+                <p className="text-xl font-black text-red-700 mt-1">{s.trial.length} trials, {s.casual.length} casual</p>
+                <p className="text-xs text-slate-500 mt-1">{s.trial.length + s.casual.length} of {s.headcount} didn&apos;t become core</p>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Payroll detail table */}
-        <h3 className="text-base font-bold text-slate-900 mt-4 mb-3">
-          Full Payroll Detail — Real Data from Payroll System
-        </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -601,10 +762,10 @@ export default function ExpensesPage() {
               </tr>
             </thead>
             <tbody>
-              {wageData.map((emp) => {
+              {wageDataByYear[payrollYear].map((emp) => {
                 const fte = emp.hoursWorked / openHoursPerYear;
                 const totalCost = emp.grossPay + emp.employerTaxes;
-                const isMinWage = emp.hourlyRate === ontarioMinWage;
+                const isMinWage = emp.hourlyRate === ontarioMinWages[payrollYear];
                 return (
                   <tr key={emp.name} className="border-b border-slate-100 hover:bg-slate-50/50">
                     <td className="py-2.5 px-3 font-medium text-slate-900">{emp.name}</td>
@@ -644,30 +805,36 @@ export default function ExpensesPage() {
                   </tr>
                 );
               })}
-              <tr className="border-t-2 border-slate-300 bg-slate-50/70 font-bold">
-                <td className="py-3 px-3 text-slate-900" colSpan={3}>Total</td>
-                <td className="py-3 px-3 text-right tabular-nums text-slate-900">
-                  {Math.round(totalHoursAll).toLocaleString()}
-                </td>
-                <td className="py-3 px-3 text-right tabular-nums text-slate-900">
-                  {fteCount.toFixed(2)}
-                </td>
-                <td className="py-3 px-3 text-right tabular-nums text-slate-900">
-                  {formatCurrency(Math.round(totalGrossPay))}
-                </td>
-                <td className="py-3 px-3 text-right tabular-nums text-slate-400">
-                  {formatCurrency(Math.round(totalEmployerTaxes))}
-                </td>
-                <td className="py-3 px-3 text-right tabular-nums text-slate-900">
-                  {formatCurrency(totalPayroll)}
-                </td>
-              </tr>
+              {(() => {
+                const s = payrollStats[payrollYear];
+                return (
+                  <tr className="border-t-2 border-slate-300 bg-slate-50/70 font-bold">
+                    <td className="py-3 px-3 text-slate-900" colSpan={3}>Total</td>
+                    <td className="py-3 px-3 text-right tabular-nums text-slate-900">
+                      {Math.round(s.totalHours).toLocaleString()}
+                    </td>
+                    <td className="py-3 px-3 text-right tabular-nums text-slate-900">
+                      {s.ftes.toFixed(2)}
+                    </td>
+                    <td className="py-3 px-3 text-right tabular-nums text-slate-900">
+                      {formatCurrency(Math.round(s.gross))}
+                    </td>
+                    <td className="py-3 px-3 text-right tabular-nums text-slate-400">
+                      {formatCurrency(Math.round(s.taxes))}
+                    </td>
+                    <td className="py-3 px-3 text-right tabular-nums text-slate-900">
+                      {formatCurrency(yearlyData[payrollYear].payroll)}
+                    </td>
+                  </tr>
+                );
+              })()}
             </tbody>
           </table>
         </div>
         <p className="text-xs text-slate-400 mt-3">
-          Gross + Employer CPP/EI + VacPay = ${Math.round(totalGrossPay + totalEmployerTaxes + 271.61).toLocaleString()} — matches P&amp;L payroll line exactly.
-          FTE = hours / 2,080. Ontario min wage: $17.20/hr (2025).
+          Source: Payroll system (Jan–Dec {2023 + payrollYear}). FTE = hours / 2,080.
+          Ontario min wage: ${ontarioMinWages[payrollYear].toFixed(2)}/hr ({2023 + payrollYear}).
+          {payrollYear === 1 && " ~$1.5K gap vs P&L likely from EHT/WSIB not shown in payroll report."}
         </p>
       </div>
 
