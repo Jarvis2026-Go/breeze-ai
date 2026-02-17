@@ -21,15 +21,15 @@ import {
 import { ChevronRight, ChevronDown } from "lucide-react";
 
 const d25 = yearlyData[2];
-const revenue2025 = d25.foodSales;
+const revenue2025 = pnlLineItems[0].values[2]; // Food Sales 2025 — exact from books
 
 // Waterfall: show the journey from sales to what's left
 const waterfallData = [
   { name: "Sales", value: d25.foodSales, fill: "#2EC4B6", label: "What came in" },
   { name: "Food & Supplies", value: d25.totalCOGS, fill: "#FF6B6B", label: "Cost of ingredients" },
   { name: "Staff Wages", value: d25.payroll, fill: "#FF6B6B", label: "Paying the team" },
-  { name: "Rent", value: 36000, fill: "#6366F1", label: "Monthly rent" },
-  { name: "Other Bills", value: d25.totalExpenses - d25.totalCOGS - d25.payroll - 36000, fill: "#F59E0B", label: "Insurance, utilities, etc." },
+  { name: "Rent", value: 35953, fill: "#6366F1", label: "Monthly rent" },
+  { name: "Other Bills", value: d25.totalExpenses - d25.totalCOGS - d25.payroll - 35953, fill: "#F59E0B", label: "Insurance, utilities, etc." },
   { name: "Tips & Subsidies", value: d25.otherIncome, fill: "#22C55E", label: "Extra income received" },
   { name: "What's Left", value: d25.netIncome, fill: d25.netIncome >= 0 ? "#22C55E" : "#EF4444", label: "Bottom line" },
 ];
@@ -47,7 +47,6 @@ function getStatus(item: typeof pnlLineItems[number]): { label: string; color: s
 
   const pctOfSales = (item.values[2] / revenue2025) * 100;
 
-  // Parse industry median — take the midpoint of ranges like "30-35%"
   const cleaned = item.industryPctMedian.replace(/[~%]/g, "");
   let median: number;
   if (cleaned.includes("-")) {
@@ -76,52 +75,57 @@ function getStatus(item: typeof pnlLineItems[number]): { label: string; color: s
   }
 }
 
-// Benchmark gap cards
+// Benchmark gap cards — using real GL numbers
+const payrollPct = (155137.09 / revenue2025) * 100;
+const rentPct = (35953.44 / revenue2025) * 100;
+const netPct = (-7368.87 / revenue2025) * 100;
+const cogsPct = (74148.14 / revenue2025) * 100;
+
 const benchmarkGaps = [
   {
     title: "Payroll",
-    actual: ((155137 / revenue2025) * 100).toFixed(1),
+    actual: payrollPct.toFixed(1),
     industry: "30-35%",
-    gap: "~14% over",
-    description: "Staff costs eat 48.6\u00A2 of every dollar — industry norm is about 33\u00A2. This is the single biggest drag on profitability.",
+    gap: `~${(payrollPct - 32.5).toFixed(0)}% over`,
+    description: `Staff costs eat ${payrollPct.toFixed(1)}\u00A2 of every dollar — industry norm is about 33\u00A2. This is the single biggest drag on profitability.`,
     color: "border-red-200 bg-red-50",
     textColor: "text-red-700",
   },
   {
     title: "Rent",
-    actual: ((36000 / revenue2025) * 100).toFixed(1),
+    actual: rentPct.toFixed(1),
     industry: "6-10%",
-    gap: "~3% over",
-    description: "Rent is 11.3% of revenue vs. the 8% median. Revenue needs to grow or a lease renegotiation is needed.",
+    gap: `~${(rentPct - 8).toFixed(0)}% over`,
+    description: `Rent is ${rentPct.toFixed(1)}% of revenue vs. the 8% median. Revenue needs to grow or a lease renegotiation is needed.`,
     color: "border-amber-200 bg-amber-50",
     textColor: "text-amber-700",
   },
   {
     title: "Net Margin",
-    actual: ((-7369 / revenue2025) * 100).toFixed(1),
+    actual: netPct.toFixed(1),
     industry: "3-5%",
-    gap: "~6% below",
-    description: "Typical restaurants keep 3-5% profit. CHOG is at -2.3% — a swing of about $17K/year needed to reach industry average.",
+    gap: `~${Math.abs(netPct - 4).toFixed(0)}% below`,
+    description: `Typical restaurants keep 3-5% profit. CHOG is at ${netPct.toFixed(1)}% — a swing of about $${Math.round(Math.abs(netPct - 4) / 100 * revenue2025 / 1000)}K/year needed to reach industry average.`,
     color: "border-red-200 bg-red-50",
     textColor: "text-red-700",
   },
   {
     title: "Food Costs (COGS)",
-    actual: ((74148 / revenue2025) * 100).toFixed(1),
+    actual: cogsPct.toFixed(1),
     industry: "30-33%",
-    gap: "~8% under",
-    description: "At 23.2%, food costs are well below the 32% median — excellent purchasing and waste management.",
+    gap: `~${Math.abs(cogsPct - 31.5).toFixed(0)}% under`,
+    description: `At ${cogsPct.toFixed(1)}%, food costs are well below the 32% median — excellent purchasing and waste management.`,
     color: "border-green-200 bg-green-50",
     textColor: "text-green-700",
   },
 ];
 
 export default function PnLPage() {
-  // All groups start expanded so the user sees full detail by default
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
     cogs: true,
     opex: true,
-    other: true,
+    otherinc: true,
+    otherexp: true,
   });
 
   const toggle = (group: string) =>
@@ -134,7 +138,7 @@ export default function PnLPage() {
         <h1 className="text-4xl font-black tracking-tight text-slate-900">Profit & Loss</h1>
         <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-          Full account detail for 2023–2025, with Canadian restaurant industry benchmarks. Click any subtotal to expand or collapse.
+          Every GL account from your books for 2023–2025, with Canadian restaurant industry benchmarks. Click any subtotal to expand or collapse.
         </p>
       </div>
 
@@ -142,8 +146,7 @@ export default function PnLPage() {
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">Complete Profit & Loss Statement</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Every account line, with industry benchmarks for a Canadian full-service restaurant.
-          Click a subtotal row to show or hide the accounts underneath.
+          Pulled directly from QuickBooks. Click any bold subtotal row to show or hide the GL accounts underneath.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -208,7 +211,7 @@ export default function PnLPage() {
                           val < 0 && "text-red-600"
                         )}
                       >
-                        {formatCurrency(val)}
+                        {formatCurrency(Math.round(val))}
                       </td>
                     ))}
                     <td className={cn(
@@ -237,7 +240,7 @@ export default function PnLPage() {
           </table>
         </div>
         <p className="text-xs text-slate-400 mt-3">
-          All sub-accounts sum exactly to their subtotal. &quot;Taxes, Depreciation & Interest&quot; reconciles the gap between Operating Income + Other Income and the final Net Income from the books.
+          Source: QuickBooks P&L export (Jan–Dec for each year). All GL accounts shown — sub-accounts sum exactly to their subtotal. Display rounds to whole dollars.
         </p>
       </div>
 

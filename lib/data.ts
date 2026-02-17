@@ -42,43 +42,45 @@ export const yearlyData: YearlyFinancial[] = [
   },
 ];
 
+// Real GL data from QuickBooks P&L export
 export const cogsBreakdown: COGSBreakdown[] = [
-  { year: 2023, alcohol: 18250, foodPurchases: 82340, restaurantSupplies: 17220, total: 117810 },
-  { year: 2024, alcohol: 14120, foodPurchases: 66580, restaurantSupplies: 15214, total: 95914 },
-  { year: 2025, alcohol: 10890, foodPurchases: 49250, restaurantSupplies: 14008, total: 74148 },
+  { year: 2023, alcohol: 0, foodPurchases: 114288.10, restaurantSupplies: 3522.38, total: 117810.48 },
+  { year: 2024, alcohol: 2021.83, foodPurchases: 90888.47, restaurantSupplies: 3003.67, total: 95913.97 },
+  { year: 2025, alcohol: 734.41, foodPurchases: 72491.60, restaurantSupplies: 922.13, total: 74148.14 },
 ];
 
+// Real GL data grouped into categories — totals tie to QuickBooks P&L
 export const expenseCategories2025: ExpenseCategory[] = [
   { name: "Payroll", amount: 155137, color: "#2EC4B6" },
-  { name: "Tips Paid", amount: 35420, color: "#FF6B6B" },
-  { name: "Rent", amount: 36000, color: "#6366F1" },
-  { name: "Insurance", amount: 18500, color: "#F59E0B" },
-  { name: "Utilities", amount: 14200, color: "#8B5CF6" },
-  { name: "Marketing", amount: 8500, color: "#EC4899" },
-  { name: "Repairs & Maintenance", amount: 12000, color: "#10B981" },
-  { name: "Other", amount: 16856, color: "#94A3B8" },
+  { name: "Tips Paid", amount: 43194, color: "#FF6B6B" },
+  { name: "Rent", amount: 35953, color: "#6366F1" },
+  { name: "Payment Processing", amount: 19775, color: "#F59E0B" },
+  { name: "Insurance", amount: 11946, color: "#8B5CF6" },
+  { name: "Utilities", amount: 11110, color: "#EC4899" },
+  { name: "Office Supplies", amount: 5256, color: "#10B981" },
+  { name: "Other Operating", amount: 14242, color: "#94A3B8" },
 ];
 
 export const expenseCategories2024: ExpenseCategory[] = [
   { name: "Payroll", amount: 147944, color: "#2EC4B6" },
-  { name: "Tips Paid", amount: 38200, color: "#FF6B6B" },
-  { name: "Rent", amount: 36000, color: "#6366F1" },
-  { name: "Insurance", amount: 17800, color: "#F59E0B" },
-  { name: "Utilities", amount: 13800, color: "#8B5CF6" },
-  { name: "Marketing", amount: 9200, color: "#EC4899" },
-  { name: "Repairs & Maintenance", amount: 11500, color: "#10B981" },
-  { name: "Other", amount: 17026, color: "#94A3B8" },
+  { name: "Tips Paid", amount: 47624, color: "#FF6B6B" },
+  { name: "Rent", amount: 34344, color: "#6366F1" },
+  { name: "Payment Processing", amount: 20572, color: "#F59E0B" },
+  { name: "Insurance", amount: 5385, color: "#8B5CF6" },
+  { name: "Utilities", amount: 10437, color: "#EC4899" },
+  { name: "Office Supplies", amount: 5874, color: "#10B981" },
+  { name: "Other Operating", amount: 19290, color: "#94A3B8" },
 ];
 
 export const expenseCategories2023: ExpenseCategory[] = [
   { name: "Payroll", amount: 153551, color: "#2EC4B6" },
-  { name: "Tips Paid", amount: 32400, color: "#FF6B6B" },
-  { name: "Rent", amount: 36000, color: "#6366F1" },
-  { name: "Insurance", amount: 17200, color: "#F59E0B" },
-  { name: "Utilities", amount: 13500, color: "#8B5CF6" },
-  { name: "Marketing", amount: 7800, color: "#EC4899" },
-  { name: "Repairs & Maintenance", amount: 10200, color: "#10B981" },
-  { name: "Other", amount: 14812, color: "#94A3B8" },
+  { name: "Tips Paid", amount: 24458, color: "#FF6B6B" },
+  { name: "Rent", amount: 39279, color: "#6366F1" },
+  { name: "Payment Processing", amount: 3698, color: "#F59E0B" },
+  { name: "Insurance", amount: 4599, color: "#8B5CF6" },
+  { name: "Utilities", amount: 11739, color: "#EC4899" },
+  { name: "Office Supplies", amount: 5187, color: "#10B981" },
+  { name: "Other Operating", amount: 42952, color: "#94A3B8" },
 ];
 
 export const wageData: WageEmployee[] = [
@@ -258,34 +260,60 @@ export const financialHealthScores: FinancialHealthScore[] = [
   },
 ];
 
-// Net Income reconciliation: netOrdinaryIncome + otherIncome doesn't equal netIncome
-// because the books include taxes/depreciation/interest not broken out above.
-// 2023: 18512 - (-61218 + 82487) = -2757  |  2024: 7569 - (-34874 + 44248) = -1805  |  2025: -7369 - (-51583 + 43191) = 1023
+// Every GL account from the QuickBooks P&L — exact cent values from the books.
+// Display rounds to whole dollars; sub-accounts sum exactly to their subtotal.
 export const pnlLineItems: PnLLineItem[] = [
-  // Revenue
-  { account: "Food & Beverage Sales", values: [342055, 352510, 319177], industryPctMedian: "100%", isCost: false, bold: true },
-  // COGS  — click "Total COGS" to expand/collapse
-  { account: "Alcohol", values: [18250, 14120, 10890], industryPctMedian: "~8%", isCost: true, indent: true, group: "cogs" },
-  { account: "Food Purchases", values: [82340, 66580, 49250], industryPctMedian: "~22%", isCost: true, indent: true, group: "cogs" },
-  { account: "Restaurant Supplies", values: [17220, 15214, 14008], industryPctMedian: "~3%", isCost: true, indent: true, group: "cogs" },
-  { account: "Total COGS", values: [117810, 95914, 74148], industryPctMedian: "30-33%", isCost: true, bold: true, separator: true, groupHeader: "cogs" },
-  { account: "Gross Profit", values: [224245, 256596, 245029], industryPctMedian: "67-70%", isCost: false, bold: true, separator: true },
-  // Operating Expenses — click "Total Operating Expenses" to expand/collapse
-  { account: "Payroll", values: [153551, 147944, 155137], industryPctMedian: "30-35%", isCost: true, indent: true, group: "opex" },
-  { account: "Tips Paid Out", values: [32400, 38200, 35420], industryPctMedian: "8-12%", isCost: true, indent: true, group: "opex" },
-  { account: "Rent", values: [36000, 36000, 36000], industryPctMedian: "6-10%", isCost: true, indent: true, group: "opex" },
-  { account: "Insurance", values: [17200, 17800, 18500], industryPctMedian: "2-4%", isCost: true, indent: true, group: "opex" },
-  { account: "Utilities", values: [13500, 13800, 14200], industryPctMedian: "3-5%", isCost: true, indent: true, group: "opex" },
-  { account: "Marketing", values: [7800, 9200, 8500], industryPctMedian: "2-4%", isCost: true, indent: true, group: "opex" },
-  { account: "Repairs & Maintenance", values: [10200, 11500, 12000], industryPctMedian: "1.5-3%", isCost: true, indent: true, group: "opex" },
-  { account: "Other Operating", values: [14812, 17026, 16856], industryPctMedian: "3-6%", isCost: true, indent: true, group: "opex" },
-  { account: "Total Operating Expenses", values: [285463, 291470, 296613], industryPctMedian: "85-93%", isCost: true, bold: true, separator: true, groupHeader: "opex" },
-  { account: "Operating Income (Loss)", values: [-61218, -34874, -51583], industryPctMedian: "3-7%", isCost: false, bold: true, separator: true },
-  // Other Income / Expenses — click "Total Other Income" to expand/collapse
-  { account: "Tips Received & Subsidies", values: [82487, 44248, 43191], industryPctMedian: "N/A", isCost: false, indent: true, group: "other" },
-  { account: "Taxes, Depreciation & Interest", values: [-2757, -1805, 1023], industryPctMedian: "N/A", isCost: true, indent: true, group: "other" },
-  { account: "Total Other Income (Net)", values: [79730, 42443, 44214], industryPctMedian: "N/A", isCost: false, bold: true, separator: true, groupHeader: "other" },
-  { account: "Net Income", values: [18512, 7569, -7369], industryPctMedian: "3-5%", isCost: false, bold: true, separator: true },
+  // ── Revenue ──
+  { account: "Food Sales", values: [342055.29, 352510.25, 319177.32], industryPctMedian: "100%", isCost: false, bold: true },
+
+  // ── Cost of Goods Sold ──
+  { account: "Alcohol Purchase", values: [0, 2021.83, 734.41], isCost: true, indent: true, group: "cogs" },
+  { account: "Food Purchases", values: [114288.10, 90888.47, 72491.60], isCost: true, indent: true, group: "cogs" },
+  { account: "Restaurant Supplies", values: [3522.38, 3003.67, 922.13], isCost: true, indent: true, group: "cogs" },
+  { account: "Total COGS", values: [117810.48, 95913.97, 74148.14], industryPctMedian: "30-33%", isCost: true, bold: true, separator: true, groupHeader: "cogs" },
+
+  { account: "Gross Profit", values: [224244.81, 256596.28, 245029.18], industryPctMedian: "67-70%", isCost: false, bold: true, separator: true },
+
+  // ── Expense (all 24 GL accounts) ──
+  { account: "Advertising and Promotion", values: [952.13, 9.60, 0], isCost: true, indent: true, group: "opex" },
+  { account: "Automobile Expenses", values: [3215.81, 2331.47, 924.59], isCost: true, indent: true, group: "opex" },
+  { account: "Bank Service Charges", values: [801.95, 2056.01, 2739.32], isCost: true, indent: true, group: "opex" },
+  { account: "Business Licenses and Permits", values: [0, 4627.38, 0], isCost: true, indent: true, group: "opex" },
+  { account: "Cleaning Expenses", values: [18484.50, 0, 1239.50], isCost: true, indent: true, group: "opex" },
+  { account: "Computer and Internet Expenses", values: [0, 0, 1500], isCost: true, indent: true, group: "opex" },
+  { account: "Depreciation Expense", values: [2578, 1805, 1263], isCost: true, indent: true, group: "opex" },
+  { account: "Employee Benefits", values: [0, 322.48, 0], isCost: true, indent: true, group: "opex" },
+  { account: "Equipment Rental", values: [5057.98, 4241.02, 2730.15], isCost: true, indent: true, group: "opex" },
+  { account: "Fines and Penalties", values: [1277.43, 0, 0], isCost: true, indent: true, group: "opex" },
+  { account: "Insurance Expense", values: [4598.55, 5385.36, 11945.56], isCost: true, indent: true, group: "opex" },
+  { account: "Meals & Entertainment", values: [92.46, 251.49, 0], isCost: true, indent: true, group: "opex" },
+  { account: "Membership Fees", values: [0, 730.21, 275], isCost: true, indent: true, group: "opex" },
+  { account: "Merchant Account Fees", values: [2896.47, 18515.50, 17036.15], isCost: true, indent: true, group: "opex" },
+  { account: "Office Supplies", values: [5187.34, 5874.17, 5255.92], isCost: true, indent: true, group: "opex" },
+  { account: "Parking", values: [0, 307.35, 0], isCost: true, indent: true, group: "opex" },
+  { account: "Payroll Expenses", values: [153551.37, 147944.26, 155137.09], industryPctMedian: "30-35%", isCost: true, indent: true, group: "opex" },
+  { account: "Professional Fees", values: [8051.25, 2400, 4260], isCost: true, indent: true, group: "opex" },
+  { account: "Rent Expense", values: [39279.27, 34344.24, 35953.44], industryPctMedian: "6-10%", isCost: true, indent: true, group: "opex" },
+  { account: "Repairs and Maintenance", values: [2300.85, 1339.34, 2049.21], isCost: true, indent: true, group: "opex" },
+  { account: "Telephone Expense", values: [850, 755.22, 0], isCost: true, indent: true, group: "opex" },
+  { account: "Tips Paid to Employee", values: [24458.10, 47623.98, 43193.75], industryPctMedian: "8-12%", isCost: true, indent: true, group: "opex" },
+  { account: "Utilities", values: [11739.42, 10436.74, 11109.96], industryPctMedian: "3-5%", isCost: true, indent: true, group: "opex" },
+  { account: "Waste Management", values: [90, 169.14, 0], isCost: true, indent: true, group: "opex" },
+  { account: "Total Expense", values: [285462.88, 291469.96, 296612.64], industryPctMedian: "85-93%", isCost: true, bold: true, separator: true, groupHeader: "opex" },
+
+  { account: "Net Ordinary Income", values: [-61218.07, -34873.68, -51583.46], industryPctMedian: "3-7%", isCost: false, bold: true, separator: true },
+
+  // ── Other Income ──
+  { account: "Other Income-Subsidies & Grants", values: [20000, 0, 0], isCost: false, indent: true, group: "otherinc" },
+  { account: "Other Income-Tips", values: [62487.01, 44247.70, 43190.76], isCost: false, indent: true, group: "otherinc" },
+  { account: "Total Other Income", values: [82487.01, 44247.70, 43190.76], isCost: false, bold: true, separator: true, groupHeader: "otherinc" },
+
+  // ── Other Expense ──
+  { account: "Income Tax", values: [2757, 1805, -1023.83], isCost: true, indent: true, group: "otherexp" },
+  { account: "Total Other Expense", values: [2757, 1805, -1023.83], isCost: true, bold: true, separator: true, groupHeader: "otherexp" },
+
+  { account: "Net Other Income", values: [79730.01, 42442.70, 44214.59], isCost: false, bold: true, separator: true },
+  { account: "Net Income", values: [18511.94, 7569.02, -7368.87], industryPctMedian: "3-5%", isCost: false, bold: true, separator: true },
 ];
 
 export const primeCostData: PrimeCostData[] = [
