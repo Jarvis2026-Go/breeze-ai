@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { bsLineItems, cashRunwayData, bsCompositionData } from "@/lib/data";
+import { bsLineItems, cashRunwayData, bsCompositionData, yearlyData } from "@/lib/data";
 import { formatCurrency, calcYoYChange } from "@/lib/formatting";
 import {
   XAxis,
@@ -29,6 +29,7 @@ import {
   ShieldAlert,
   BadgeDollarSign,
   ClipboardList,
+  ArrowRight,
 } from "lucide-react";
 
 // KPI summary values
@@ -46,6 +47,31 @@ const sectionBorder: Record<string, string> = {
   liabilities: "border-l-coral",
   equity: "border-l-green-500",
 };
+
+// BS lookups for ratios
+const currentAssets = bsLineItems.find((i) => i.account === "Total Current Assets")!;
+const longTermLoan = bsLineItems.find((i) => i.account === "Long Term Loan")!;
+const netIncomeBs = bsLineItems.find((i) => i.account === "Net Income" && i.section === "equity")!;
+const dividendsBs = bsLineItems.find((i) => i.account === "Dividends Paid")!;
+
+// Financial ratios — computed from real P&L + BS data
+const ratios = [0, 1, 2].map((i) => {
+  const revenue = yearlyData[i].foodSales;
+  const netIncome = yearlyData[i].netIncome;
+  const totalA = totalAssets.values[i];
+  const totalL = totalLiab.values[i];
+  const totalE = totalEquity.values[i];
+  const curAssets = currentAssets.values[i];
+  const curLiab = totalL - longTermLoan.values[i];
+  return {
+    year: 2023 + i,
+    currentRatio: curLiab > 0 ? curAssets / curLiab : 0,
+    roa: (netIncome / totalA) * 100,
+    roe: (netIncome / totalE) * 100,
+    assetTurnover: revenue / totalA,
+    debtToEquity: totalL / totalE,
+  };
+});
 
 // Chart data for cash runway — split into actual + projected lines
 const runwayChartData = cashRunwayData.map((d) => ({
@@ -284,7 +310,200 @@ export default function BalanceSheetPage() {
         </div>
       </div>
 
-      {/* Section 4: Cash Runway Chart */}
+      {/* Section 4: Equity Bridge — How the Owner's Stake Changed */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <h2 className="text-lg font-bold text-slate-900">
+          Equity Bridge — Where the Owner&apos;s Stake Went
+        </h2>
+        <p className="text-sm text-slate-500 mt-1 mb-6">
+          Shows how P&amp;L net income and dividends flow directly into the Balance Sheet equity.
+        </p>
+
+        {/* 2025 Bridge */}
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">2025</p>
+        <div className="flex items-center gap-2 md:gap-3 flex-wrap justify-center mb-6">
+          <div className="p-3 md:p-4 rounded-lg bg-teal/10 border border-teal/20 text-center min-w-[110px]">
+            <p className="text-[10px] text-slate-500">Dec 31, 2024</p>
+            <p className="text-xl font-black text-slate-900 tabular-nums">
+              {formatCurrency(Math.round(totalEquity.values[1]))}
+            </p>
+            <p className="text-[10px] text-slate-400">starting equity</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
+          <div className="p-3 md:p-4 rounded-lg bg-red-50 border border-red-200 text-center min-w-[110px]">
+            <p className="text-[10px] text-slate-500">Net Income</p>
+            <p className="text-xl font-black text-red-600 tabular-nums">
+              {formatCurrency(Math.round(netIncomeBs.values[2]))}
+            </p>
+            <p className="text-[10px] text-slate-400">from P&amp;L</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
+          <div className="p-3 md:p-4 rounded-lg bg-red-50 border border-red-200 text-center min-w-[110px]">
+            <p className="text-[10px] text-slate-500">Dividends</p>
+            <p className="text-xl font-black text-red-600 tabular-nums">
+              {formatCurrency(Math.round(dividendsBs.values[2]))}
+            </p>
+            <p className="text-[10px] text-slate-400">to owner</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
+          <div className="p-3 md:p-4 rounded-lg bg-red-50 border border-red-200 text-center min-w-[110px]">
+            <p className="text-[10px] text-slate-500">Dec 31, 2025</p>
+            <p className="text-xl font-black text-red-600 tabular-nums">
+              {formatCurrency(Math.round(totalEquity.values[2]))}
+            </p>
+            <p className="text-[10px] text-slate-400">ending equity</p>
+          </div>
+        </div>
+
+        {/* 2024 Bridge (comparison) */}
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">2024 (for comparison)</p>
+        <div className="flex items-center gap-2 md:gap-3 flex-wrap justify-center">
+          <div className="p-3 md:p-4 rounded-lg bg-teal/10 border border-teal/20 text-center min-w-[110px]">
+            <p className="text-[10px] text-slate-500">Dec 31, 2023</p>
+            <p className="text-xl font-black text-slate-900 tabular-nums">
+              {formatCurrency(Math.round(totalEquity.values[0]))}
+            </p>
+            <p className="text-[10px] text-slate-400">starting equity</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
+          <div className="p-3 md:p-4 rounded-lg bg-green-50 border border-green-200 text-center min-w-[110px]">
+            <p className="text-[10px] text-slate-500">Net Income</p>
+            <p className="text-xl font-black text-green-600 tabular-nums">
+              +{formatCurrency(Math.round(netIncomeBs.values[1]))}
+            </p>
+            <p className="text-[10px] text-slate-400">from P&amp;L</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
+          <div className="p-3 md:p-4 rounded-lg bg-slate-50 border border-slate-200 text-center min-w-[110px]">
+            <p className="text-[10px] text-slate-500">Dividends</p>
+            <p className="text-xl font-black text-slate-400 tabular-nums">$0</p>
+            <p className="text-[10px] text-slate-400">none taken</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-slate-300 shrink-0" />
+          <div className="p-3 md:p-4 rounded-lg bg-green-50 border border-green-200 text-center min-w-[110px]">
+            <p className="text-[10px] text-slate-500">Dec 31, 2024</p>
+            <p className="text-xl font-black text-green-600 tabular-nums">
+              {formatCurrency(Math.round(totalEquity.values[1]))}
+            </p>
+            <p className="text-[10px] text-slate-400">ending equity</p>
+          </div>
+        </div>
+
+        {/* Callout */}
+        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-800">
+            <strong>The contrast tells the story.</strong> In 2024, equity grew +$7.6K
+            because the business earned a profit and took no dividends. In 2025, the
+            combination of a -$7.4K net loss <em>and</em> a $15K dividend wiped $22.4K
+            from the owner&apos;s stake — a 46% drop in one year.
+          </p>
+        </div>
+      </div>
+
+      {/* Section 5: Financial Ratios — P&L Meets Balance Sheet */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <h2 className="text-lg font-bold text-slate-900">
+          Financial Ratios — P&amp;L Meets Balance Sheet
+        </h2>
+        <p className="text-sm text-slate-500 mt-1 mb-4">
+          These ratios require <em>both</em> statements to calculate — they connect profitability to what the business owns.
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b-2 border-slate-200">
+                <th className="text-left py-3 px-4 font-semibold text-slate-600">Ratio</th>
+                <th className="text-left py-3 px-4 font-semibold text-slate-600">What It Tells You</th>
+                <th className="text-right py-3 px-4 font-semibold text-slate-600">2023</th>
+                <th className="text-right py-3 px-4 font-semibold text-slate-600">2024</th>
+                <th className="text-right py-3 px-4 font-semibold text-slate-600">2025</th>
+                <th className="text-center py-3 px-4 font-semibold text-slate-600">Verdict</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                {
+                  name: "Current Ratio",
+                  desc: "Can you pay your bills?",
+                  values: ratios.map((r) => `${r.currentRatio.toFixed(1)}x`),
+                  status: ratios[2].currentRatio >= 2 ? "OK" : ratios[2].currentRatio >= 1 ? "Watch" : "Danger",
+                  statusColor: ratios[2].currentRatio >= 2 ? "bg-green-100 text-green-700" : ratios[2].currentRatio >= 1 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700",
+                  colors: ratios.map((r) => r.currentRatio >= 2 ? "text-green-600" : r.currentRatio >= 1 ? "text-amber-600" : "text-red-600"),
+                },
+                {
+                  name: "Return on Assets",
+                  desc: "Profit per dollar of assets",
+                  values: ratios.map((r) => `${r.roa.toFixed(1)}%`),
+                  status: ratios[2].roa >= 5 ? "Strong" : ratios[2].roa >= 0 ? "Weak" : "Losing",
+                  statusColor: ratios[2].roa >= 5 ? "bg-green-100 text-green-700" : ratios[2].roa >= 0 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700",
+                  colors: ratios.map((r) => r.roa >= 5 ? "text-green-600" : r.roa >= 0 ? "text-amber-600" : "text-red-600"),
+                },
+                {
+                  name: "Return on Equity",
+                  desc: "Return on owner's investment",
+                  values: ratios.map((r) => `${r.roe.toFixed(1)}%`),
+                  status: ratios[2].roe >= 10 ? "Strong" : ratios[2].roe >= 0 ? "Weak" : "Losing",
+                  statusColor: ratios[2].roe >= 10 ? "bg-green-100 text-green-700" : ratios[2].roe >= 0 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700",
+                  colors: ratios.map((r) => r.roe >= 10 ? "text-green-600" : r.roe >= 0 ? "text-amber-600" : "text-red-600"),
+                },
+                {
+                  name: "Asset Turnover",
+                  desc: "Revenue per $1 of assets",
+                  values: ratios.map((r) => `$${r.assetTurnover.toFixed(2)}`),
+                  status: "Misleading",
+                  statusColor: "bg-amber-100 text-amber-700",
+                  colors: ratios.map(() => "text-slate-700"),
+                },
+                {
+                  name: "Debt-to-Equity",
+                  desc: "Leverage — how much is owed vs. owned",
+                  values: ratios.map((r) => `${r.debtToEquity.toFixed(2)}`),
+                  status: ratios[2].debtToEquity <= 1 ? "Low debt" : ratios[2].debtToEquity <= 2 ? "Moderate" : "High",
+                  statusColor: ratios[2].debtToEquity <= 1 ? "bg-green-100 text-green-700" : ratios[2].debtToEquity <= 2 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700",
+                  colors: ratios.map((r) => r.debtToEquity <= 1 ? "text-green-600" : r.debtToEquity <= 2 ? "text-amber-600" : "text-red-600"),
+                },
+              ].map((row) => (
+                <tr key={row.name} className="border-b border-slate-100 hover:bg-slate-50/50">
+                  <td className="py-2.5 px-4 font-bold text-slate-900">{row.name}</td>
+                  <td className="py-2.5 px-4 text-slate-500 text-xs">{row.desc}</td>
+                  {row.values.map((val, vi) => (
+                    <td key={vi} className={cn("py-2.5 px-4 text-right tabular-nums font-semibold", row.colors[vi])}>
+                      {val}
+                    </td>
+                  ))}
+                  <td className="py-2.5 px-4 text-center">
+                    <span className={cn("inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold", row.statusColor)}>
+                      {row.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Insight cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="p-4 rounded-lg bg-red-50 border border-red-200">
+            <p className="text-sm font-bold text-red-800">ROA & ROE collapsed</p>
+            <p className="text-xs text-red-700 mt-1">
+              Return on Assets went from +18.6% to -16.7%, and Return on Equity
+              from +44.7% to -27.7%. The business is now <em>destroying</em> value
+              on every dollar of assets and equity.
+            </p>
+          </div>
+          <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
+            <p className="text-sm font-bold text-amber-800">Asset Turnover is misleading</p>
+            <p className="text-xs text-amber-700 mt-1">
+              Revenue per $1 of assets <em>rose</em> from $3.43 to $7.21 — but only
+              because assets are evaporating faster than revenue is falling. The business
+              is consuming itself, not getting more efficient.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Section 6: Cash Runway Chart */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">Cash Runway</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
