@@ -81,29 +81,9 @@ const controllable25 = categoryTotals[2].Controllable;
 const controllablePct = ((controllable25 / trueOpex25) * 100).toFixed(0);
 const laborRatio25 = (yearlyData[2].payroll / yearlyData[2].foodSales) * 100;
 
-// Expense trend — real data grouped into 6 categories (tips excluded)
+// Helper to look up a GL account value
 const get = (name: string, i: number) =>
   pnlLineItems.find((item) => item.account === name)!.values[i];
-
-const expenseTrendReal = [0, 1, 2].map((i) => {
-  const payroll = get("Payroll Expenses", i);
-  const rent = get("Rent Expense", i);
-  const payments = get("Merchant Account Fees", i) + get("Bank Service Charges", i);
-  const insurance = get("Insurance Expense", i);
-  const utilities = get("Utilities", i);
-  const tips = get("Tips Paid to Employee", i);
-  const total = get("Total Expense", i);
-  const other = total - tips - payroll - rent - payments - insurance - utilities;
-  return {
-    year: (2023 + i).toString(),
-    Payroll: Math.round(payroll),
-    Rent: Math.round(rent),
-    "Payment Processing": Math.round(payments),
-    Insurance: Math.round(insurance),
-    Utilities: Math.round(utilities),
-    Other: Math.round(other),
-  };
-});
 
 // Payroll as cents per dollar of sales — real data
 const payrollRatioData = yearlyData.map((d) => ({
@@ -427,53 +407,6 @@ export default function ExpensesPage() {
         </p>
       </div>
 
-      {/* Section 4: Expense Trend Chart */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900">
-          Expense Trend — Where the Money Goes
-        </h2>
-        <p className="text-sm text-slate-500 mt-1 mb-4">
-          Real QuickBooks data grouped into 6 categories. Tips excluded (they&apos;re a pass-through).
-        </p>
-        <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={expenseTrendReal} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="year" stroke="#94a3b8" fontSize={13} />
-            <YAxis
-              stroke="#94a3b8"
-              fontSize={12}
-              tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}K`}
-            />
-            <Tooltip
-              formatter={(value: number, name: string) => [formatCurrency(value), name]}
-              contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0" }}
-            />
-            <Legend wrapperStyle={{ fontSize: "12px" }} />
-            <Bar dataKey="Payroll" stackId="a" fill="#2EC4B6" />
-            <Bar dataKey="Rent" stackId="a" fill="#6366F1" />
-            <Bar dataKey="Payment Processing" stackId="a" fill="#F59E0B" />
-            <Bar dataKey="Insurance" stackId="a" fill="#8B5CF6" />
-            <Bar dataKey="Utilities" stackId="a" fill="#EC4899" />
-            <Bar dataKey="Other" stackId="a" fill="#94A3B8" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-
-        <div className="grid grid-cols-3 gap-4 mt-4">
-          {expenseTrendReal.map((d, i) => {
-            const total =
-              d.Payroll + d.Rent + d["Payment Processing"] + d.Insurance + d.Utilities + d.Other;
-            return (
-              <div key={d.year} className="text-center p-3 bg-slate-50 rounded-lg">
-                <p className="text-sm font-bold text-slate-400">{d.year}</p>
-                <p className="text-lg font-bold text-slate-900 tabular-nums">
-                  {formatCurrency(total, true)}
-                </p>
-                <p className="text-[10px] text-slate-400">excl. tips</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
       {/* Section 5: Labor Cost Deep Dive */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
