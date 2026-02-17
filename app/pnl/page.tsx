@@ -10,8 +10,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  AreaChart,
-  Area,
 } from "recharts";
 import { ChevronRight, ChevronDown, AlertTriangle } from "lucide-react";
 
@@ -105,14 +103,6 @@ function getBookkeepingNote(item: typeof pnlLineItems[number]): string | null {
 
   return null;
 }
-
-// Scissors chart — revenue vs total costs over 3 years
-const scissorsData = yearlyData.map((d) => ({
-  year: d.year.toString(),
-  revenue: d.foodSales,
-  costs: d.totalCOGS + d.totalExpenses,
-  gap: d.netOrdinaryIncome,
-}));
 
 // Savings roadmap — expenses above industry targets, ranked by dollar opportunity
 // Tips excluded: tip income ($43K) offsets tips paid ($43K) — it's a pass-through, not a controllable cost.
@@ -372,73 +362,7 @@ export default function PnLPage() {
         </div>
       </div>
 
-      {/* Section 4: Revenue vs. Costs — The Scissors Effect */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900">Revenue vs. Costs — The Scissors Effect</h2>
-        <p className="text-sm text-slate-500 mt-1 mb-4">
-          When costs rise while revenue falls, the gap widens — squeezing profitability from both sides.
-        </p>
-        <ResponsiveContainer width="100%" height={320}>
-          <AreaChart data={scissorsData} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
-            <defs>
-              <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#2EC4B6" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#2EC4B6" stopOpacity={0.05} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="year" stroke="#94a3b8" fontSize={13} />
-            <YAxis
-              stroke="#94a3b8"
-              fontSize={12}
-              tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}K`}
-            />
-            <Tooltip
-              formatter={(value: number, name: string) => [formatCurrency(Math.round(value)), name]}
-              contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0" }}
-            />
-            <Area
-              type="monotone"
-              dataKey="revenue"
-              name="Revenue"
-              stroke="#2EC4B6"
-              strokeWidth={3}
-              fill="url(#revenueGrad)"
-              dot={{ r: 5, fill: "#2EC4B6" }}
-            />
-            <Area
-              type="monotone"
-              dataKey="costs"
-              name="Total Costs"
-              stroke="#FF6B6B"
-              strokeWidth={3}
-              fillOpacity={0}
-              dot={{ r: 5, fill: "#FF6B6B" }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-
-        <div className="grid grid-cols-3 gap-4 mt-4">
-          {scissorsData.map((d, i) => {
-            const prevGap = i > 0 ? scissorsData[i - 1].gap : d.gap;
-            const improving = i > 0 && Math.abs(d.gap) < Math.abs(prevGap);
-            const bg = improving ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
-            const color = improving ? "text-amber-600" : "text-red-600";
-            const label = i === 0 ? "operating gap" : improving ? "improving" : "worse again";
-            return (
-              <div key={d.year} className={cn("p-3 rounded-lg border text-center", bg)}>
-                <p className="text-xs text-slate-500">{d.year}</p>
-                <p className={cn("text-lg font-bold tabular-nums", color)}>
-                  -${Math.abs(Math.round(d.gap / 1000))}K gap
-                </p>
-                <p className="text-xs text-slate-400">{label}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Section 5: Your Savings Roadmap */}
+      {/* Section 4: Your Savings Roadmap */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">Your Savings Roadmap</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
