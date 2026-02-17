@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { yearlyData, pnlLineItems } from "@/lib/data";
 import { formatCurrency } from "@/lib/formatting";
@@ -17,6 +18,7 @@ import {
   Legend,
   ReferenceLine,
 } from "recharts";
+import { ChevronRight, ChevronDown } from "lucide-react";
 
 const d25 = yearlyData[2];
 const revenue2025 = d25.foodSales;
@@ -61,12 +63,10 @@ function getStatus(item: typeof pnlLineItems[number]): { label: string; color: s
   const diff = actual - median;
 
   if (item.isCost) {
-    // For costs: being below median is good
     if (diff <= 0) return { label: "On track", color: "bg-green-100 text-green-700" };
     if (diff <= 3) return { label: "Watch", color: "bg-amber-100 text-amber-700" };
     return { label: "Above avg", color: "bg-red-100 text-red-700" };
   } else {
-    // For profits: being above median is good
     if (item.bold && (item.account.includes("Income") || item.account === "Net Income" || item.account === "Gross Profit")) {
       if (pctOfSales >= median) return { label: "On track", color: "bg-green-100 text-green-700" };
       if (median - pctOfSales <= 5) return { label: "Watch", color: "bg-amber-100 text-amber-700" };
@@ -83,7 +83,7 @@ const benchmarkGaps = [
     actual: ((155137 / revenue2025) * 100).toFixed(1),
     industry: "30-35%",
     gap: "~14% over",
-    description: "Staff costs eat 48.6¢ of every dollar — industry norm is about 33¢. This is the single biggest drag on profitability.",
+    description: "Staff costs eat 48.6\u00A2 of every dollar — industry norm is about 33\u00A2. This is the single biggest drag on profitability.",
     color: "border-red-200 bg-red-50",
     textColor: "text-red-700",
   },
@@ -117,6 +117,16 @@ const benchmarkGaps = [
 ];
 
 export default function PnLPage() {
+  // All groups start expanded so the user sees full detail by default
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({
+    cogs: true,
+    opex: true,
+    other: true,
+  });
+
+  const toggle = (group: string) =>
+    setExpanded((prev) => ({ ...prev, [group]: !prev[group] }));
+
   return (
     <div className="space-y-8 max-w-[1400px]">
       {/* Section 1: Header */}
@@ -124,7 +134,7 @@ export default function PnLPage() {
         <h1 className="text-4xl font-black tracking-tight text-slate-900">Profit & Loss</h1>
         <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-          Full account detail for 2023–2025, with Canadian restaurant industry benchmarks.
+          Full account detail for 2023–2025, with Canadian restaurant industry benchmarks. Click any subtotal to expand or collapse.
         </p>
       </div>
 
@@ -132,7 +142,8 @@ export default function PnLPage() {
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">Complete Profit & Loss Statement</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Every account line, with industry benchmarks for a Canadian full-service restaurant. The &quot;Status&quot; column shows how CHOG compares.
+          Every account line, with industry benchmarks for a Canadian full-service restaurant.
+          Click a subtotal row to show or hide the accounts underneath.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -149,26 +160,43 @@ export default function PnLPage() {
             </thead>
             <tbody>
               {pnlLineItems.map((item, i) => {
+                // If this row belongs to a collapsed group, hide it
+                if (item.group && !expanded[item.group]) return null;
+
                 const pctOfSales = ((item.values[2] / revenue2025) * 100).toFixed(1);
                 const status = getStatus(item);
+                const isToggle = !!item.groupHeader;
+                const isOpen = item.groupHeader ? expanded[item.groupHeader] : false;
 
                 return (
                   <tr
                     key={i}
                     className={cn(
-                      "border-b border-slate-100 hover:bg-slate-50/50",
+                      "border-b border-slate-100",
                       item.separator && "border-t-2 border-t-slate-200",
-                      item.bold && "bg-slate-50/70"
+                      item.bold && "bg-slate-50/70",
+                      isToggle ? "cursor-pointer hover:bg-slate-100/80" : "hover:bg-slate-50/50"
                     )}
+                    onClick={isToggle ? () => toggle(item.groupHeader!) : undefined}
                   >
                     <td className={cn("py-2.5 px-4", item.indent && "pl-10")}>
                       <span className={cn(
-                        "text-slate-900",
+                        "text-slate-900 inline-flex items-center gap-1.5",
                         item.bold ? "font-bold" : "font-medium",
                         item.indent && "text-slate-600"
                       )}>
-                        {item.indent && <span className="text-slate-300 mr-1">—</span>}
+                        {isToggle && (
+                          isOpen
+                            ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+                            : <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                        )}
+                        {item.indent && <span className="text-slate-300 mr-0.5">—</span>}
                         {item.account}
+                        {isToggle && (
+                          <span className="text-xs font-normal text-slate-400 ml-1">
+                            {isOpen ? "click to collapse" : "click to expand"}
+                          </span>
+                        )}
                       </span>
                     </td>
                     {item.values.map((val, vi) => (
@@ -208,6 +236,9 @@ export default function PnLPage() {
             </tbody>
           </table>
         </div>
+        <p className="text-xs text-slate-400 mt-3">
+          All sub-accounts sum exactly to their subtotal. &quot;Taxes, Depreciation & Interest&quot; reconciles the gap between Operating Income + Other Income and the final Net Income from the books.
+        </p>
       </div>
 
       {/* Section 3: Existing Charts */}

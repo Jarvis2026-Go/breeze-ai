@@ -80,6 +80,8 @@ export interface PnLLineItem {
   indent?: boolean;   // sub-account
   bold?: boolean;     // subtotal/total rows
   separator?: boolean; // section divider
+  group?: string;     // collapsible group ID this child belongs to
+  groupHeader?: string; // if set, this row is the toggle header for the named group
 }
 
 export interface PrimeCostData {
