@@ -29,7 +29,11 @@ export interface ExpenseCategory {
 export interface WageEmployee {
   name: string;
   role: string;
-  annualPay: number;
+  hourlyRate: number | null; // null for salaried employees
+  hoursWorked: number;
+  grossPay: number;
+  employerTaxes: number;
+  isSalaried?: boolean;
 }
 
 export interface KPIData {

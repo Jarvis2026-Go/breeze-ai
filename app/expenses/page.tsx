@@ -110,27 +110,35 @@ const payrollRatioData = yearlyData.map((d) => ({
   "Cents per Dollar": +((d.payroll / d.foodSales) * 100).toFixed(1),
 }));
 
-// Wage groupings
-const kitchenStaff = wageData.filter((w) =>
-  ["Head Chef", "Line Cook", "Prep Cook", "Dishwasher"].includes(w.role)
-);
-const frontStaff = wageData.filter((w) =>
-  ["Lead Server", "Server", "Bartender", "Host", "Busser"].includes(w.role)
-);
-const mgmt = wageData.filter((w) => w.role === "General Manager");
-const kitchenTotal = kitchenStaff.reduce((s, w) => s + w.annualPay, 0);
-const frontTotal = frontStaff.reduce((s, w) => s + w.annualPay, 0);
-const mgmtTotal = mgmt.reduce((s, w) => s + w.annualPay, 0);
-const partTimeTotal = wageData
-  .filter((w) => w.role === "Part-time")
-  .reduce((s, w) => s + w.annualPay, 0);
-const totalPayroll = yearlyData[2].payroll;
+// Wage analysis — real payroll data
+const totalPayroll = yearlyData[2].payroll; // $155,137 from P&L
+const totalGrossPay = wageData.reduce((s, w) => s + w.grossPay, 0);
+const totalEmployerTaxes = wageData.reduce((s, w) => s + w.employerTaxes, 0);
+const totalHoursAll = wageData.reduce((s, w) => s + w.hoursWorked, 0);
+const openHoursPerYear = 5 * 8 * 52; // Tue-Sat, 8am-4pm = 2,080 hrs
+const fteCount = totalHoursAll / openHoursPerYear; // ~3.9 FTEs
+
+// Staffing tiers
+const mgmt = wageData.filter((w) => w.isSalaried);
+const coreStaff = wageData.filter((w) => !w.isSalaried && w.hoursWorked >= 500);
+const casualStaff = wageData.filter((w) => !w.isSalaried && w.hoursWorked >= 100 && w.hoursWorked < 500);
+const trialStaff = wageData.filter((w) => !w.isSalaried && w.hoursWorked < 100);
+const mgmtTotal = mgmt.reduce((s, w) => s + w.grossPay, 0);
+const coreTotal = coreStaff.reduce((s, w) => s + w.grossPay, 0);
+const casualTotal = casualStaff.reduce((s, w) => s + w.grossPay, 0);
+const trialTotal = trialStaff.reduce((s, w) => s + w.grossPay, 0);
+
+// Ontario min wage reference
+const ontarioMinWage = 17.20; // 2025
+
+// Rate distribution
+const hourlyStaff = wageData.filter((w) => w.hourlyRate !== null);
+const atMinWage = hourlyStaff.filter((w) => w.hourlyRate === ontarioMinWage);
+const aboveMinWage = hourlyStaff.filter((w) => w.hourlyRate! > ontarioMinWage);
 
 // Labor efficiency metrics
 const revenue25 = yearlyData[2].foodSales;
-const employeeCount = wageData.length;
-const openHoursPerYear = 5 * 8 * 52; // Tue-Sat, 8am-4pm = 2,080 hrs
-const revenuePerEmployee = revenue25 / employeeCount;
+const revenuePerFte = revenue25 / fteCount;
 const revenuePerLaborDollar = revenue25 / totalPayroll;
 const salesPerHour = revenue25 / openHoursPerYear;
 const payrollPerHour = totalPayroll / openHoursPerYear;
@@ -495,12 +503,12 @@ export default function ExpensesPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
           {[
             {
-              label: "Revenue per Employee",
-              value: formatCurrency(Math.round(revenuePerEmployee)),
-              benchmark: "Industry: $40K–$60K",
-              status: revenuePerEmployee >= 40000 ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200",
-              verdict: revenuePerEmployee >= 40000 ? "On track" : "Below avg",
-              verdictColor: revenuePerEmployee >= 40000 ? "text-green-600" : "text-red-600",
+              label: "Revenue per FTE",
+              value: formatCurrency(Math.round(revenuePerFte)),
+              benchmark: `${fteCount.toFixed(1)} FTEs from ${wageData.length} people`,
+              status: revenuePerFte >= 70000 ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200",
+              verdict: revenuePerFte >= 70000 ? "On track" : "Low for restaurant",
+              verdictColor: revenuePerFte >= 70000 ? "text-green-600" : "text-red-600",
             },
             {
               label: "Revenue per Labor $",
@@ -513,7 +521,7 @@ export default function ExpensesPage() {
             {
               label: "Sales per Open Hour",
               value: `${formatCurrency(Math.round(salesPerHour))}/hr`,
-              benchmark: "Tue–Sat, 8am–4pm = 2,080 hrs/yr",
+              benchmark: "Tue-Sat, 8am-4pm = 2,080 hrs/yr",
               status: "bg-slate-50 border-slate-200",
               verdict: `${formatCurrency(Math.round(salesPerHour * 8))}/day`,
               verdictColor: "text-slate-600",
@@ -536,64 +544,131 @@ export default function ExpensesPage() {
           ))}
         </div>
 
-        {/* Wage table */}
+        {/* Staffing tiers */}
         <h3 className="text-base font-bold text-slate-900 mt-8 mb-3">
-          Who Gets Paid What (2025)
+          Staffing by Tier (2025)
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           {[
-            { label: "Management", total: mgmtTotal, count: mgmt.length, color: "bg-blue-50 border-blue-200" },
-            { label: "Kitchen", total: kitchenTotal, count: kitchenStaff.length, color: "bg-teal/5 border-teal/20" },
-            { label: "Front of House", total: frontTotal, count: frontStaff.length, color: "bg-purple-50 border-purple-200" },
-            { label: "Part-time", total: partTimeTotal, count: 1, color: "bg-slate-50 border-slate-200" },
+            { label: "GM / Salaried", total: mgmtTotal, count: mgmt.length, hours: mgmt.reduce((s, w) => s + w.hoursWorked, 0), color: "bg-blue-50 border-blue-200" },
+            { label: "Core (500+ hrs)", total: coreTotal, count: coreStaff.length, hours: coreStaff.reduce((s, w) => s + w.hoursWorked, 0), color: "bg-teal/5 border-teal/20" },
+            { label: "Casual (100-499 hrs)", total: casualTotal, count: casualStaff.length, hours: casualStaff.reduce((s, w) => s + w.hoursWorked, 0), color: "bg-amber-50 border-amber-200" },
+            { label: "Trial (<100 hrs)", total: trialTotal, count: trialStaff.length, hours: trialStaff.reduce((s, w) => s + w.hoursWorked, 0), color: "bg-slate-50 border-slate-200" },
           ].map((g) => (
             <div key={g.label} className={cn("p-3 rounded-lg border text-center", g.color)}>
-              <p className="text-xs text-slate-500">{g.label}</p>
+              <p className="text-xs text-slate-500 font-medium">{g.label}</p>
               <p className="text-lg font-bold text-slate-900 tabular-nums">{formatCurrency(g.total, true)}</p>
-              <p className="text-xs text-slate-400">{g.count} {g.count === 1 ? "person" : "people"}</p>
+              <p className="text-xs text-slate-400">{g.count} {g.count === 1 ? "person" : "people"} &middot; {Math.round(g.hours).toLocaleString()} hrs</p>
             </div>
           ))}
         </div>
+
+        {/* Rate analysis insight */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="p-4 rounded-lg border bg-amber-50 border-amber-200">
+            <p className="text-xs text-slate-500 font-medium">At Minimum Wage ($17.20)</p>
+            <p className="text-xl font-black text-amber-700 mt-1">{atMinWage.length} of {hourlyStaff.length}</p>
+            <p className="text-xs text-slate-500 mt-1">No room to attract or retain talent</p>
+          </div>
+          <div className="p-4 rounded-lg border bg-slate-50 border-slate-200">
+            <p className="text-xs text-slate-500 font-medium">Above Minimum ($17.60–$20)</p>
+            <p className="text-xl font-black text-slate-900 mt-1">{aboveMinWage.length} of {hourlyStaff.length}</p>
+            <p className="text-xs text-slate-500 mt-1">$0.40–$2.80 above floor</p>
+          </div>
+          <div className="p-4 rounded-lg border bg-red-50 border-red-200">
+            <p className="text-xs text-slate-500 font-medium">Turnover Signal</p>
+            <p className="text-xl font-black text-red-700 mt-1">{trialStaff.length} trials, {casualStaff.length} casual</p>
+            <p className="text-xs text-slate-500 mt-1">{trialStaff.length + casualStaff.length} of 15 didn&apos;t become core staff</p>
+          </div>
+        </div>
+
+        {/* Payroll detail table */}
+        <h3 className="text-base font-bold text-slate-900 mt-4 mb-3">
+          Full Payroll Detail — Real Data from Payroll System
+        </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b-2 border-slate-200">
-                <th className="text-left py-3 px-4 font-semibold text-slate-600">Person</th>
-                <th className="text-left py-3 px-4 font-semibold text-slate-600">Role</th>
-                <th className="text-right py-3 px-4 font-semibold text-slate-600">Annual Pay</th>
-                <th className="text-right py-3 px-4 font-semibold text-slate-600">Share</th>
+                <th className="text-left py-3 px-3 font-semibold text-slate-600">Employee</th>
+                <th className="text-left py-3 px-3 font-semibold text-slate-600">Role</th>
+                <th className="text-right py-3 px-3 font-semibold text-slate-600">Rate</th>
+                <th className="text-right py-3 px-3 font-semibold text-slate-600">Hours</th>
+                <th className="text-right py-3 px-3 font-semibold text-slate-600">FTE</th>
+                <th className="text-right py-3 px-3 font-semibold text-slate-600">Gross Pay</th>
+                <th className="text-right py-3 px-3 font-semibold text-slate-600">+ Taxes</th>
+                <th className="text-right py-3 px-3 font-semibold text-slate-600">Total Cost</th>
               </tr>
             </thead>
             <tbody>
               {wageData.map((emp) => {
-                const pct = ((emp.annualPay / totalPayroll) * 100).toFixed(1);
+                const fte = emp.hoursWorked / openHoursPerYear;
+                const totalCost = emp.grossPay + emp.employerTaxes;
+                const isMinWage = emp.hourlyRate === ontarioMinWage;
                 return (
-                  <tr key={emp.name} className="border-b border-slate-100 hover:bg-slate-50">
-                    <td className="py-2.5 px-4 font-medium text-slate-900">{emp.name}</td>
-                    <td className="py-2.5 px-4 text-slate-600">{emp.role}</td>
-                    <td className="py-2.5 px-4 text-right tabular-nums">{formatCurrency(emp.annualPay)}</td>
-                    <td className="py-2.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-teal"
-                            style={{ width: `${(emp.annualPay / totalPayroll) * 100}%` }}
-                          />
-                        </div>
-                        <span className="text-xs tabular-nums text-slate-500 w-10 text-right">{pct}%</span>
-                      </div>
+                  <tr key={emp.name} className="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td className="py-2.5 px-3 font-medium text-slate-900">{emp.name}</td>
+                    <td className="py-2.5 px-3 text-slate-600">{emp.role}</td>
+                    <td className="py-2.5 px-3 text-right tabular-nums">
+                      {emp.isSalaried ? (
+                        <span className="text-xs text-blue-600 font-medium">Salaried</span>
+                      ) : (
+                        <span className={isMinWage ? "text-amber-600 font-medium" : ""}>
+                          ${emp.hourlyRate!.toFixed(2)}
+                          {isMinWage && <span className="text-[10px] ml-1">min</span>}
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2.5 px-3 text-right tabular-nums text-slate-700">
+                      {emp.hoursWorked.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </td>
+                    <td className="py-2.5 px-3 text-right tabular-nums">
+                      <span className={cn(
+                        "text-xs font-medium px-1.5 py-0.5 rounded",
+                        fte >= 0.7 ? "bg-teal/10 text-teal" :
+                        fte >= 0.25 ? "bg-amber-50 text-amber-600" :
+                        "bg-slate-100 text-slate-400"
+                      )}>
+                        {fte.toFixed(2)}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 text-right tabular-nums text-slate-700">
+                      {formatCurrency(Math.round(emp.grossPay))}
+                    </td>
+                    <td className="py-2.5 px-3 text-right tabular-nums text-slate-400">
+                      {formatCurrency(Math.round(emp.employerTaxes))}
+                    </td>
+                    <td className="py-2.5 px-3 text-right tabular-nums font-semibold text-slate-900">
+                      {formatCurrency(Math.round(totalCost))}
                     </td>
                   </tr>
                 );
               })}
-              <tr className="border-t-2 border-slate-300 font-bold">
-                <td className="py-3 px-4 text-slate-900" colSpan={2}>Total</td>
-                <td className="py-3 px-4 text-right tabular-nums text-slate-900">{formatCurrency(totalPayroll)}</td>
-                <td className="py-3 px-4 text-right tabular-nums text-slate-900">100%</td>
+              <tr className="border-t-2 border-slate-300 bg-slate-50/70 font-bold">
+                <td className="py-3 px-3 text-slate-900" colSpan={3}>Total</td>
+                <td className="py-3 px-3 text-right tabular-nums text-slate-900">
+                  {Math.round(totalHoursAll).toLocaleString()}
+                </td>
+                <td className="py-3 px-3 text-right tabular-nums text-slate-900">
+                  {fteCount.toFixed(2)}
+                </td>
+                <td className="py-3 px-3 text-right tabular-nums text-slate-900">
+                  {formatCurrency(Math.round(totalGrossPay))}
+                </td>
+                <td className="py-3 px-3 text-right tabular-nums text-slate-400">
+                  {formatCurrency(Math.round(totalEmployerTaxes))}
+                </td>
+                <td className="py-3 px-3 text-right tabular-nums text-slate-900">
+                  {formatCurrency(totalPayroll)}
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
+        <p className="text-xs text-slate-400 mt-3">
+          Gross + Employer CPP/EI + VacPay = ${Math.round(totalGrossPay + totalEmployerTaxes + 271.61).toLocaleString()} — matches P&amp;L payroll line exactly.
+          FTE = hours / 2,080. Ontario min wage: $17.20/hr (2025).
+        </p>
       </div>
 
       {/* Section 6: Payroll Scenario Modeler */}
@@ -734,9 +809,8 @@ export default function ExpensesPage() {
       {/* Footer */}
       <div className="text-xs text-slate-400 text-center pb-4">
         <p>
-          Source: QuickBooks P&amp;L export (Jan–Dec each year). All expense values are exact GL
-          amounts. Industry benchmarks: Canadian full-service restaurants, Toronto market (2024–2025).
-          Wage data is anonymized.
+          Source: QuickBooks P&amp;L export + payroll system (Jan–Dec 2025). All expense and wage values are exact.
+          Industry benchmarks: Canadian full-service restaurants, Toronto market (2024–2025).
         </p>
       </div>
     </div>

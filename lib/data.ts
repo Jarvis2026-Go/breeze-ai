@@ -83,21 +83,24 @@ export const expenseCategories2023: ExpenseCategory[] = [
   { name: "Other Operating", amount: 42952, color: "#94A3B8" },
 ];
 
+// Real payroll data from 2025 payroll system (Jan–Dec 2025)
+// Gross $145,121 + Employer CPP/EI $9,744 + VacPay $272 = $155,137 (matches P&L)
 export const wageData: WageEmployee[] = [
-  { name: "Manager A", role: "General Manager", annualPay: 52000 },
-  { name: "Chef B", role: "Head Chef", annualPay: 45000 },
-  { name: "Cook C", role: "Line Cook", annualPay: 32000 },
-  { name: "Cook D", role: "Line Cook", annualPay: 30000 },
-  { name: "Server E", role: "Lead Server", annualPay: 12500 },
-  { name: "Server F", role: "Server", annualPay: 11000 },
-  { name: "Server G", role: "Server", annualPay: 10500 },
-  { name: "Server H", role: "Server", annualPay: 9800 },
-  { name: "Bartender I", role: "Bartender", annualPay: 13200 },
-  { name: "Host J", role: "Host", annualPay: 8500 },
-  { name: "Dishwasher K", role: "Dishwasher", annualPay: 7200 },
-  { name: "Busser L", role: "Busser", annualPay: 6800 },
-  { name: "Prep M", role: "Prep Cook", annualPay: 9137 },
-  { name: "Part-time N", role: "Part-time", annualPay: 7500 },
+  { name: "Lucia Maceda",             role: "GM / Owner",  hourlyRate: null,  hoursWorked: 2080,    grossPay: 40002.40, employerTaxes: 2171.90, isSalaried: true },
+  { name: "Aura Bellien Hurta V.",    role: "Cook",        hourlyRate: 17.60, hoursWorked: 1454.80, grossPay: 25098.08, employerTaxes: 1869.38 },
+  { name: "Pamela J Saldivar",        role: "Cook",        hourlyRate: 17.60, hoursWorked: 1081.60, grossPay: 19036.21, employerTaxes: 1361.40 },
+  { name: "Miguel Angel Macias A.",   role: "Cook",        hourlyRate: 20.00, hoursWorked: 800,     grossPay: 16000.00, employerTaxes: 1239.30 },
+  { name: "Juan Ramses Maceda S.",    role: "Cook",        hourlyRate: 17.20, hoursWorked: 851,     grossPay: 14637.20, employerTaxes: 1102.93 },
+  { name: "Jair Marin",              role: "Cook",        hourlyRate: 17.60, hoursWorked: 792.37,  grossPay: 13692.83, employerTaxes: 920.85 },
+  { name: "Mutsuki Fujimoto",        role: "Cook",        hourlyRate: 17.20, hoursWorked: 339.50,  grossPay: 5882.40,  employerTaxes: 437.03 },
+  { name: "Harriet Elizabeth Joan S.",role: "Cook",        hourlyRate: 17.60, hoursWorked: 231.75,  grossPay: 4012.60,  employerTaxes: 228.13 },
+  { name: "Willem Denni Hermans",    role: "Cook",        hourlyRate: 17.60, hoursWorked: 121.70,  grossPay: 2135.22,  employerTaxes: 128.00 },
+  { name: "Ryuji Haneda",            role: "Cook",        hourlyRate: 17.20, hoursWorked: 113.50,  grossPay: 1952.20,  employerTaxes: 144.95 },
+  { name: "Lizzett Blanca R.",       role: "Cook",        hourlyRate: 17.20, hoursWorked: 48,      grossPay: 825.60,   employerTaxes: 36.04 },
+  { name: "Ceh Santoyo Antuan",      role: "Cook",        hourlyRate: 17.20, hoursWorked: 33,      grossPay: 567.60,   employerTaxes: 30.79 },
+  { name: "Kotone Yokota",           role: "Cook",        hourlyRate: 17.60, hoursWorked: 31.50,   grossPay: 554.40,   employerTaxes: 29.70 },
+  { name: "Amelia Munroe",           role: "Cook",        hourlyRate: 17.60, hoursWorked: 27,      grossPay: 475.20,   employerTaxes: 31.18 },
+  { name: "Lexie Van Wyk",           role: "Cook",        hourlyRate: 17.20, hoursWorked: 14.50,   grossPay: 249.40,   employerTaxes: 12.56 },
 ];
 
 export const insights: Insight[] = [
