@@ -31,6 +31,8 @@ function parseRange(s: string): { lo: number; hi: number } | null {
 }
 
 function getStatus(item: typeof pnlLineItems[number]): { label: string; color: string } | null {
+  // Tips are a pass-through (tip income offsets tips paid) — not a controllable cost
+  if (item.account === "Tips Paid to Employee") return { label: "Pass-through", color: "bg-slate-100 text-slate-500" };
   if (!item.industryPctMedian || item.industryPctMedian === "N/A" || item.industryPctMedian === "100%") return null;
 
   const pctOfSales = (item.values[2] / revenue2025) * 100;
@@ -52,6 +54,7 @@ function getStatus(item: typeof pnlLineItems[number]): { label: string; color: s
 
 // 2025 Target: for cost items not on track, what's the max $ they should aim for
 function getTarget(item: typeof pnlLineItems[number]): number | null {
+  if (item.account === "Tips Paid to Employee") return null; // pass-through, not targetable
   if (!item.industryPctMedian || item.industryPctMedian === "N/A" || item.industryPctMedian === "100%") return null;
   if (!item.isCost) return null;
 

@@ -564,7 +564,200 @@ export default function NextStepsPage() {
         </div>
       </div>
 
-      {/* Section 6: Bottom Line */}
+      {/* Section 6: Beyond 90 Days — Question Every Dollar */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <h2 className="text-lg font-bold text-slate-900">
+          Beyond 90 Days: Question Every Dollar
+        </h2>
+        <p className="text-sm text-slate-500 mt-1 mb-6">
+          After locking in the big 4 wins, adopt a quarterly habit of reviewing
+          every expense line. These items are individually smaller &mdash; but
+          collectively they represent another ~$20K in potential savings and
+          revenue.
+        </p>
+
+        <div className="space-y-4">
+          {/* Bank Service Charges */}
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-slate-900 text-sm">
+                  Bank Service Charges
+                </span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                  Above range
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500">
+                <span>$2,739 (0.9%)</span>
+                <span className="font-semibold text-green-600">~$1,100</span>
+              </div>
+            </div>
+            <p className="text-sm text-slate-500">
+              Are you paying for a premium business account tier you don&apos;t
+              need? Many banks offer free or low-fee business checking for small
+              businesses. Compare options &mdash; this should be under 0.5% of
+              revenue.
+            </p>
+          </div>
+
+          {/* Utilities */}
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-slate-900 text-sm">
+                  Utilities
+                </span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                  Near ceiling
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500">
+                <span>$11,110 (3.5%)</span>
+                <span className="font-semibold text-green-600">
+                  ~$1,100&ndash;$1,700
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-slate-500">
+              At 3.5% you&apos;re near the 4% industry cap. Audit energy usage:
+              LED lighting, smart thermostats, and shifting prep to off-peak
+              hours can cut utility bills 10&ndash;15%.
+            </p>
+          </div>
+
+          {/* Equipment Rental */}
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-slate-900 text-sm">
+                  Equipment Rental
+                </span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
+                  On track
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500">
+                <span>$2,730 (0.9%)</span>
+                <span className="font-semibold text-green-600">~$2,730</span>
+              </div>
+            </div>
+            <p className="text-sm text-slate-500">
+              Would buying this equipment outright be cheaper? At $2.7K/year, a
+              one-time $4K purchase pays for itself in 18 months and eliminates
+              the recurring cost entirely.
+            </p>
+          </div>
+
+          {/* Professional Fees */}
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-slate-900 text-sm">
+                  Professional Fees
+                </span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
+                  On track
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500">
+                <span>$4,260 (1.3%)</span>
+                <span className="font-semibold text-green-600">
+                  ~$500&ndash;$1,500
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-slate-500">
+              When did you last get competing quotes for bookkeeping, accounting,
+              or legal? Even &ldquo;on track&rdquo; items deserve a market check
+              every 2 years. Get 2 quotes and negotiate.
+            </p>
+          </div>
+
+          {/* Automobile */}
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-slate-900 text-sm">
+                  Automobile Expenses
+                </span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
+                  On track
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500">
+                <span>$925 (0.3%)</span>
+                <span className="font-semibold text-green-600">
+                  ~$500&ndash;$925
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-slate-500">
+              Is a vehicle expense necessary for a restaurant? If it&apos;s for
+              ingredient pickup, batch your orders to reduce trips or negotiate
+              supplier delivery.
+            </p>
+          </div>
+
+          {/* Menu Pricing */}
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-slate-900 text-sm">
+                  Menu Pricing Review
+                </span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-teal/10 text-teal-dark">
+                  Revenue play
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500">
+                <span className="font-semibold text-green-600">~$9,600</span>
+              </div>
+            </div>
+            <p className="text-sm text-slate-500">
+              Have you raised prices in the last 12 months? A 3%
+              across-the-board increase on $319K = ~$9,600/year. With organic
+              positioning, customers already expect a premium &mdash; you have
+              pricing power most restaurants don&apos;t.
+            </p>
+          </div>
+
+          {/* Food Waste */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-slate-900 text-sm">
+                  Food Waste Reduction
+                </span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-teal/10 text-teal-dark">
+                  Revenue play
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500">
+                <span className="font-semibold text-green-600">~$3,600</span>
+              </div>
+            </div>
+            <p className="text-sm text-slate-500">
+              Are you tracking daily food waste? The industry average is
+              4&ndash;10% of food purchases. Even a 5% reduction on $72K COGS =
+              ~$3,600/year. Start a daily waste log and review weekly.
+            </p>
+          </div>
+        </div>
+
+        {/* Mindset callout */}
+        <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+          <p className="text-sm text-slate-700">
+            <strong>The profit mindset:</strong> Restaurants that reach 5&ndash;7%
+            net margins don&apos;t get there from one big cut &mdash; they get
+            there by questioning every line item, every quarter. Make it a habit
+            to ask: <em>&ldquo;Do we still need this? Can we get it cheaper? Is
+            it coded correctly?&rdquo;</em>
+          </p>
+        </div>
+      </div>
+
+      {/* Section 7: Bottom Line */}
       <div className="bg-gradient-to-r from-teal to-teal-dark rounded-2xl p-8 text-white text-center">
         <Rocket className="w-10 h-10 mx-auto mb-3 opacity-90" />
         <h2 className="text-2xl font-black">The path to profit is real.</h2>
