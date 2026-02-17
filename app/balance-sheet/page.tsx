@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { bsLineItems, cashRunwayData, bsCompositionData, yearlyData } from "@/lib/data";
+import { bsLineItems, cashRunwayData, yearlyData } from "@/lib/data";
 import { formatCurrency, calcYoYChange } from "@/lib/formatting";
 import {
   XAxis,
@@ -12,23 +12,11 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
-  BarChart,
-  Bar,
-  Legend,
 } from "recharts";
 import {
   ChevronRight,
   ChevronDown,
-  TrendingDown,
-  AlertTriangle,
   CheckCircle2,
-  Info,
-  Droplets,
-  Landmark,
-  Banknote,
-  ShieldAlert,
-  BadgeDollarSign,
-  ClipboardList,
   ArrowRight,
 } from "lucide-react";
 
@@ -599,164 +587,7 @@ export default function BalanceSheetPage() {
         </div>
       </div>
 
-      {/* Section 5: Balance Sheet Health Check */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900">
-          Balance Sheet Health Check
-        </h2>
-        <p className="text-sm text-slate-500 mt-1 mb-4">
-          Six key insights from the numbers.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[
-            {
-              icon: Droplets,
-              title: "Cash Drain",
-              color: "bg-red-50 border-red-200",
-              iconColor: "text-red-500",
-              body: "Cash down 57% ($91K → $39K). At the current burn rate, the bank account runs dry by late 2027.",
-            },
-            {
-              icon: Landmark,
-              title: "Growing Tax & Payroll Liabilities",
-              color: "bg-amber-50 border-amber-200",
-              iconColor: "text-amber-500",
-              body: "GST/HST payable doubled ($3.4K → $7.5K) and payroll liabilities grew 2.5x ($4.3K → $10.6K). These must be paid — they can't be deferred forever.",
-            },
-            {
-              icon: Banknote,
-              title: "Dividend While Losing Money",
-              color: "bg-red-50 border-red-200",
-              iconColor: "text-red-500",
-              body: "A $15K dividend was paid in 2025 despite a -$7.4K net loss. This accelerated equity erosion and drained cash the business needed.",
-            },
-            {
-              icon: ShieldAlert,
-              title: "Equity Erosion",
-              color: "bg-red-50 border-red-200",
-              iconColor: "text-red-500",
-              body: "Owner's equity dropped from $49K to $27K in one year (-46%). The combined hit of the net loss and dividend took $22K out of equity.",
-            },
-            {
-              icon: CheckCircle2,
-              title: "Loan Payoff",
-              color: "bg-green-50 border-green-200",
-              iconColor: "text-green-500",
-              body: "The $46K long-term loan was fully paid off by end of 2024. No more debt payments — one less drain on cash going forward.",
-            },
-            {
-              icon: ClipboardList,
-              title: "No Inventory / Receivables",
-              color: "bg-blue-50 border-blue-200",
-              iconColor: "text-blue-500",
-              body: "CHOG operates on a simple cash basis — no inventory or accounts receivable on the books. What you see in the bank is what you have.",
-            },
-          ].map((card) => (
-            <div
-              key={card.title}
-              className={cn("p-4 rounded-xl border flex gap-3", card.color)}
-            >
-              <card.icon
-                className={cn("w-5 h-5 mt-0.5 shrink-0", card.iconColor)}
-              />
-              <div>
-                <p className="font-bold text-slate-900 text-sm">
-                  {card.title}
-                </p>
-                <p className="text-sm text-slate-600 mt-1">{card.body}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Section 6: Assets vs. Liabilities Composition */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900">
-          What CHOG Owns vs. How It&apos;s Funded
-        </h2>
-        <p className="text-sm text-slate-500 mt-1 mb-4">
-          Left bar = what the business owns (assets). Right bar = how
-          those assets are funded (liabilities + equity).
-        </p>
-
-        <ResponsiveContainer width="100%" height={340}>
-          <BarChart
-            data={bsCompositionData.flatMap((d) => [
-              {
-                name: `${d.year} Owns`,
-                Cash: d.cash,
-                "Fixed Assets": d.fixedAssets,
-                year: d.year,
-              },
-              {
-                name: `${d.year} Funded`,
-                Liabilities: d.liabilities,
-                Equity: d.equity,
-                year: d.year,
-              },
-            ])}
-            margin={{ top: 10, right: 30, left: 20, bottom: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} />
-            <YAxis
-              stroke="#94a3b8"
-              fontSize={12}
-              tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}K`}
-            />
-            <Tooltip
-              formatter={(value: number, name: string) => [
-                formatCurrency(Math.round(value)),
-                name,
-              ]}
-              contentStyle={{
-                borderRadius: "8px",
-                border: "1px solid #e2e8f0",
-              }}
-            />
-            <Legend />
-            <Bar dataKey="Cash" stackId="a" fill="#2EC4B6" radius={[0, 0, 0, 0]} />
-            <Bar dataKey="Fixed Assets" stackId="a" fill="#6366F1" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="Liabilities" stackId="a" fill="#FF6B6B" radius={[0, 0, 0, 0]} />
-            <Bar dataKey="Equity" stackId="a" fill="#22C55E" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-
-        {/* Summary cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <div className="p-3 rounded-lg border bg-red-50 border-red-200 text-center">
-            <p className="text-xs text-slate-500">Assets Shrunk</p>
-            <p className="text-lg font-bold text-red-600 tabular-nums">
-              -$55K
-            </p>
-            <p className="text-xs text-slate-400">
-              $100K → $44K over 3 years
-            </p>
-          </div>
-          <div className="p-3 rounded-lg border bg-green-50 border-green-200 text-center">
-            <p className="text-xs text-slate-500">Debt Eliminated</p>
-            <p className="text-lg font-bold text-green-600 tabular-nums">
-              -$46K
-            </p>
-            <p className="text-xs text-slate-400">
-              Long-term loan fully repaid
-            </p>
-          </div>
-          <div className="p-3 rounded-lg border bg-red-50 border-red-200 text-center">
-            <p className="text-xs text-slate-500">Equity Down</p>
-            <p className="text-lg font-bold text-red-600 tabular-nums">
-              -$22K
-            </p>
-            <p className="text-xs text-slate-400">
-              $49K → $27K in one year
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Section 7: Footer */}
+      {/* Footer */}
       <div className="text-xs text-slate-400 text-center pb-4">
         <p>
           Source: QuickBooks Balance Sheet export (Dec 31 each year). All values
