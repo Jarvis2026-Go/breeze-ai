@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Wallet,
   LineChart,
+  Rocket,
   Menu,
   X,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const navItems = [
   { href: "/revenue", label: "Revenue & COGS", icon: TrendingUp },
   { href: "/expenses", label: "Expenses & Wages", icon: Wallet },
   { href: "/forecast", label: "Forecast", icon: LineChart },
+  { href: "/next-steps", label: "Unlock Profit", icon: Rocket },
 ];
 
 export function Navbar() {
