@@ -1,4 +1,4 @@
-import { YearlyFinancial, COGSBreakdown, ExpenseCategory, WageEmployee, Insight, ForecastPoint, BenchmarkMetric, FinancialHealthScore, PrimeCostData, PnLLineItem } from "./types";
+import { YearlyFinancial, COGSBreakdown, ExpenseCategory, WageEmployee, Insight, ForecastPoint, BenchmarkMetric, FinancialHealthScore, PrimeCostData, PnLLineItem, BSLineItem } from "./types";
 
 export const yearlyData: YearlyFinancial[] = [
   {
@@ -328,6 +328,50 @@ export const benchmarkSources = [
   { id: 5, name: "CFIB", detail: "Canadian Federation of Independent Business — payment processing benchmarks", url: "https://www.cfib-fcei.ca" },
   { id: 6, name: "Lightspeed HQ", detail: "Restaurant Labor Cost & COGS benchmarks (Canada)", url: "https://www.lightspeedhq.com/blog" },
   { id: 7, name: "7shifts", detail: "The Ultimate Guide to Restaurant Costs", url: "https://www.7shifts.com/blog/restaurant-costs" },
+];
+
+// Every GL account from the QuickBooks Balance Sheet — exact values from the books.
+export const bsLineItems: BSLineItem[] = [
+  // ── Assets ──
+  { account: "Cash in Drawer", values: [0, 0, 591.21], indent: true, group: "currentAssets", section: "assets" },
+  { account: "TD BANK-6168", values: [91244.64, 58367.41, 38350.40], indent: true, group: "currentAssets", section: "assets" },
+  { account: "Total Current Assets", values: [91244.64, 58367.41, 38941.61], bold: true, groupHeader: "currentAssets", section: "assets" },
+  { account: "Accum Amortization", values: [-7265.20, -9070.20, -10333.20], indent: true, group: "fixedAssets", section: "assets", negativeNormal: true },
+  { account: "Vehicles-Other", values: [15624, 15624, 15624], indent: true, group: "fixedAssets", section: "assets" },
+  { account: "Total Fixed Assets", values: [8358.80, 6553.80, 5290.80], bold: true, groupHeader: "fixedAssets", section: "assets" },
+  { account: "TOTAL ASSETS", values: [99603.44, 64921.21, 44232.41], bold: true, separator: true, section: "assets" },
+
+  // ── Liabilities ──
+  { account: "Accounts Payable", values: [1836.25, 0, 0], indent: true, group: "currentLiab", section: "liabilities" },
+  { account: "GST/HST Payable", values: [3352.85, 5548.71, 7462.19], indent: true, group: "currentLiab", section: "liabilities" },
+  { account: "Income Tax Payable", values: [2757, 1805, -377.83], indent: true, group: "currentLiab", section: "liabilities" },
+  { account: "Long Term Loan", values: [45998, 0, 0], indent: true, group: "currentLiab", section: "liabilities" },
+  { account: "Payroll Liabilities", values: [4288.55, 8658.57, 10633.91], indent: true, group: "currentLiab", section: "liabilities" },
+  { account: "Shareholder Distributions", values: [0, -30.88, -56.80], indent: true, group: "currentLiab", section: "liabilities", negativeNormal: true },
+  { account: "TOTAL LIABILITIES", values: [58232.65, 15981.40, 17661.47], bold: true, separator: true, groupHeader: "currentLiab", section: "liabilities" },
+
+  // ── Equity ──
+  { account: "Capital Stock", values: [100, 100, 100], indent: true, group: "equity", section: "equity" },
+  { account: "Dividends Paid", values: [0, 0, -15000], indent: true, group: "equity", section: "equity", negativeNormal: true },
+  { account: "Retained Earnings", values: [22758.85, 41270.79, 48839.81], indent: true, group: "equity", section: "equity" },
+  { account: "Net Income", values: [18511.94, 7569.02, -7368.87], indent: true, group: "equity", section: "equity" },
+  { account: "TOTAL EQUITY", values: [41370.79, 48939.81, 26570.94], bold: true, separator: true, groupHeader: "equity", section: "equity" },
+];
+
+// Cash runway projection — actual + projected at ~$19.4K/yr burn rate
+export const cashRunwayData = [
+  { year: 2023, actual: 91245, label: "$91K" },
+  { year: 2024, actual: 58367, label: "$58K" },
+  { year: 2025, actual: 38941, label: "$39K" },
+  { year: 2026, projected: 19500, label: "~$19K" },
+  { year: 2027, projected: 0, label: "$0" },
+];
+
+// Balance sheet composition — stacked bar data
+export const bsCompositionData = [
+  { year: "2023", cash: 91245, fixedAssets: 8359, liabilities: 58233, equity: 41371 },
+  { year: "2024", cash: 58367, fixedAssets: 6554, liabilities: 15981, equity: 48940 },
+  { year: "2025", cash: 38942, fixedAssets: 5291, liabilities: 17661, equity: 26571 },
 ];
 
 export const primeCostData: PrimeCostData[] = [

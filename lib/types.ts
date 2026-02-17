@@ -92,3 +92,15 @@ export interface PrimeCostData {
   primeCostPct: number;
   revenue: number;
 }
+
+export interface BSLineItem {
+  account: string;
+  values: [number, number, number];
+  indent?: boolean;
+  bold?: boolean;
+  separator?: boolean;
+  group?: string;
+  groupHeader?: string;
+  section: "assets" | "liabilities" | "equity";
+  negativeNormal?: boolean;
+}

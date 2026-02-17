@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   FileText,
+  Scale,
   TrendingUp,
   Wallet,
   LineChart,
@@ -17,7 +18,8 @@ import {
 
 const navItems = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
-  { href: "/pnl", label: "P&L Analysis", icon: FileText },
+  { href: "/pnl", label: "P&L", icon: FileText },
+  { href: "/balance-sheet", label: "Balance Sheet", icon: Scale },
   { href: "/revenue", label: "Revenue & COGS", icon: TrendingUp },
   { href: "/expenses", label: "Expenses & Wages", icon: Wallet },
   { href: "/forecast", label: "Forecast", icon: LineChart },
@@ -56,7 +58,7 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                     isActive
                       ? "bg-teal/10 text-teal border-b-2 border-teal"
                       : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
