@@ -2,45 +2,20 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { yearlyData, pnlLineItems, benchmarkSources } from "@/lib/data";
+import { yearlyData, pnlLineItems, benchmarkSources, primeCostData } from "@/lib/data";
 import { formatCurrency } from "@/lib/formatting";
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
-  LineChart,
-  Line,
-  Legend,
-  ReferenceLine,
+  AreaChart,
+  Area,
 } from "recharts";
 import { ChevronRight, ChevronDown, AlertTriangle } from "lucide-react";
 
-const d25 = yearlyData[2];
 const revenue2025 = pnlLineItems[0].values[2]; // Food Sales 2025 — exact from books
-
-// Waterfall: show the journey from sales to what's left
-const waterfallData = [
-  { name: "Sales", value: d25.foodSales, fill: "#2EC4B6", label: "What came in" },
-  { name: "Food & Supplies", value: d25.totalCOGS, fill: "#FF6B6B", label: "Cost of ingredients" },
-  { name: "Staff Wages", value: d25.payroll, fill: "#FF6B6B", label: "Paying the team" },
-  { name: "Rent", value: 35953, fill: "#6366F1", label: "Monthly rent" },
-  { name: "Other Bills", value: d25.totalExpenses - d25.totalCOGS - d25.payroll - 35953, fill: "#F59E0B", label: "Insurance, utilities, etc." },
-  { name: "Tips & Subsidies", value: d25.otherIncome, fill: "#22C55E", label: "Extra income received" },
-  { name: "What's Left", value: d25.netIncome, fill: d25.netIncome >= 0 ? "#22C55E" : "#EF4444", label: "Bottom line" },
-];
-
-// How much of each dollar is kept at different stages
-const marginData = yearlyData.map((d) => ({
-  year: d.year.toString(),
-  "After Food Costs": +((d.grossProfit / d.foodSales) * 100).toFixed(1),
-  "After All Costs": +((d.netOrdinaryIncome / d.foodSales) * 100).toFixed(1),
-  "After Everything": +((d.netIncome / d.foodSales) * 100).toFixed(1),
-}));
 
 // Parse industry range from string like "30-35%" → { lo, hi }
 function parseRange(s: string): { lo: number; hi: number } | null {
@@ -128,50 +103,42 @@ function getBookkeepingNote(item: typeof pnlLineItems[number]): string | null {
   return null;
 }
 
-// Benchmark gap cards — using real GL numbers
-const payrollPct = (155137.09 / revenue2025) * 100;
-const rentPct = (35953.44 / revenue2025) * 100;
-const netPct = (-7368.87 / revenue2025) * 100;
-const cogsPct = (74148.14 / revenue2025) * 100;
+// Scissors chart — revenue vs total costs over 3 years
+const scissorsData = yearlyData.map((d) => ({
+  year: d.year.toString(),
+  revenue: d.foodSales,
+  costs: d.totalCOGS + d.totalExpenses,
+  gap: d.netOrdinaryIncome,
+}));
 
-const benchmarkGaps = [
-  {
-    title: "Payroll",
-    actual: payrollPct.toFixed(1),
-    industry: "25-35%",
-    gap: `~${(payrollPct - 35).toFixed(0)}% over`,
-    description: `Staff costs eat ${payrollPct.toFixed(1)}\u00A2 of every dollar — industry max is about 35\u00A2. This is the single biggest drag on profitability.`,
-    color: "border-red-200 bg-red-50",
-    textColor: "text-red-700",
-  },
-  {
-    title: "Rent",
-    actual: rentPct.toFixed(1),
-    industry: "6-12%",
-    gap: `within range`,
-    description: `Rent is ${rentPct.toFixed(1)}% of revenue — within the 6-12% industry range, though toward the upper end. Revenue growth would help this ratio.`,
-    color: "border-green-200 bg-green-50",
-    textColor: "text-green-700",
-  },
-  {
-    title: "Net Margin",
-    actual: netPct.toFixed(1),
-    industry: "2-7%",
-    gap: `~${Math.abs(netPct - 2).toFixed(0)}% below`,
-    description: `Typical restaurants keep 2-7% profit. CHOG is at ${netPct.toFixed(1)}% — a swing of about $${Math.round(Math.abs(netPct - 2) / 100 * revenue2025 / 1000)}K/year needed to break even with industry.`,
-    color: "border-red-200 bg-red-50",
-    textColor: "text-red-700",
-  },
-  {
-    title: "Food Costs (COGS)",
-    actual: cogsPct.toFixed(1),
-    industry: "30-38%",
-    gap: `~${Math.abs(cogsPct - 30).toFixed(0)}% under`,
-    description: `At ${cogsPct.toFixed(1)}%, food costs are well below the 30% floor — excellent purchasing, though worth confirming nothing is miscoded to other GLs.`,
-    color: "border-green-200 bg-green-50",
-    textColor: "text-green-700",
-  },
-];
+// Savings roadmap — expenses above industry targets, ranked by dollar opportunity
+const savingsOpportunities = pnlLineItems
+  .filter((item) => item.indent && item.isCost)
+  .map((item) => {
+    const target = getTarget(item);
+    if (target === null) return null;
+    const current = Math.round(item.values[2]);
+    const savings = current - target;
+    if (savings <= 0) return null;
+    return { account: item.account, current, target, savings };
+  })
+  .filter((x): x is { account: string; current: number; target: number; savings: number } => x !== null)
+  .sort((a, b) => b.savings - a.savings)
+  .slice(0, 5);
+
+const totalPotentialSavings = savingsOpportunities.reduce((sum, item) => sum + item.savings, 0);
+
+// SVG arc path helper for the prime cost gauge
+function gaugeArc(cx: number, cy: number, r: number, startPct: number, endPct: number): string {
+  const startAngle = Math.PI * (1 - startPct / 100);
+  const endAngle = Math.PI * (1 - endPct / 100);
+  const x1 = cx + r * Math.cos(startAngle);
+  const y1 = cy - r * Math.sin(startAngle);
+  const x2 = cx + r * Math.cos(endAngle);
+  const y2 = cy - r * Math.sin(endAngle);
+  const largeArc = (startAngle - endAngle) > Math.PI ? 1 : 0;
+  return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`;
+}
 
 export default function PnLPage() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
@@ -331,113 +298,178 @@ export default function PnLPage() {
         </div>
       </div>
 
-      {/* Section 3: Existing Charts */}
+      {/* Section 3: Prime Cost Health Check */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900">The Journey of CHOG&apos;s Money (2025)</h2>
-        <p className="text-sm text-slate-500 mt-1 mb-4">
-          Starting with total sales on the left, each bar shows a major cost that takes a bite.
-          The final bar shows what&apos;s left — unfortunately, a loss.
+        <h2 className="text-lg font-bold text-slate-900">Prime Cost Health Check</h2>
+        <p className="text-sm text-slate-500 mt-1 mb-6">
+          Prime cost (COGS + Labor) as a percentage of revenue — the #1 metric in restaurant finance.
         </p>
-        <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={waterfallData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} />
-            <YAxis
-              stroke="#94a3b8"
-              fontSize={12}
-              tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`}
-            />
-            <Tooltip
-              formatter={(_value: unknown, _name: unknown, props: unknown) => {
-                const p = props as { payload?: { value?: number; label?: string } };
-                return [formatCurrency(Math.abs(p.payload?.value ?? 0)), p.payload?.label ?? ""];
-              }}
-              contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0" }}
-            />
-            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-              {waterfallData.map((entry, i) => (
-                <Cell key={i} fill={entry.fill} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-        <div className="mt-3 p-4 bg-slate-50 rounded-lg">
-          <p className="text-sm text-slate-600">
-            <strong>Reading this chart:</strong> The teal bar is money coming in. Red bars are costs going out.
-            Green is the tip/subsidy income that helps. The final bar is what&apos;s left — in 2025,
-            CHOG lost <strong>{formatCurrency(Math.abs(d25.netIncome))}</strong>.
+
+        <div className="flex justify-center">
+          <svg viewBox="0 0 300 180" className="w-full max-w-sm">
+            {/* Green base (full arc) */}
+            <path d={gaugeArc(150, 155, 120, 0, 100)} fill="none" stroke="#22C55E" strokeWidth={22} strokeLinecap="round" />
+            {/* Amber overlay (65–100%) */}
+            <path d={gaugeArc(150, 155, 120, 65, 100)} fill="none" stroke="#F59E0B" strokeWidth={22} strokeLinecap="round" />
+            {/* Red overlay (70–100%) */}
+            <path d={gaugeArc(150, 155, 120, 70, 100)} fill="none" stroke="#FF6B6B" strokeWidth={22} strokeLinecap="round" />
+
+            {/* Needle */}
+            {(() => {
+              const pct = primeCostData[2].primeCostPct;
+              const angle = Math.PI * (1 - pct / 100);
+              const tipX = 150 + 90 * Math.cos(angle);
+              const tipY = 155 - 90 * Math.sin(angle);
+              return (
+                <>
+                  <line x1={150} y1={155} x2={tipX} y2={tipY} stroke="#1e293b" strokeWidth={2.5} strokeLinecap="round" />
+                  <circle cx={tipX} cy={tipY} r={3.5} fill="#1e293b" />
+                  <circle cx={150} cy={155} r={6} fill="#1e293b" />
+                  <circle cx={150} cy={155} r={3} fill="white" />
+                </>
+              );
+            })()}
+
+            {/* Value */}
+            <text x={150} y={138} textAnchor="middle" fill="#1e293b" fontSize={34} fontWeight={900}>
+              {primeCostData[2].primeCostPct}%
+            </text>
+            <text x={150} y={155} textAnchor="middle" fill="#94a3b8" fontSize={11}>
+              prime cost
+            </text>
+
+            {/* Zone labels */}
+            <text x={20} y={170} textAnchor="start" fill="#22C55E" fontSize={10} fontWeight={600}>Healthy</text>
+            <text x={280} y={170} textAnchor="end" fill="#FF6B6B" fontSize={10} fontWeight={600}>Danger</text>
+          </svg>
+        </div>
+
+        {/* Year-over-year cards */}
+        <div className="grid grid-cols-3 gap-4 mt-4">
+          {primeCostData.map((d) => {
+            const color = d.primeCostPct > 70 ? "text-red-600" : d.primeCostPct > 65 ? "text-amber-600" : "text-green-600";
+            const bg = d.primeCostPct > 70 ? "bg-red-50 border-red-200" : d.primeCostPct > 65 ? "bg-amber-50 border-amber-200" : "bg-green-50 border-green-200";
+            return (
+              <div key={d.year} className={cn("p-3 rounded-lg border text-center", bg)}>
+                <p className="text-xs text-slate-500">{d.year}</p>
+                <p className={cn("text-xl font-bold tabular-nums", color)}>{d.primeCostPct}%</p>
+                <p className="text-xs text-slate-400">${(d.primeCost / 1000).toFixed(0)}K total</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Callout */}
+        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-800">
+            <strong>Your prime cost is {primeCostData[2].primeCostPct}&cent; of every dollar</strong> — the industry
+            target is under 65&cent;. The gap costs you ~${Math.round((primeCostData[2].primeCostPct - 65) / 100 * revenue2025 / 1000)}K/year.
           </p>
         </div>
       </div>
 
+      {/* Section 4: Revenue vs. Costs — The Scissors Effect */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900">How Much of Each Dollar Do You Keep?</h2>
+        <h2 className="text-lg font-bold text-slate-900">Revenue vs. Costs — The Scissors Effect</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Three ways to look at it: after paying for food, after paying all bills, and after truly everything
-          (including tips received). When the line is below zero, the restaurant is losing money at that stage.
+          When costs rise while revenue falls, the gap widens — squeezing profitability from both sides.
         </p>
         <ResponsiveContainer width="100%" height={320}>
-          <LineChart data={marginData}>
+          <AreaChart data={scissorsData} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#2EC4B6" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#2EC4B6" stopOpacity={0.05} />
+              </linearGradient>
+            </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis dataKey="year" stroke="#94a3b8" fontSize={13} />
             <YAxis
               stroke="#94a3b8"
               fontSize={12}
-              tickFormatter={(v) => `${v}¢`}
+              tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}K`}
             />
             <Tooltip
-              formatter={(value: unknown) => typeof value === "number" ? `${value.toFixed(1)} cents` : "N/A"}
+              formatter={(value: number, name: string) => [formatCurrency(Math.round(value)), name]}
               contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0" }}
             />
-            <Legend wrapperStyle={{ fontSize: "13px" }} />
-            <ReferenceLine y={0} stroke="#94a3b8" strokeDasharray="3 3" label={{ value: "Break even", fontSize: 11, fill: "#94a3b8" }} />
-            <Line type="monotone" dataKey="After Food Costs" stroke="#22C55E" strokeWidth={3} dot={{ r: 5, fill: "#22C55E" }} />
-            <Line type="monotone" dataKey="After All Costs" stroke="#FF6B6B" strokeWidth={3} dot={{ r: 5, fill: "#FF6B6B" }} />
-            <Line type="monotone" dataKey="After Everything" stroke="#6366F1" strokeWidth={3} dot={{ r: 5, fill: "#6366F1" }} />
-          </LineChart>
+            <Area
+              type="monotone"
+              dataKey="revenue"
+              name="Revenue"
+              stroke="#2EC4B6"
+              strokeWidth={3}
+              fill="url(#revenueGrad)"
+              dot={{ r: 5, fill: "#2EC4B6" }}
+            />
+            <Area
+              type="monotone"
+              dataKey="costs"
+              name="Total Costs"
+              stroke="#FF6B6B"
+              strokeWidth={3}
+              fillOpacity={0}
+              dot={{ r: 5, fill: "#FF6B6B" }}
+            />
+          </AreaChart>
         </ResponsiveContainer>
+
         <div className="grid grid-cols-3 gap-4 mt-4">
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-center">
-            <p className="text-xs text-slate-500">After food costs</p>
-            <p className="text-lg font-bold text-green-600">77¢</p>
-            <p className="text-xs text-slate-400">of every dollar</p>
-          </div>
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-center">
-            <p className="text-xs text-slate-500">After all bills</p>
-            <p className="text-lg font-bold text-red-600">-16¢</p>
-            <p className="text-xs text-slate-400">losing money here</p>
-          </div>
-          <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-center">
-            <p className="text-xs text-slate-500">Final (with tips)</p>
-            <p className="text-lg font-bold text-red-600">-2¢</p>
-            <p className="text-xs text-slate-400">still a loss</p>
-          </div>
+          {scissorsData.map((d, i) => {
+            const prevGap = i > 0 ? scissorsData[i - 1].gap : d.gap;
+            const improving = i > 0 && Math.abs(d.gap) < Math.abs(prevGap);
+            const bg = improving ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
+            const color = improving ? "text-amber-600" : "text-red-600";
+            const label = i === 0 ? "operating gap" : improving ? "improving" : "worse again";
+            return (
+              <div key={d.year} className={cn("p-3 rounded-lg border text-center", bg)}>
+                <p className="text-xs text-slate-500">{d.year}</p>
+                <p className={cn("text-lg font-bold tabular-nums", color)}>
+                  -${Math.abs(Math.round(d.gap / 1000))}K gap
+                </p>
+                <p className="text-xs text-slate-400">{label}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Section 4: Key Benchmark Callout Cards */}
-      <div>
-        <h2 className="text-lg font-bold text-slate-900 mb-4">Biggest Gaps vs. Industry</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {benchmarkGaps.map((gap) => (
-            <div key={gap.title} className={cn("rounded-2xl border p-5", gap.color)}>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className={cn("font-bold text-base", gap.textColor)}>{gap.title}</h3>
-                <span className={cn("text-xs font-semibold px-2.5 py-0.5 rounded-full", gap.color, gap.textColor)}>
-                  {gap.gap}
-                </span>
+      {/* Section 5: Your Savings Roadmap */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <h2 className="text-lg font-bold text-slate-900">Your Savings Roadmap</h2>
+        <p className="text-sm text-slate-500 mt-1 mb-4">
+          The top 5 expenses above industry targets — ranked by the dollars you could save.
+        </p>
+
+        <div className="space-y-4">
+          {savingsOpportunities.map((item) => (
+            <div key={item.account}>
+              <div className="flex items-center justify-between text-sm mb-1.5">
+                <span className="font-medium text-slate-700">{item.account}</span>
+                <span className="font-bold text-green-600">save ~{formatCurrency(item.savings)}</span>
               </div>
-              <div className="flex items-baseline gap-3 mb-2">
-                <span className="text-2xl font-black tabular-nums">{gap.actual}%</span>
-                <span className="text-sm text-slate-500">vs. {gap.industry} industry</span>
+              <div className="relative h-7 bg-red-100 rounded-lg overflow-hidden">
+                <div
+                  className="absolute inset-y-0 left-0 bg-green-200 border-r-2 border-green-500"
+                  style={{ width: `${(item.target / item.current) * 100}%` }}
+                />
+                <div className="absolute inset-0 flex items-center px-3 text-xs font-medium text-slate-600">
+                  {formatCurrency(item.current)} &rarr; {formatCurrency(item.target)}
+                </div>
               </div>
-              <p className="text-sm text-slate-600">{gap.description}</p>
             </div>
           ))}
         </div>
+
+        {/* Total savings card */}
+        <div className="mt-6 p-5 rounded-xl bg-gradient-to-r from-teal to-teal-dark text-white text-center">
+          <p className="text-sm font-medium opacity-90">Potential annual savings</p>
+          <p className="text-3xl font-black mt-1">~{formatCurrency(totalPotentialSavings)}</p>
+          <p className="text-sm opacity-75 mt-1">if all 5 expenses hit industry targets</p>
+        </div>
       </div>
 
-      {/* Section 5: Bookkeeping Quality Note */}
+      {/* Section 6: Bookkeeping Quality Note */}
       <div className="bg-amber-50 rounded-2xl p-6 border border-amber-200">
         <div className="flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
@@ -463,7 +495,7 @@ export default function PnLPage() {
         </div>
       </div>
 
-      {/* Section 6: Benchmark Sources */}
+      {/* Section 7: Benchmark Sources */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">Industry Benchmark Sources</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
