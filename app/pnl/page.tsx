@@ -112,8 +112,9 @@ const scissorsData = yearlyData.map((d) => ({
 }));
 
 // Savings roadmap — expenses above industry targets, ranked by dollar opportunity
+// Tips excluded: tip income ($43K) offsets tips paid ($43K) — it's a pass-through, not a controllable cost.
 const savingsOpportunities = pnlLineItems
-  .filter((item) => item.indent && item.isCost)
+  .filter((item) => item.indent && item.isCost && item.account !== "Tips Paid to Employee")
   .map((item) => {
     const target = getTarget(item);
     if (target === null) return null;

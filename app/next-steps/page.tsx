@@ -11,7 +11,6 @@ import {
   Utensils,
   Calendar,
   TrendingUp,
-  DollarSign,
   ArrowRight,
   CheckCircle2,
   Rocket,
@@ -35,11 +34,14 @@ function parseRange(s: string): { lo: number; hi: number } | null {
   return { lo, hi };
 }
 
+// Tips Paid to Employee is excluded — tip income ($43K) offsets tips paid ($43K).
+// It's a pass-through required by Ontario law, not a controllable expense.
 const allSavings = pnlLineItems
   .filter(
     (item) =>
       item.indent &&
       item.isCost &&
+      item.account !== "Tips Paid to Employee" &&
       item.industryPctMedian &&
       item.industryPctMedian !== "N/A" &&
       item.industryPctMedian !== "100%"
@@ -63,7 +65,7 @@ const conservativeTarget = Math.round(netIncome + totalSavings * 0.6);
 
 // ── Profit bridge: running total as each saving stacks ──
 let running = netIncome;
-const profitSteps = allSavings.slice(0, 5).map((item) => {
+const profitSteps = allSavings.slice(0, 4).map((item) => {
   running += item.savings;
   return { ...item, cumulative: running };
 });
@@ -95,21 +97,6 @@ const actions: {
       "Don\u2019t replace the next natural departure \u2014 absorb with cross-training",
     ],
     timeline: "Start week 1 \u00B7 Full savings in 6 months",
-  },
-  {
-    title: "Optimize Tips Structure",
-    icon: DollarSign,
-    why: "Tips paid out are 13.5% of revenue \u2014 over double the 6% industry ceiling. Tip income received ($43K) nearly equals tips paid ($43K), suggesting all tips flow through as a pass-through rather than an income source.",
-    color: "border-l-amber-500 bg-amber-50/50",
-    badgeColor: "bg-amber-100 text-amber-700",
-    impact: "High",
-    tactics: [
-      "Review tip pooling policy against Ontario Employment Standards Act requirements",
-      "Benchmark tip percentages against similar Toronto restaurants",
-      "Evaluate if some tip-compensated roles could shift to regular hourly at lower total cost",
-      "Consider if tip reporting is creating a tax/payroll inefficiency",
-    ],
-    timeline: "Start week 2 \u00B7 Restructure within 60 days",
   },
   {
     title: "Audit Merchant Processing Fees",
@@ -220,7 +207,7 @@ const timeline = [
       "Request insurance re-quotes from 2 competing brokers",
       "Pull 4 weeks of shift schedules \u2014 map labor hours against hourly sales",
       "Have bookkeeper flag all Office Supplies transactions for GL review",
-      "Review tip pooling structure and compare to industry norms",
+      "Review bank service charges \u2014 $2.7K may include avoidable fees",
     ],
   },
   {
@@ -244,7 +231,7 @@ const timeline = [
       "Lock in Sunday brunch as permanent if trial was profitable",
       "Plan first Friday dinner pop-up event for month 4",
       "Complete GL reclassification of miscoded office supplies",
-      "Restructure tip distribution based on findings",
+      "Review all GL categories with bookkeeper for accuracy",
     ],
   },
 ];
@@ -259,7 +246,7 @@ export default function NextStepsPage() {
         </h1>
         <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-          A data-driven action plan to turn CHOG&apos;s $7K loss into a $44K+
+          A data-driven action plan to turn CHOG&apos;s $7K loss into a $30K+
           profit &mdash; built from your actual books.
         </p>
       </div>
@@ -269,7 +256,7 @@ export default function NextStepsPage() {
         <h2 className="text-lg font-bold text-slate-900">The Profit Bridge</h2>
         <p className="text-sm text-slate-500 mt-1 mb-6">
           We found {formatCurrency(totalSavings)} in annual savings potential
-          across 5 expense categories. Even hitting 60% of these targets would
+          across 4 expense categories. Even hitting 60% of these targets would
           flip your loss into a healthy profit.
         </p>
 
@@ -385,11 +372,11 @@ export default function NextStepsPage() {
       {/* Section 3: Priority Actions */}
       <div>
         <h2 className="text-lg font-bold text-slate-900 mb-1">
-          5 Priority Actions
+          4 Priority Actions
         </h2>
         <p className="text-sm text-slate-500 mb-4">
           Ranked by dollar impact &mdash; tackle #1 first, it&apos;s worth more
-          than the rest combined.
+          than all others combined.
         </p>
         <div className="space-y-4">
           {actions.map((action, i) => {
@@ -583,7 +570,7 @@ export default function NextStepsPage() {
         <h2 className="text-2xl font-black">The path to profit is real.</h2>
         <p className="text-base mt-2 opacity-90 max-w-2xl mx-auto">
           CHOG isn&apos;t far from profitability &mdash; the business lost just
-          $7K on $319K in revenue. That&apos;s a 2.3% gap. The five actions
+          $7K on $319K in revenue. That&apos;s a 2.3% gap. The four actions
           above can close it and then some. Start with the easy wins (insurance,
           merchant fees), build momentum, and tackle staffing as you go.
         </p>
