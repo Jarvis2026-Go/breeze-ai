@@ -262,58 +262,72 @@ export const financialHealthScores: FinancialHealthScore[] = [
 
 // Every GL account from the QuickBooks P&L — exact cent values from the books.
 // Display rounds to whole dollars; sub-accounts sum exactly to their subtotal.
+// Industry benchmarks: Canadian full-service restaurant (Toronto / organic-Mexican niche).
+// Sources: ISED Canada NAICS 7225, Statistics Canada, Restaurants Canada, Toast POS,
+//          CFIB, Lightspeed, 7shifts, BDC. See benchmarkSources export below.
 export const pnlLineItems: PnLLineItem[] = [
   // ── Revenue ──
   { account: "Food Sales", values: [342055.29, 352510.25, 319177.32], industryPctMedian: "100%", isCost: false, bold: true },
 
   // ── Cost of Goods Sold ──
-  { account: "Alcohol Purchase", values: [0, 2021.83, 734.41], isCost: true, indent: true, group: "cogs" },
-  { account: "Food Purchases", values: [114288.10, 90888.47, 72491.60], isCost: true, indent: true, group: "cogs" },
-  { account: "Restaurant Supplies", values: [3522.38, 3003.67, 922.13], isCost: true, indent: true, group: "cogs" },
-  { account: "Total COGS", values: [117810.48, 95913.97, 74148.14], industryPctMedian: "30-33%", isCost: true, bold: true, separator: true, groupHeader: "cogs" },
+  { account: "Alcohol Purchase", values: [0, 2021.83, 734.41], industryPctMedian: "18-24%", isCost: true, indent: true, group: "cogs" },
+  { account: "Food Purchases", values: [114288.10, 90888.47, 72491.60], industryPctMedian: "28-35%", isCost: true, indent: true, group: "cogs" },
+  { account: "Restaurant Supplies", values: [3522.38, 3003.67, 922.13], industryPctMedian: "1.5-3%", isCost: true, indent: true, group: "cogs" },
+  { account: "Total COGS", values: [117810.48, 95913.97, 74148.14], industryPctMedian: "30-38%", isCost: true, bold: true, separator: true, groupHeader: "cogs" },
 
-  { account: "Gross Profit", values: [224244.81, 256596.28, 245029.18], industryPctMedian: "67-70%", isCost: false, bold: true, separator: true },
+  { account: "Gross Profit", values: [224244.81, 256596.28, 245029.18], industryPctMedian: "62-70%", isCost: false, bold: true, separator: true },
 
   // ── Expense (all 24 GL accounts) ──
-  { account: "Advertising and Promotion", values: [952.13, 9.60, 0], isCost: true, indent: true, group: "opex" },
-  { account: "Automobile Expenses", values: [3215.81, 2331.47, 924.59], isCost: true, indent: true, group: "opex" },
-  { account: "Bank Service Charges", values: [801.95, 2056.01, 2739.32], isCost: true, indent: true, group: "opex" },
-  { account: "Business Licenses and Permits", values: [0, 4627.38, 0], isCost: true, indent: true, group: "opex" },
-  { account: "Cleaning Expenses", values: [18484.50, 0, 1239.50], isCost: true, indent: true, group: "opex" },
-  { account: "Computer and Internet Expenses", values: [0, 0, 1500], isCost: true, indent: true, group: "opex" },
-  { account: "Depreciation Expense", values: [2578, 1805, 1263], isCost: true, indent: true, group: "opex" },
-  { account: "Employee Benefits", values: [0, 322.48, 0], isCost: true, indent: true, group: "opex" },
-  { account: "Equipment Rental", values: [5057.98, 4241.02, 2730.15], isCost: true, indent: true, group: "opex" },
-  { account: "Fines and Penalties", values: [1277.43, 0, 0], isCost: true, indent: true, group: "opex" },
-  { account: "Insurance Expense", values: [4598.55, 5385.36, 11945.56], isCost: true, indent: true, group: "opex" },
-  { account: "Meals & Entertainment", values: [92.46, 251.49, 0], isCost: true, indent: true, group: "opex" },
-  { account: "Membership Fees", values: [0, 730.21, 275], isCost: true, indent: true, group: "opex" },
-  { account: "Merchant Account Fees", values: [2896.47, 18515.50, 17036.15], isCost: true, indent: true, group: "opex" },
-  { account: "Office Supplies", values: [5187.34, 5874.17, 5255.92], isCost: true, indent: true, group: "opex" },
-  { account: "Parking", values: [0, 307.35, 0], isCost: true, indent: true, group: "opex" },
-  { account: "Payroll Expenses", values: [153551.37, 147944.26, 155137.09], industryPctMedian: "30-35%", isCost: true, indent: true, group: "opex" },
-  { account: "Professional Fees", values: [8051.25, 2400, 4260], isCost: true, indent: true, group: "opex" },
-  { account: "Rent Expense", values: [39279.27, 34344.24, 35953.44], industryPctMedian: "6-10%", isCost: true, indent: true, group: "opex" },
-  { account: "Repairs and Maintenance", values: [2300.85, 1339.34, 2049.21], isCost: true, indent: true, group: "opex" },
-  { account: "Telephone Expense", values: [850, 755.22, 0], isCost: true, indent: true, group: "opex" },
-  { account: "Tips Paid to Employee", values: [24458.10, 47623.98, 43193.75], industryPctMedian: "8-12%", isCost: true, indent: true, group: "opex" },
-  { account: "Utilities", values: [11739.42, 10436.74, 11109.96], industryPctMedian: "3-5%", isCost: true, indent: true, group: "opex" },
-  { account: "Waste Management", values: [90, 169.14, 0], isCost: true, indent: true, group: "opex" },
-  { account: "Total Expense", values: [285462.88, 291469.96, 296612.64], industryPctMedian: "85-93%", isCost: true, bold: true, separator: true, groupHeader: "opex" },
+  { account: "Advertising and Promotion", values: [952.13, 9.60, 0], industryPctMedian: "1.5-6%", isCost: true, indent: true, group: "opex" },
+  { account: "Automobile Expenses", values: [3215.81, 2331.47, 924.59], industryPctMedian: "0.1-0.5%", isCost: true, indent: true, group: "opex" },
+  { account: "Bank Service Charges", values: [801.95, 2056.01, 2739.32], industryPctMedian: "0.1-0.5%", isCost: true, indent: true, group: "opex" },
+  { account: "Business Licenses and Permits", values: [0, 4627.38, 0], industryPctMedian: "0.1-0.5%", isCost: true, indent: true, group: "opex" },
+  { account: "Cleaning Expenses", values: [18484.50, 0, 1239.50], industryPctMedian: "0.5-1.5%", isCost: true, indent: true, group: "opex" },
+  { account: "Computer and Internet Expenses", values: [0, 0, 1500], industryPctMedian: "0.2-0.8%", isCost: true, indent: true, group: "opex" },
+  { account: "Depreciation Expense", values: [2578, 1805, 1263], industryPctMedian: "1.5-3.5%", isCost: true, indent: true, group: "opex" },
+  { account: "Employee Benefits", values: [0, 322.48, 0], industryPctMedian: "3-5%", isCost: true, indent: true, group: "opex" },
+  { account: "Equipment Rental", values: [5057.98, 4241.02, 2730.15], industryPctMedian: "0.5-2%", isCost: true, indent: true, group: "opex" },
+  { account: "Fines and Penalties", values: [1277.43, 0, 0], industryPctMedian: "0%", isCost: true, indent: true, group: "opex" },
+  { account: "Insurance Expense", values: [4598.55, 5385.36, 11945.56], industryPctMedian: "0.5-1.5%", isCost: true, indent: true, group: "opex" },
+  { account: "Meals & Entertainment", values: [92.46, 251.49, 0], industryPctMedian: "0.1-0.5%", isCost: true, indent: true, group: "opex" },
+  { account: "Membership Fees", values: [0, 730.21, 275], industryPctMedian: "0-0.3%", isCost: true, indent: true, group: "opex" },
+  { account: "Merchant Account Fees", values: [2896.47, 18515.50, 17036.15], industryPctMedian: "1.5-3%", isCost: true, indent: true, group: "opex" },
+  { account: "Office Supplies", values: [5187.34, 5874.17, 5255.92], industryPctMedian: "0.1-0.5%", isCost: true, indent: true, group: "opex" },
+  { account: "Parking", values: [0, 307.35, 0], industryPctMedian: "0-0.3%", isCost: true, indent: true, group: "opex" },
+  { account: "Payroll Expenses", values: [153551.37, 147944.26, 155137.09], industryPctMedian: "25-35%", isCost: true, indent: true, group: "opex" },
+  { account: "Professional Fees", values: [8051.25, 2400, 4260], industryPctMedian: "0.5-2%", isCost: true, indent: true, group: "opex" },
+  { account: "Rent Expense", values: [39279.27, 34344.24, 35953.44], industryPctMedian: "6-12%", isCost: true, indent: true, group: "opex" },
+  { account: "Repairs and Maintenance", values: [2300.85, 1339.34, 2049.21], industryPctMedian: "1-3%", isCost: true, indent: true, group: "opex" },
+  { account: "Telephone Expense", values: [850, 755.22, 0], industryPctMedian: "0.2-0.5%", isCost: true, indent: true, group: "opex" },
+  { account: "Tips Paid to Employee", values: [24458.10, 47623.98, 43193.75], industryPctMedian: "3-6%", isCost: true, indent: true, group: "opex" },
+  { account: "Utilities", values: [11739.42, 10436.74, 11109.96], industryPctMedian: "2-4%", isCost: true, indent: true, group: "opex" },
+  { account: "Waste Management", values: [90, 169.14, 0], industryPctMedian: "0.3-1%", isCost: true, indent: true, group: "opex" },
+  { account: "Total Expense", values: [285462.88, 291469.96, 296612.64], industryPctMedian: "60-70%", isCost: true, bold: true, separator: true, groupHeader: "opex" },
 
-  { account: "Net Ordinary Income", values: [-61218.07, -34873.68, -51583.46], industryPctMedian: "3-7%", isCost: false, bold: true, separator: true },
+  { account: "Net Ordinary Income", values: [-61218.07, -34873.68, -51583.46], industryPctMedian: "2-7%", isCost: false, bold: true, separator: true },
 
   // ── Other Income ──
-  { account: "Other Income-Subsidies & Grants", values: [20000, 0, 0], isCost: false, indent: true, group: "otherinc" },
-  { account: "Other Income-Tips", values: [62487.01, 44247.70, 43190.76], isCost: false, indent: true, group: "otherinc" },
-  { account: "Total Other Income", values: [82487.01, 44247.70, 43190.76], isCost: false, bold: true, separator: true, groupHeader: "otherinc" },
+  { account: "Other Income-Subsidies & Grants", values: [20000, 0, 0], industryPctMedian: "N/A", isCost: false, indent: true, group: "otherinc" },
+  { account: "Other Income-Tips", values: [62487.01, 44247.70, 43190.76], industryPctMedian: "1-5%", isCost: false, indent: true, group: "otherinc" },
+  { account: "Total Other Income", values: [82487.01, 44247.70, 43190.76], industryPctMedian: "N/A", isCost: false, bold: true, separator: true, groupHeader: "otherinc" },
 
   // ── Other Expense ──
-  { account: "Income Tax", values: [2757, 1805, -1023.83], isCost: true, indent: true, group: "otherexp" },
-  { account: "Total Other Expense", values: [2757, 1805, -1023.83], isCost: true, bold: true, separator: true, groupHeader: "otherexp" },
+  { account: "Income Tax", values: [2757, 1805, -1023.83], industryPctMedian: "2-5%", isCost: true, indent: true, group: "otherexp" },
+  { account: "Total Other Expense", values: [2757, 1805, -1023.83], industryPctMedian: "N/A", isCost: true, bold: true, separator: true, groupHeader: "otherexp" },
 
-  { account: "Net Other Income", values: [79730.01, 42442.70, 44214.59], isCost: false, bold: true, separator: true },
-  { account: "Net Income", values: [18511.94, 7569.02, -7368.87], industryPctMedian: "3-5%", isCost: false, bold: true, separator: true },
+  { account: "Net Other Income", values: [79730.01, 42442.70, 44214.59], industryPctMedian: "N/A", isCost: false, bold: true, separator: true },
+  { account: "Net Income", values: [18511.94, 7569.02, -7368.87], industryPctMedian: "2-7%", isCost: false, bold: true, separator: true },
+];
+
+// Industry benchmark sources — displayed on the P&L page
+export const benchmarkSources = [
+  { id: 1, name: "ISED Canada", detail: "Financial Performance Data, NAICS 7225 — Full-Service Restaurants", url: "https://ised-isde.canada.ca/app/ixb/cis/performance/rev/7225" },
+  { id: 2, name: "Statistics Canada", detail: "Food Services and Drinking Places survey, 2023–2024", url: "https://www150.statcan.gc.ca/n1/daily-quotidien/en.htm" },
+  { id: 3, name: "Restaurants Canada", detail: "2024 Annual Industry Report", url: "https://www.restaurantscanada.org" },
+  { id: 4, name: "Toast POS (Canada)", detail: "Restaurant Monthly Expenses in Canada", url: "https://pos.toasttab.com/ca/blog/on-the-line/restaurant-monthly-expenses" },
+  { id: 5, name: "CFIB", detail: "Canadian Federation of Independent Business — payment processing benchmarks", url: "https://www.cfib-fcei.ca" },
+  { id: 6, name: "Lightspeed HQ", detail: "Restaurant Labor Cost & COGS benchmarks (Canada)", url: "https://www.lightspeedhq.com/blog" },
+  { id: 7, name: "7shifts", detail: "The Ultimate Guide to Restaurant Costs", url: "https://www.7shifts.com/blog/restaurant-costs" },
 ];
 
 export const primeCostData: PrimeCostData[] = [

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { yearlyData, pnlLineItems } from "@/lib/data";
+import { yearlyData, pnlLineItems, benchmarkSources } from "@/lib/data";
 import { formatCurrency } from "@/lib/formatting";
 import {
   BarChart,
@@ -47,31 +47,29 @@ function getStatus(item: typeof pnlLineItems[number]): { label: string; color: s
 
   const pctOfSales = (item.values[2] / revenue2025) * 100;
 
+  // Parse industry range — e.g. "30-35%" → [30, 35], "0%" → [0, 0]
   const cleaned = item.industryPctMedian.replace(/[~%]/g, "");
-  let median: number;
+  let lo: number, hi: number;
   if (cleaned.includes("-")) {
-    const [lo, hi] = cleaned.split("-").map(Number);
-    median = (lo + hi) / 2;
+    [lo, hi] = cleaned.split("-").map(Number);
   } else {
-    median = Number(cleaned);
+    lo = hi = Number(cleaned);
   }
 
-  if (isNaN(median)) return null;
+  if (isNaN(lo) || isNaN(hi)) return null;
 
   const actual = Math.abs(pctOfSales);
-  const diff = actual - median;
 
   if (item.isCost) {
-    if (diff <= 0) return { label: "On track", color: "bg-green-100 text-green-700" };
-    if (diff <= 3) return { label: "Watch", color: "bg-amber-100 text-amber-700" };
+    // For costs: within or below range is good, slightly above is watch, well above is red
+    if (actual <= hi) return { label: "On track", color: "bg-green-100 text-green-700" };
+    if (actual <= hi + 2) return { label: "Watch", color: "bg-amber-100 text-amber-700" };
     return { label: "Above avg", color: "bg-red-100 text-red-700" };
   } else {
-    if (item.bold && (item.account.includes("Income") || item.account === "Net Income" || item.account === "Gross Profit")) {
-      if (pctOfSales >= median) return { label: "On track", color: "bg-green-100 text-green-700" };
-      if (median - pctOfSales <= 5) return { label: "Watch", color: "bg-amber-100 text-amber-700" };
-      return { label: "Below avg", color: "bg-red-100 text-red-700" };
-    }
-    return null;
+    // For income/profit lines: within or above range is good
+    if (pctOfSales >= lo) return { label: "On track", color: "bg-green-100 text-green-700" };
+    if (lo - pctOfSales <= 3) return { label: "Watch", color: "bg-amber-100 text-amber-700" };
+    return { label: "Below avg", color: "bg-red-100 text-red-700" };
   }
 }
 
@@ -348,6 +346,38 @@ export default function PnLPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Section 5: Benchmark Sources */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <h2 className="text-lg font-bold text-slate-900">Industry Benchmark Sources</h2>
+        <p className="text-sm text-slate-500 mt-1 mb-4">
+          All &quot;Industry Avg&quot; figures are based on Canadian full-service restaurant data, adjusted for the Toronto market
+          and organic/Mexican food niche. Organic ingredients typically carry a 10-30% premium over conventional, which is
+          reflected in the COGS benchmarks.
+        </p>
+        <div className="space-y-2">
+          {benchmarkSources.map((src) => (
+            <div key={src.id} className="flex items-start gap-3 text-sm">
+              <span className="text-slate-400 font-mono text-xs mt-0.5 shrink-0">[{src.id}]</span>
+              <div>
+                <a
+                  href={src.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-teal hover:underline"
+                >
+                  {src.name}
+                </a>
+                <span className="text-slate-500"> — {src.detail}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-slate-400 mt-4">
+          Benchmarks represent typical ranges for full-service restaurants with $300K–$500K annual revenue in the
+          Greater Toronto Area. Individual results vary by location, menu mix, and operational model. Data as of 2024–2025.
+        </p>
       </div>
     </div>
   );
