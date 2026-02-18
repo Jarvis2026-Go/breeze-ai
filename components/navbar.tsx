@@ -14,7 +14,7 @@ import {
   LineChart,
   Rocket,
   Target,
-  Printer,
+  FileDown,
   Menu,
   X,
   ChevronDown,
@@ -61,8 +61,12 @@ const navGroups: NavGroup[] = [
       { href: "/break-even", label: "Break-Even Analysis", icon: Target },
       { href: "/forecast", label: "Forecast", icon: LineChart },
       { href: "/next-steps", label: "Unlock Profit", icon: Rocket },
-      { href: "/summary", label: "Print Summary", icon: Printer },
     ],
+  },
+  {
+    label: "Reports",
+    href: "/summary",
+    icon: FileDown,
   },
 ];
 
@@ -145,6 +149,7 @@ export function Navbar() {
 
               // Direct link (Overview)
               if (group.href) {
+                const Icon = group.icon!;
                 return (
                   <Link
                     key={group.label}
@@ -156,7 +161,7 @@ export function Navbar() {
                         : "text-slate-500 border-transparent hover:text-slate-900"
                     )}
                   >
-                    <LayoutDashboard className="w-4 h-4" />
+                    <Icon className="w-4 h-4" />
                     {group.label}
                   </Link>
                 );

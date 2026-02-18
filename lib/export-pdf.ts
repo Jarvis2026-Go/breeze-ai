@@ -32,20 +32,23 @@ function fmtCompact(n: number): string {
   return `$${n.toLocaleString()}`;
 }
 
-function pct(n: number, rev: number): string {
-  if (!rev) return "0.0%";
-  return `${((n / rev) * 100).toFixed(1)}%`;
-}
-
 export async function exportToPDF() {
   const { default: jsPDF } = await import("jspdf");
-  await import("jspdf-autotable");
+  const { default: autoTable } = await import("jspdf-autotable");
 
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "letter" });
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
   const margin = 15;
   const contentW = pageW - margin * 2;
+
+  // Track cursor position after each table
+  let lastY = 0;
+  const getY = () => lastY;
+  const runTable = (opts: any) => {
+    autoTable(doc, opts);
+    lastY = (doc as any).lastAutoTable.finalY;
+  };
 
   // ── Helper: add footer to every page ──
   const addFooters = () => {
@@ -71,7 +74,6 @@ export async function exportToPDF() {
   };
 
   // ── Page 1: Executive Summary ──
-  // Header
   doc.setFontSize(18);
   doc.setTextColor(...DARK);
   doc.setFont("helvetica", "bold");
@@ -91,7 +93,7 @@ export async function exportToPDF() {
   // Business Snapshot
   y = sectionHeader("Business Snapshot", y);
 
-  (doc as any).autoTable({
+  runTable({
     startY: y,
     margin: { left: margin, right: margin },
     theme: "plain",
@@ -108,7 +110,7 @@ export async function exportToPDF() {
       ["Concept", "Organic Mexican, Breakfast & Lunch", "Est.", "2008 (17 years)"],
     ],
   });
-  y = (doc as any).lastAutoTable.finalY + 5;
+  y = getY() + 5;
 
   // 2025 KPIs
   y = sectionHeader("2025 Key Performance Indicators", y);
@@ -121,16 +123,16 @@ export async function exportToPDF() {
   const laborCostPct = ((payroll / revenue) * 100).toFixed(1);
   const primeCostPctVal = primeCostData[2].primeCostPct;
 
-  (doc as any).autoTable({
+  runTable({
     startY: y,
     margin: { left: margin, right: margin },
     head: [["Revenue", "Net Income", "Food Cost %", "Labor Cost %", "Prime Cost %"]],
     body: [[fmtCompact(revenue), fmt(netIncome), `${foodCostPct}%`, `${laborCostPct}%`, `${primeCostPctVal}%`]],
-    headStyles: { fillColor: [...DARK], textColor: [...WHITE], fontSize: 8, halign: "center" },
-    bodyStyles: { fontSize: 9, halign: "center", fontStyle: "bold" },
+    headStyles: { fillColor: [...DARK], textColor: [...WHITE], fontSize: 8, halign: "center" as const },
+    bodyStyles: { fontSize: 9, halign: "center" as const, fontStyle: "bold" },
     theme: "grid",
   });
-  y = (doc as any).lastAutoTable.finalY + 5;
+  y = getY() + 5;
 
   // Break-Even Analysis
   y = sectionHeader("Break-Even Analysis", y);
@@ -150,7 +152,7 @@ export async function exportToPDF() {
   const ownerBE = Math.round((fixedCosts + ownerExtra) / cmRate);
   const industryBE = Math.round(payroll / 0.34);
 
-  (doc as any).autoTable({
+  runTable({
     startY: y,
     margin: { left: margin, right: margin },
     head: [["Level", "Description", "Target", "Gap"]],
@@ -164,12 +166,11 @@ export async function exportToPDF() {
     alternateRowStyles: { fillColor: [...LIGHT_BG] },
     theme: "grid",
   });
-  y = (doc as any).lastAutoTable.finalY + 5;
+  y = getY() + 5;
 
   // Top 3 Action Items
   y = sectionHeader("Top 3 Action Items", y);
 
-  // Calculate savings
   function parseRange(s: string): { lo: number; hi: number } | null {
     const cleaned = s.replace(/[~%]/g, "");
     let lo: number, hi: number;
@@ -208,22 +209,22 @@ export async function exportToPDF() {
 
   const totalSavings = allSavings.reduce((s, a) => s + a.savings, 0);
 
-  (doc as any).autoTable({
+  runTable({
     startY: y,
     margin: { left: margin, right: margin },
     head: [["#", "Action", "Potential Savings"]],
     body: [
-      ["1", "Restructure Staffing Costs — 48.6% vs 35% industry cap", `~${fmtCompact(allSavings[0]?.savings ?? 0)}/yr`],
-      ["2", "Audit Merchant Processing Fees — 5.3% vs 3% cap", `~${fmtCompact(allSavings[1]?.savings ?? 0)}/yr`],
-      ["3", "Renegotiate Insurance — 3.7% vs 1.5% cap", `~${fmtCompact(allSavings[2]?.savings ?? 0)}/yr`],
+      ["1", "Restructure Staffing Costs \u2014 48.6% vs 35% industry cap", `~${fmtCompact(allSavings[0]?.savings ?? 0)}/yr`],
+      ["2", "Audit Merchant Processing Fees \u2014 5.3% vs 3% cap", `~${fmtCompact(allSavings[1]?.savings ?? 0)}/yr`],
+      ["3", "Renegotiate Insurance \u2014 3.7% vs 1.5% cap", `~${fmtCompact(allSavings[2]?.savings ?? 0)}/yr`],
     ],
     headStyles: { fillColor: [...DARK], textColor: [...WHITE], fontSize: 8 },
     bodyStyles: { fontSize: 8 },
-    columnStyles: { 0: { cellWidth: 8, halign: "center" }, 2: { halign: "right", fontStyle: "bold" } },
+    columnStyles: { 0: { cellWidth: 8, halign: "center" as const }, 2: { halign: "right" as const, fontStyle: "bold" } },
     alternateRowStyles: { fillColor: [...LIGHT_BG] },
     theme: "grid",
   });
-  y = (doc as any).lastAutoTable.finalY + 3;
+  y = getY() + 3;
 
   doc.setFontSize(9);
   doc.setTextColor(...DARK);
@@ -247,7 +248,7 @@ export async function exportToPDF() {
     ]);
   }
 
-  (doc as any).autoTable({
+  runTable({
     startY: y,
     margin: { left: margin, right: margin },
     head: [["Account", "2023", "2024", "2025", "Industry Range"]],
@@ -256,10 +257,10 @@ export async function exportToPDF() {
     bodyStyles: { fontSize: 7, cellPadding: 1.2 },
     columnStyles: {
       0: { cellWidth: 52 },
-      1: { halign: "right", cellWidth: 24 },
-      2: { halign: "right", cellWidth: 24 },
-      3: { halign: "right", cellWidth: 24 },
-      4: { halign: "center", cellWidth: 22 },
+      1: { halign: "right" as const, cellWidth: 24 },
+      2: { halign: "right" as const, cellWidth: 24 },
+      3: { halign: "right" as const, cellWidth: 24 },
+      4: { halign: "center" as const, cellWidth: 22 },
     },
     alternateRowStyles: { fillColor: [...LIGHT_BG] },
     theme: "grid",
@@ -267,12 +268,10 @@ export async function exportToPDF() {
       if (data.section === "body") {
         const item = pnlLineItems[data.row.index];
         if (!item) return;
-        // Bold totals
         if (item.bold) {
           data.cell.styles.fontStyle = "bold";
           data.cell.styles.fillColor = [230, 240, 238];
         }
-        // Red for negative values in dollar columns
         if (data.column.index >= 1 && data.column.index <= 3) {
           const val = item.values[data.column.index - 1];
           if (val < 0) {
@@ -304,7 +303,7 @@ export async function exportToPDF() {
     ]);
   }
 
-  (doc as any).autoTable({
+  runTable({
     startY: y,
     margin: { left: margin, right: margin },
     head: [["Account", "2023", "2024", "2025"]],
@@ -313,22 +312,20 @@ export async function exportToPDF() {
     bodyStyles: { fontSize: 8, cellPadding: 1.5 },
     columnStyles: {
       0: { cellWidth: 55 },
-      1: { halign: "right", cellWidth: 30 },
-      2: { halign: "right", cellWidth: 30 },
-      3: { halign: "right", cellWidth: 30 },
+      1: { halign: "right" as const, cellWidth: 30 },
+      2: { halign: "right" as const, cellWidth: 30 },
+      3: { halign: "right" as const, cellWidth: 30 },
     },
     alternateRowStyles: { fillColor: [...LIGHT_BG] },
     theme: "grid",
     didParseCell: (data: any) => {
       if (data.section === "body") {
         const flatItems = bsLineItems;
-        // Count non-section-header rows to find item index
         let itemIdx = -1;
-        let sectionHeaders = 0;
         for (let r = 0; r <= data.row.index; r++) {
           const rowData = bsBody[r];
           if (rowData && rowData.length === 1 && rowData[0]?.colSpan) {
-            sectionHeaders++;
+            // section header row, skip
           } else {
             itemIdx++;
           }
@@ -349,10 +346,9 @@ export async function exportToPDF() {
     },
   });
 
-  // ── Final Page: Benchmarks & Forecast ──
-  y = (doc as any).lastAutoTable.finalY + 10;
+  // ── Final section: Benchmarks & Forecast ──
+  y = getY() + 10;
 
-  // Check if we need a new page
   if (y > pageH - 80) {
     doc.addPage();
     y = 15;
@@ -360,7 +356,7 @@ export async function exportToPDF() {
 
   y = sectionHeader("Industry Benchmarks", y);
 
-  (doc as any).autoTable({
+  runTable({
     startY: y,
     margin: { left: margin, right: margin },
     head: [["Metric", "CHOG", "Low", "Median", "High"]],
@@ -373,16 +369,16 @@ export async function exportToPDF() {
     ]),
     headStyles: { fillColor: [...DARK], textColor: [...WHITE], fontSize: 8 },
     bodyStyles: { fontSize: 8 },
-    columnStyles: { 1: { halign: "right" }, 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" } },
+    columnStyles: { 1: { halign: "right" as const }, 2: { halign: "right" as const }, 3: { halign: "right" as const }, 4: { halign: "right" as const } },
     alternateRowStyles: { fillColor: [...LIGHT_BG] },
     theme: "grid",
   });
-  y = (doc as any).lastAutoTable.finalY + 8;
+  y = getY() + 8;
 
   // Revenue & Net Income Forecast
   y = sectionHeader("Revenue & Net Income Forecast", y);
 
-  (doc as any).autoTable({
+  runTable({
     startY: y,
     margin: { left: margin, right: margin },
     head: [["Year", "Revenue (Actual)", "Revenue (Projected)", "Net Income (Actual)", "Net Income (Projected)"]],
@@ -391,23 +387,23 @@ export async function exportToPDF() {
       return [
         rf.year,
         rf.actual ? fmtCompact(rf.actual) : "-",
-        rf.projected ? `${fmtCompact(rf.projected)} (${fmtCompact(rf.lower!)}–${fmtCompact(rf.upper!)})` : "-",
+        rf.projected ? `${fmtCompact(rf.projected)} (${fmtCompact(rf.lower!)}\u2013${fmtCompact(rf.upper!)})` : "-",
         nf?.actual != null ? fmtCompact(nf.actual) : "-",
-        nf?.projected != null ? `${fmtCompact(nf.projected)} (${fmtCompact(nf.lower!)}–${fmtCompact(nf.upper!)})` : "-",
+        nf?.projected != null ? `${fmtCompact(nf.projected)} (${fmtCompact(nf.lower!)}\u2013${fmtCompact(nf.upper!)})` : "-",
       ];
     }),
     headStyles: { fillColor: [...DARK], textColor: [...WHITE], fontSize: 7.5 },
     bodyStyles: { fontSize: 8 },
-    columnStyles: { 0: { cellWidth: 12 }, 1: { halign: "right" }, 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" } },
+    columnStyles: { 0: { cellWidth: 12 }, 1: { halign: "right" as const }, 2: { halign: "right" as const }, 3: { halign: "right" as const }, 4: { halign: "right" as const } },
     alternateRowStyles: { fillColor: [...LIGHT_BG] },
     theme: "grid",
   });
-  y = (doc as any).lastAutoTable.finalY + 8;
+  y = getY() + 8;
 
   // Cash Runway
   y = sectionHeader("Cash Runway Projection", y);
 
-  (doc as any).autoTable({
+  runTable({
     startY: y,
     margin: { left: margin, right: margin },
     head: [["Year", "Cash Balance", "Status"]],
@@ -418,12 +414,11 @@ export async function exportToPDF() {
     ]),
     headStyles: { fillColor: [...DARK], textColor: [...WHITE], fontSize: 8 },
     bodyStyles: { fontSize: 8 },
-    columnStyles: { 1: { halign: "right" } },
+    columnStyles: { 1: { halign: "right" as const } },
     alternateRowStyles: { fillColor: [...LIGHT_BG] },
     theme: "grid",
   });
 
-  // Add footers to all pages
   addFooters();
 
   doc.save("CHOG_Financial_Report_2023-2025.pdf");
