@@ -2,7 +2,7 @@
 
 import { yearlyData, pnlLineItems, primeCostData, wageData } from "@/lib/data";
 import { formatCurrency } from "@/lib/formatting";
-import { Printer } from "lucide-react";
+import { Printer, FileSpreadsheet, FileText } from "lucide-react";
 
 // ── 2025 data ──
 const revenue = yearlyData[2].foodSales;
@@ -78,9 +78,19 @@ const allSavings = pnlLineItems
 const totalSavings = allSavings.reduce((s, a) => s + a.savings, 0);
 
 export default function SummaryPage() {
+  async function handleExcelExport() {
+    const { exportToExcel } = await import("@/lib/export-excel");
+    exportToExcel();
+  }
+
+  async function handlePDFExport() {
+    const { exportToPDF } = await import("@/lib/export-pdf");
+    exportToPDF();
+  }
+
   return (
     <div className="max-w-3xl mx-auto space-y-6 print:space-y-4 print:max-w-none print:mx-0 print:px-0 print:pt-0">
-      {/* Print button — hidden when printing */}
+      {/* Export buttons — hidden when printing */}
       <div className="flex items-center justify-between print:hidden">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-slate-900">
@@ -91,13 +101,29 @@ export default function SummaryPage() {
             A one-page overview you can share with your accountant or advisor.
           </p>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-teal text-white font-medium text-sm hover:bg-teal-dark transition-colors shadow-sm"
-        >
-          <Printer className="w-4 h-4" />
-          Print This Page
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExcelExport}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-medium text-sm hover:bg-emerald-700 transition-colors shadow-sm"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            Export Excel
+          </button>
+          <button
+            onClick={handlePDFExport}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-700 text-white font-medium text-sm hover:bg-slate-800 transition-colors shadow-sm"
+          >
+            <FileText className="w-4 h-4" />
+            Download PDF
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-teal text-white font-medium text-sm hover:bg-teal-dark transition-colors shadow-sm"
+          >
+            <Printer className="w-4 h-4" />
+            Print
+          </button>
+        </div>
       </div>
 
       {/* Print-only header */}
