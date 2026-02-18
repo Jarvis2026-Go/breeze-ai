@@ -519,7 +519,7 @@ export default function OverviewPage() {
               bg: "bg-blue-50",
               border: "border-blue-200",
               title: "Here's what it would take to break even",
-              desc: "Two paths: (1) Grow sales to about $360,000/year without increasing costs, or (2) Reduce staff costs by about $27,000/year (from $155K down to $128K) at current sales. Ideally, a combination of both.",
+              desc: "Just to hit $0 profit, CHOG needs $331K in revenue — only $12K more. But for the owner to earn a fair $70K salary (instead of $19/hr), revenue needs to reach $373K — a $54K gap. See the Break-Even Analysis page for scenarios that close it.",
             },
           ].map((item, i) => (
             <div key={i} className={cn("p-4 rounded-xl border", item.bg, item.border)}>

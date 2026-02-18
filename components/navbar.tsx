@@ -136,7 +136,7 @@ export function Navbar() {
           {/* Desktop nav row */}
           <div
             ref={navRef}
-            className="hidden md:flex items-center gap-1 h-10 -mb-px"
+            className="hidden md:flex items-center justify-center gap-8 h-10 -mb-px"
           >
             {navGroups.map((group) => {
               const active = isGroupActive(group);
