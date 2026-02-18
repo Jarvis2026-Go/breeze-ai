@@ -34,6 +34,9 @@ export async function exportToExcel() {
   // ── Sheet 5: Forecast ──
   buildForecastSheet(XLSX, wb);
 
+  // ── Sheet 6: Definitions ──
+  buildDefinitionsSheet(XLSX, wb);
+
   XLSX.writeFile(wb, "CHOG_Financial_Report_2023-2025.xlsx");
 }
 
@@ -224,4 +227,44 @@ function buildForecastSheet(XLSX: typeof import("xlsx"), wb: import("xlsx").Work
   const ws = XLSX.utils.aoa_to_sheet(rows);
   ws["!cols"] = [{ wch: 10 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }];
   XLSX.utils.book_append_sheet(wb, ws, "Forecast");
+}
+
+function buildDefinitionsSheet(XLSX: typeof import("xlsx"), wb: import("xlsx").WorkBook) {
+  const rows: (string | null)[][] = [
+    ["Term", "What It Means"],
+    [],
+    ["FINANCIAL STATEMENTS", null],
+    ["P&L (Profit & Loss)", "A summary of all your income and expenses over a period. Shows whether the business made or lost money."],
+    ["Balance Sheet", "A snapshot of what the business owns (assets), owes (liabilities), and the owner's share (equity) at a point in time."],
+    ["Net Income", "The bottom line \u2014 total revenue minus all expenses, taxes, and other costs. Positive = profit, negative = loss."],
+    ["Net Ordinary Income", "Profit or loss from day-to-day restaurant operations only (before tips, subsidies, or taxes)."],
+    ["Gross Profit", "Revenue minus the cost of food and supplies (COGS). What's left to cover rent, wages, and everything else."],
+    [],
+    ["COST TERMS", null],
+    ["COGS (Cost of Goods Sold)", "The direct cost of ingredients, alcohol, and supplies used to make the food you sell."],
+    ["Food Cost %", "COGS divided by revenue. Shows how many cents of each dollar go to ingredients. Lower is better \u2014 CHOG is at 23.2%, industry is 30\u201338%."],
+    ["Labor Cost %", "Total payroll divided by revenue. Shows how many cents of each dollar go to staff. CHOG is at 48.6%, industry target is 25\u201335%."],
+    ["Prime Cost", "COGS + Labor combined. The two biggest costs in any restaurant. Industry target is under 65% of revenue."],
+    ["Employer Taxes", "The taxes the business pays on top of each employee's wages (CPP, EI, WSIB, EHT). Not deducted from the employee \u2014 an extra cost to the business."],
+    [],
+    ["ANALYSIS TERMS", null],
+    ["Break-Even", "The revenue level where income exactly covers all costs \u2014 no profit, no loss. Below this, the business loses money."],
+    ["Contribution Margin", "The percentage of each sales dollar left after covering variable costs (food + payment processing). Used to calculate break-even."],
+    ["Cash Runway", "How many months or years the business can keep operating on its current cash reserves before running out of money."],
+    [],
+    ["BENCHMARKS & RATIOS", null],
+    ["Industry Benchmark", "The typical range for Canadian full-service restaurants. Used to compare CHOG's performance against peers."],
+    ["Industry Median", "The middle value \u2014 half of restaurants are above, half below. A useful \"normal\" to compare against."],
+    ["Financial Health Score", "A 1\u201310 rating for each area of the business, based on how CHOG compares to industry standards."],
+    [],
+    ["OTHER TERMS", null],
+    ["Other Income \u2014 Tips", "Tips collected from customers and passed through to employees. This is a pass-through \u2014 it comes in as income and goes out as \"Tips Paid to Employee.\""],
+    ["Other Income \u2014 Subsidies", "Government grants or subsidies (e.g., pandemic relief). CHOG received $20K in 2023, none since."],
+    ["Depreciation", "The gradual write-off of equipment and vehicles over time. It's a non-cash expense \u2014 no money leaves the bank, but it reduces the asset's book value."],
+    ["Retained Earnings", "Profits that have been kept in the business over the years rather than paid out to the owner."],
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws["!cols"] = [{ wch: 30 }, { wch: 90 }];
+  XLSX.utils.book_append_sheet(wb, ws, "Definitions");
 }

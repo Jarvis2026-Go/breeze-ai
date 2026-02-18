@@ -8,7 +8,10 @@ import {
   netIncomeForecast,
   cashRunwayData,
   wageData,
+  wageData2023,
+  wageData2024,
 } from "./data";
+import type { WageEmployee } from "./types";
 
 // Colors
 const TEAL = [46, 196, 182] as const;    // #2EC4B6
@@ -73,22 +76,150 @@ export async function exportToPDF() {
     return y + 10;
   };
 
-  // ── Page 1: Executive Summary ──
+  // ── Helper: check if we need a new page ──
+  const ensureSpace = (needed: number) => {
+    if (lastY > pageH - needed) {
+      doc.addPage();
+      lastY = 15;
+    }
+  };
+
+  // Pre-compute values used throughout
+  const revenue = yearlyData[2].foodSales;
+  const netIncome = yearlyData[2].netIncome;
+  const cogs = yearlyData[2].totalCOGS;
+  const payroll = yearlyData[2].payroll;
+  const foodCostPct = ((cogs / revenue) * 100).toFixed(1);
+  const laborCostPct = ((payroll / revenue) * 100).toFixed(1);
+  const primeCostPctVal = primeCostData[2].primeCostPct;
+
+  // Savings calculation (used on cover + exec summary)
+  function parseRange(s: string): { lo: number; hi: number } | null {
+    const cleaned = s.replace(/[~%]/g, "");
+    let lo: number, hi: number;
+    if (cleaned.includes("-")) {
+      [lo, hi] = cleaned.split("-").map(Number);
+    } else {
+      lo = hi = Number(cleaned);
+    }
+    if (isNaN(lo) || isNaN(hi)) return null;
+    return { lo, hi };
+  }
+
+  const allSavings = pnlLineItems
+    .filter(
+      (item) =>
+        item.indent &&
+        item.isCost &&
+        item.account !== "Tips Paid to Employee" &&
+        item.industryPctMedian &&
+        item.industryPctMedian !== "N/A" &&
+        item.industryPctMedian !== "100%"
+    )
+    .map((item) => {
+      const p = Math.abs((item.values[2] / revenue) * 100);
+      const range = parseRange(item.industryPctMedian!);
+      if (!range) return null;
+      if (p <= range.hi) return null;
+      const target = Math.round((range.hi / 100) * revenue);
+      const current = Math.round(item.values[2]);
+      const savings = current - target;
+      if (savings <= 0) return null;
+      return { account: item.account, savings };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null)
+    .sort((a, b) => b.savings - a.savings);
+
+  const totalSavings = allSavings.reduce((s, a) => s + a.savings, 0);
+
+  // ════════════════════════════════════════════
+  // PAGE 1: COVER PAGE
+  // ════════════════════════════════════════════
+
+  // Teal accent bar at top
+  doc.setFillColor(...TEAL);
+  doc.rect(0, 0, pageW, 4, "F");
+
+  // Business name
+  doc.setFontSize(28);
+  doc.setTextColor(...DARK);
+  doc.setFont("helvetica", "bold");
+  doc.text("Cool Hand of a Girl Inc.", pageW / 2, 55, { align: "center" });
+
+  // Subtitle
+  doc.setFontSize(14);
+  doc.setTextColor(100, 116, 139); // slate-500
+  doc.setFont("helvetica", "normal");
+  doc.text("Financial Review", pageW / 2, 66, { align: "center" });
+
+  // Period
+  doc.setFontSize(11);
+  doc.text("Fiscal Years 2023 \u2013 2025", pageW / 2, 75, { align: "center" });
+
+  // Divider
+  doc.setDrawColor(...TEAL);
+  doc.setLineWidth(0.8);
+  doc.line(pageW / 2 - 40, 82, pageW / 2 + 40, 82);
+
+  // Prepared date
+  doc.setFontSize(9);
+  doc.setTextColor(148, 163, 184); // slate-400
+  doc.text("Prepared February 2026", pageW / 2, 90, { align: "center" });
+
+  // "What We'll Review" section
+  let y = 110;
+  doc.setFillColor(...TEAL);
+  doc.rect(margin + 20, y, contentW - 40, 7, "F");
+  doc.setFontSize(11);
+  doc.setTextColor(...WHITE);
+  doc.setFont("helvetica", "bold");
+  doc.text("What We\u2019ll Review Together", pageW / 2, y + 5, { align: "center" });
+  y += 14;
+
+  const agendaItems = [
+    ["What\u2019s going well", "Food cost control is excellent at " + foodCostPct + "% \u2014 well below the 30\u201338% industry range."],
+    ["Where to focus", "Staffing costs at " + laborCostPct + "% of revenue are the biggest lever. Payment processing and insurance also above industry norms."],
+    ["3 action items", "Restructure staffing, audit merchant fees, and renegotiate insurance \u2014 ~" + fmtCompact(totalSavings) + "/yr in potential savings."],
+    ["Cash runway", "At the current burn rate, cash reserves reach $0 by 2027. We\u2019ll discuss options to change that trajectory."],
+    ["Full financials", "P&L, Balance Sheet, Wages, Industry Benchmarks, and Forecast \u2014 all included in this report."],
+  ];
+
+  for (const [title, detail] of agendaItems) {
+    doc.setFontSize(10);
+    doc.setTextColor(...DARK);
+    doc.setFont("helvetica", "bold");
+    doc.text(title, margin + 28, y);
+
+    doc.setFontSize(8.5);
+    doc.setTextColor(100, 116, 139);
+    doc.setFont("helvetica", "normal");
+    const lines = doc.splitTextToSize(detail, contentW - 60);
+    doc.text(lines, margin + 28, y + 5);
+    y += 6 + lines.length * 4 + 4;
+  }
+
+  // Bottom info
+  doc.setFontSize(8);
+  doc.setTextColor(148, 163, 184);
+  doc.setFont("helvetica", "normal");
+  doc.text("2804 Dundas St W, Toronto  |  Tue\u2013Sat, 8am\u20134pm  |  Organic Mexican, Breakfast & Lunch", pageW / 2, pageH - 25, { align: "center" });
+  doc.text("Data sourced from QuickBooks P&L, Balance Sheet, and Wage Reports  |  All amounts in CAD", pageW / 2, pageH - 20, { align: "center" });
+
+  // ════════════════════════════════════════════
+  // PAGE 2: EXECUTIVE SUMMARY
+  // ════════════════════════════════════════════
+  doc.addPage();
+
   doc.setFontSize(18);
   doc.setTextColor(...DARK);
   doc.setFont("helvetica", "bold");
-  doc.text("Cool Hand of a Girl Inc.", margin, 22);
-
-  doc.setFontSize(9);
-  doc.setTextColor(100, 100, 100);
-  doc.setFont("helvetica", "normal");
-  doc.text("Financial Report | Fiscal Years 2023-2025 | Prepared February 2026", margin, 29);
+  doc.text("Executive Summary", margin, 22);
 
   doc.setDrawColor(...TEAL);
   doc.setLineWidth(0.8);
-  doc.line(margin, 32, pageW - margin, 32);
+  doc.line(margin, 26, pageW - margin, 26);
 
-  let y = 38;
+  y = 32;
 
   // Business Snapshot
   y = sectionHeader("Business Snapshot", y);
@@ -114,14 +245,6 @@ export async function exportToPDF() {
 
   // 2025 KPIs
   y = sectionHeader("2025 Key Performance Indicators", y);
-
-  const revenue = yearlyData[2].foodSales;
-  const netIncome = yearlyData[2].netIncome;
-  const cogs = yearlyData[2].totalCOGS;
-  const payroll = yearlyData[2].payroll;
-  const foodCostPct = ((cogs / revenue) * 100).toFixed(1);
-  const laborCostPct = ((payroll / revenue) * 100).toFixed(1);
-  const primeCostPctVal = primeCostData[2].primeCostPct;
 
   runTable({
     startY: y,
@@ -171,44 +294,6 @@ export async function exportToPDF() {
   // Top 3 Action Items
   y = sectionHeader("Top 3 Action Items", y);
 
-  function parseRange(s: string): { lo: number; hi: number } | null {
-    const cleaned = s.replace(/[~%]/g, "");
-    let lo: number, hi: number;
-    if (cleaned.includes("-")) {
-      [lo, hi] = cleaned.split("-").map(Number);
-    } else {
-      lo = hi = Number(cleaned);
-    }
-    if (isNaN(lo) || isNaN(hi)) return null;
-    return { lo, hi };
-  }
-
-  const allSavings = pnlLineItems
-    .filter(
-      (item) =>
-        item.indent &&
-        item.isCost &&
-        item.account !== "Tips Paid to Employee" &&
-        item.industryPctMedian &&
-        item.industryPctMedian !== "N/A" &&
-        item.industryPctMedian !== "100%"
-    )
-    .map((item) => {
-      const p = Math.abs((item.values[2] / revenue) * 100);
-      const range = parseRange(item.industryPctMedian!);
-      if (!range) return null;
-      if (p <= range.hi) return null;
-      const target = Math.round((range.hi / 100) * revenue);
-      const current = Math.round(item.values[2]);
-      const savings = current - target;
-      if (savings <= 0) return null;
-      return { account: item.account, savings };
-    })
-    .filter((x): x is NonNullable<typeof x> => x !== null)
-    .sort((a, b) => b.savings - a.savings);
-
-  const totalSavings = allSavings.reduce((s, a) => s + a.savings, 0);
-
   runTable({
     startY: y,
     margin: { left: margin, right: margin },
@@ -231,7 +316,9 @@ export async function exportToPDF() {
   doc.setFont("helvetica", "bold");
   doc.text(`Total savings potential: ~${fmtCompact(totalSavings)}/year`, pageW - margin, y, { align: "right" });
 
-  // ── Pages 2-3: Profit & Loss ──
+  // ════════════════════════════════════════════
+  // PROFIT & LOSS
+  // ════════════════════════════════════════════
   doc.addPage();
 
   y = sectionHeader("Profit & Loss Statement (2023-2025)", 15);
@@ -282,7 +369,9 @@ export async function exportToPDF() {
     },
   });
 
-  // ── Balance Sheet ──
+  // ════════════════════════════════════════════
+  // BALANCE SHEET
+  // ════════════════════════════════════════════
   doc.addPage();
 
   y = sectionHeader("Balance Sheet (2023-2025)", 15);
@@ -346,15 +435,83 @@ export async function exportToPDF() {
     },
   });
 
-  // ── Final section: Benchmarks & Forecast ──
-  y = getY() + 10;
+  // ════════════════════════════════════════════
+  // WAGES & PAYROLL (all 3 years)
+  // ════════════════════════════════════════════
+  doc.addPage();
 
-  if (y > pageH - 80) {
+  y = sectionHeader("Wages & Payroll Detail (2023-2025)", 15);
+
+  const addWageTable = (title: string, data: WageEmployee[], startY: number): number => {
+    doc.setFontSize(10);
+    doc.setTextColor(...DARK);
+    doc.setFont("helvetica", "bold");
+    doc.text(title, margin, startY);
+    startY += 4;
+
+    const wageBody: any[][] = [];
+    let totalGross = 0;
+    let totalTaxes = 0;
+    for (const emp of data) {
+      wageBody.push([
+        emp.name,
+        emp.role,
+        emp.hourlyRate ? `$${emp.hourlyRate.toFixed(2)}` : "Salaried",
+        emp.hoursWorked.toLocaleString(),
+        fmt(Math.round(emp.grossPay)),
+        fmt(Math.round(emp.employerTaxes)),
+      ]);
+      totalGross += emp.grossPay;
+      totalTaxes += emp.employerTaxes;
+    }
+
+    runTable({
+      startY,
+      margin: { left: margin, right: margin },
+      head: [["Name", "Role", "Rate", "Hours", "Gross Pay", "Employer Taxes"]],
+      body: wageBody,
+      foot: [["TOTAL", "", "", "", fmt(Math.round(totalGross)), fmt(Math.round(totalTaxes))]],
+      headStyles: { fillColor: [...DARK], textColor: [...WHITE], fontSize: 7.5 },
+      bodyStyles: { fontSize: 7, cellPadding: 1.2 },
+      footStyles: { fillColor: [230, 240, 238], fontStyle: "bold", fontSize: 7.5 },
+      columnStyles: {
+        0: { cellWidth: 42 },
+        1: { cellWidth: 22 },
+        2: { halign: "right" as const, cellWidth: 18 },
+        3: { halign: "right" as const, cellWidth: 16 },
+        4: { halign: "right" as const, cellWidth: 24 },
+        5: { halign: "right" as const, cellWidth: 24 },
+      },
+      alternateRowStyles: { fillColor: [...LIGHT_BG] },
+      theme: "grid",
+    });
+
+    return getY();
+  };
+
+  y = addWageTable("2025 Payroll", wageData, y);
+  y += 8;
+
+  // Check space before 2024 table
+  if (y > pageH - 60) {
     doc.addPage();
     y = 15;
   }
+  y = addWageTable("2024 Payroll", wageData2024, y);
+  y += 8;
 
-  y = sectionHeader("Industry Benchmarks", y);
+  if (y > pageH - 60) {
+    doc.addPage();
+    y = 15;
+  }
+  y = addWageTable("2023 Payroll", wageData2023, y);
+
+  // ════════════════════════════════════════════
+  // BENCHMARKS & FORECAST
+  // ════════════════════════════════════════════
+  doc.addPage();
+
+  y = sectionHeader("Industry Benchmarks", 15);
 
   runTable({
     startY: y,
