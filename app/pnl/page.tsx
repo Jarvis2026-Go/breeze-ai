@@ -340,7 +340,7 @@ export default function PnLPage() {
         </div>
 
         {/* Year-over-year cards */}
-        <div className="grid grid-cols-3 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
           {primeCostData.map((d) => {
             const color = d.primeCostPct > 70 ? "text-red-600" : d.primeCostPct > 65 ? "text-amber-600" : "text-green-600";
             const bg = d.primeCostPct > 70 ? "bg-red-50 border-red-200" : d.primeCostPct > 65 ? "bg-amber-50 border-amber-200" : "bg-green-50 border-green-200";

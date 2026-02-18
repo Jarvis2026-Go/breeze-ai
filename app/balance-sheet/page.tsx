@@ -552,7 +552,7 @@ export default function BalanceSheetPage() {
         </ResponsiveContainer>
 
         {/* Year cards */}
-        <div className="grid grid-cols-5 gap-2 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-4">
           {cashRunwayData.map((d, i) => {
             const val = d.actual ?? d.projected ?? 0;
             const color =

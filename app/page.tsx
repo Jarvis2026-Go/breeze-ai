@@ -358,7 +358,7 @@ export default function OverviewPage() {
             <Line yAxisId="right" type="monotone" dataKey="What You Kept" stroke="#6366F1" strokeWidth={3} dot={{ r: 6, fill: "#6366F1", strokeWidth: 2, stroke: "#fff" }} />
           </ComposedChart>
         </ResponsiveContainer>
-        <div className="grid grid-cols-3 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
           {yearlyData.map((d) => (
             <div key={d.year} className="text-center p-3 bg-slate-50 rounded-lg">
               <p className="text-sm font-bold text-slate-400">{d.year}</p>

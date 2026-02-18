@@ -14,6 +14,7 @@ import {
   LineChart,
   Rocket,
   Target,
+  Printer,
   Menu,
   X,
   ChevronDown,
@@ -60,6 +61,7 @@ const navGroups: NavGroup[] = [
       { href: "/break-even", label: "Break-Even Analysis", icon: Target },
       { href: "/forecast", label: "Forecast", icon: LineChart },
       { href: "/next-steps", label: "Unlock Profit", icon: Rocket },
+      { href: "/summary", label: "Print Summary", icon: Printer },
     ],
   },
 ];
@@ -94,7 +96,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
+      <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm print:hidden">
         <div className="max-w-[1600px] mx-auto px-6">
           {/* Top row: Logo + badge + hamburger */}
           <div className="h-14 flex items-center justify-between">
