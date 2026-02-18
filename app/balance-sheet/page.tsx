@@ -93,7 +93,7 @@ export default function BalanceSheetPage() {
         </h1>
         <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-          What CHOG owns, owes, and the owner&apos;s stake — Dec 31 each year from QuickBooks.
+          What your business owns, what it owes, and your stake as owner &mdash; Dec 31 each year from QuickBooks.
         </p>
       </div>
 
@@ -106,7 +106,7 @@ export default function BalanceSheetPage() {
             yoy: assetsYoY,
             color: "text-red-600",
             bgColor: "bg-red-50 border-red-200",
-            story: "Down from $100K in 2023 — cash keeps draining",
+            story: "Down from $100K in 2023 — your cash keeps draining",
           },
           {
             label: "Total Liabilities",
@@ -122,7 +122,7 @@ export default function BalanceSheetPage() {
             yoy: equityYoY,
             color: "text-red-600",
             bgColor: "bg-red-50 border-red-200",
-            story: "$15K dividend + net loss wiped $22K in equity",
+            story: "A $15K dividend + the net loss wiped $22K from your stake",
           },
         ].map((kpi) => (
           <div
@@ -150,10 +150,10 @@ export default function BalanceSheetPage() {
       {/* Section 3: Complete Balance Sheet Table */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
-          Complete Balance Sheet
+          The Full Balance Sheet
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Pulled directly from QuickBooks. Click any subtotal to expand or collapse.
+          Pulled straight from your QuickBooks. Click any subtotal to expand or collapse.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -301,10 +301,10 @@ export default function BalanceSheetPage() {
       {/* Section 4: Equity Bridge — How the Owner's Stake Changed */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
-          Equity Bridge — Where the Owner&apos;s Stake Went
+          How Your Ownership Stake Changed
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-6">
-          Shows how P&amp;L net income and dividends flow directly into the Balance Sheet equity.
+          This shows how your profit (or loss) and dividends flow directly into the equity on your Balance Sheet.
         </p>
 
         {/* 2025 Bridge */}
@@ -380,10 +380,10 @@ export default function BalanceSheetPage() {
         {/* Callout */}
         <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-800">
-            <strong>The contrast tells the story.</strong> In 2024, equity grew +$7.6K
-            because the business earned a profit and took no dividends. In 2025, the
+            <strong>The contrast tells the story.</strong> In 2024, your equity grew +$7.6K
+            because the business earned a profit and you took no dividends. In 2025, the
             combination of a -$7.4K net loss <em>and</em> a $15K dividend wiped $22.4K
-            from the owner&apos;s stake — a 46% drop in one year.
+            from your stake &mdash; a 46% drop in one year.
           </p>
         </div>
       </div>
@@ -391,10 +391,10 @@ export default function BalanceSheetPage() {
       {/* Section 5: Financial Ratios — P&L Meets Balance Sheet */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
-          Financial Ratios — P&amp;L Meets Balance Sheet
+          What the Ratios Are Telling You
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          These ratios require <em>both</em> statements to calculate — they connect profitability to what the business owns.
+          These ratios pull from <em>both</em> your P&amp;L and Balance Sheet &mdash; they connect your profitability to what the business actually owns.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -473,18 +473,18 @@ export default function BalanceSheetPage() {
         {/* Insight cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="p-4 rounded-lg bg-red-50 border border-red-200">
-            <p className="text-sm font-bold text-red-800">ROA & ROE collapsed</p>
+            <p className="text-sm font-bold text-red-800">Your returns have collapsed</p>
             <p className="text-xs text-red-700 mt-1">
               Return on Assets went from +18.6% to -16.7%, and Return on Equity
-              from +44.7% to -27.7%. The business is now <em>destroying</em> value
-              on every dollar of assets and equity.
+              from +44.7% to -27.7%. Right now, every dollar of assets and equity
+              is losing value instead of growing it.
             </p>
           </div>
           <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
-            <p className="text-sm font-bold text-amber-800">Asset Turnover is misleading</p>
+            <p className="text-sm font-bold text-amber-800">Asset Turnover looks good but isn&apos;t</p>
             <p className="text-xs text-amber-700 mt-1">
-              Revenue per $1 of assets <em>rose</em> from $3.43 to $7.21 — but only
-              because assets are evaporating faster than revenue is falling. The business
+              Revenue per $1 of assets <em>rose</em> from $3.43 to $7.21 &mdash; but only
+              because your assets are shrinking faster than revenue is falling. The business
               is consuming itself, not getting more efficient.
             </p>
           </div>
@@ -493,9 +493,9 @@ export default function BalanceSheetPage() {
 
       {/* Section 6: Cash Runway Chart */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900">Cash Runway</h2>
+        <h2 className="text-lg font-bold text-slate-900">How Long the Cash Lasts</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Bank balance trajectory — actual through 2025, projected at the
+          Your bank balance over time &mdash; actual through 2025, projected at the
           current ~$19K/year burn rate.
         </p>
 
@@ -579,9 +579,9 @@ export default function BalanceSheetPage() {
         {/* Callout */}
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-800">
-            <strong>Cash is draining fast.</strong> The $46K loan payoff in 2024
-            accounts for part of the drop, but even after that, operational cash
-            burn continues at ~$19K/year. The $15K dividend in 2025 accelerated
+            <strong>Your cash is draining fast.</strong> The $46K loan payoff in 2024
+            accounts for part of the drop, but even after that, you&apos;re burning
+            through ~$19K/year in operations. The $15K dividend in 2025 accelerated
             the decline. At this rate, the bank account hits zero by late 2027.
           </p>
         </div>
@@ -590,9 +590,9 @@ export default function BalanceSheetPage() {
       {/* Footer */}
       <div className="text-xs text-slate-400 text-center pb-4">
         <p>
-          Source: QuickBooks Balance Sheet export (Dec 31 each year). All values
-          in CAD. Projections based on trailing 3-year average burn rate and are
-          not a guarantee of future results.
+          Source: Your QuickBooks Balance Sheet (Dec 31 each year). All values
+          in CAD. Projections are based on the trailing 3-year burn rate &mdash;
+          what actually happens depends on the changes you make.
         </p>
       </div>
     </div>

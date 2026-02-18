@@ -83,7 +83,7 @@ interface Scenario {
 const scenarios: Scenario[] = [
   {
     title: "Raise prices 12%",
-    description: "Across-the-board 12% menu increase",
+    description: "A straight 12% bump across the whole menu",
     newRevenue: Math.round(revenue * 1.12),
     fixedCostDelta: 0,
     payrollDelta: 0,
@@ -104,21 +104,21 @@ const scenarios: Scenario[] = [
   },
   {
     title: "Add catering/delivery $40K",
-    description: "New revenue stream at similar margins",
+    description: "A new revenue stream at similar margins",
     newRevenue: Math.round(revenue + 40000),
     fixedCostDelta: 0,
     payrollDelta: 0,
   },
   {
     title: "Cut 1 FTE ($30K saved)",
-    description: "Absorb with cross-training",
+    description: "Redistribute the work with cross-training",
     newRevenue: Math.round(revenue),
     fixedCostDelta: -30000,
     payrollDelta: -30000,
   },
   {
     title: "Combo: +7% price + $20K catering",
-    description: "Blended growth path",
+    description: "A little of both &mdash; often the most realistic path",
     newRevenue: Math.round(revenue * 1.07 + 20000),
     fixedCostDelta: 0,
     payrollDelta: 0,
@@ -159,13 +159,13 @@ export default function BreakEvenPage() {
         <div className="flex items-center gap-3 mb-1">
           <Target className="w-7 h-7 text-teal" />
           <h1 className="text-4xl font-black tracking-tight text-slate-900">
-            Break-Even Analysis
+            What Does It Take to Break Even?
           </h1>
         </div>
         <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-          What it takes to reach profitability &mdash; and what
-          &ldquo;profitable&rdquo; really means.
+          It depends on what kind of break-even you&apos;re aiming for &mdash;
+          and how you want to pay yourself.
         </p>
       </div>
 
@@ -178,7 +178,7 @@ export default function BreakEvenPage() {
           <p className="text-3xl font-black text-slate-900 mt-2">
             {formatCurrency(revenue, true)}
           </p>
-          <p className="text-xs text-slate-400 mt-1">What CHOG earned</p>
+          <p className="text-xs text-slate-400 mt-1">What you earned this year</p>
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-teal/20 text-center">
@@ -189,7 +189,7 @@ export default function BreakEvenPage() {
             {formatCurrency(ownerBE, true)}
           </p>
           <p className="text-xs text-slate-400 mt-1">
-            Revenue needed for $70K owner salary
+            What you&apos;d need to pay yourself $70K
           </p>
         </div>
 
@@ -201,7 +201,7 @@ export default function BreakEvenPage() {
             {formatCurrency(ownerGap, true)}
           </p>
           <p className="text-xs text-slate-400 mt-1">
-            +{((ownerGap / revenue) * 100).toFixed(0)}% more revenue needed
+            +{((ownerGap / revenue) * 100).toFixed(0)}% more than you&apos;re bringing in
           </p>
         </div>
       </div>
@@ -212,7 +212,7 @@ export default function BreakEvenPage() {
           Where Every Dollar Goes
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-5">
-          {formatCurrency(revenue, true)} of revenue, {formatCurrency(totalCostsExTips, true)} in costs (excluding tip pass-through). The bar overflows &mdash; costs exceed revenue.
+          You brought in {formatCurrency(revenue, true)}, but it cost {formatCurrency(totalCostsExTips, true)} to run the restaurant (excluding tip pass-through). The bar overflows because costs exceed what&apos;s coming in.
         </p>
 
         {/* Legend */}
@@ -296,7 +296,7 @@ export default function BreakEvenPage() {
 
         {/* Deficit callout */}
         <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-          <strong>Deficit:</strong> Costs exceed revenue by{" "}
+          <strong>Right now, you&apos;re spending more than you earn</strong> &mdash; costs exceed revenue by{" "}
           {formatCurrency(totalCostsExTips - Math.round(revenue), true)}, and
           break-even is another{" "}
           {formatCurrency(
@@ -310,18 +310,17 @@ export default function BreakEvenPage() {
       {/* Section 4: Three Levels of "Break-Even" */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
-          Three Levels of &ldquo;Break-Even&rdquo;
+          What &ldquo;Break-Even&rdquo; Really Means for You
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-6">
-          Breaking even means different things depending on what you consider
-          a fair outcome.
+          There are three ways to think about break-even &mdash; and each one tells a different story about where you stand.
         </p>
 
         <div className="space-y-6">
           {/* Level 1: Accounting */}
           <BreakEvenBar
             label="Accounting Break-Even"
-            subtitle={`You're ${formatCurrency(accountingGap, true)} short of $0 profit`}
+            subtitle={`You're ${formatCurrency(accountingGap, true)} short of just covering your costs`}
             target={accountingBE}
             actual={Math.round(revenue)}
             gap={accountingGap}
@@ -331,7 +330,7 @@ export default function BreakEvenPage() {
           {/* Level 2: Fair Owner Pay */}
           <BreakEvenBar
             label="Fair Owner Pay"
-            subtitle={`Owner earns $70K instead of $${ownerEffectiveHourly.toFixed(0)}/hr`}
+            subtitle={`So you earn $70K instead of $${ownerEffectiveHourly.toFixed(0)}/hr`}
             target={ownerBE}
             actual={Math.round(revenue)}
             gap={ownerGap}
@@ -341,7 +340,7 @@ export default function BreakEvenPage() {
           {/* Level 3: Industry Healthy */}
           <BreakEvenBar
             label="Industry Healthy"
-            subtitle="34% labor ratio, sustainable operations"
+            subtitle="Staffing costs at 34 cents per dollar &mdash; the healthy benchmark"
             target={industryBE}
             actual={Math.round(revenue)}
             gap={industryGap}
@@ -353,11 +352,11 @@ export default function BreakEvenPage() {
       {/* Section 5: How to Close the Gap */}
       <div>
         <h2 className="text-lg font-bold text-slate-900 mb-1">
-          How to Close the Gap
+          How You Could Close the Gap
         </h2>
         <p className="text-sm text-slate-500 mb-4">
-          Six scenarios computed from real data &mdash; each shows the revenue
-          impact and which break-even levels it reaches.
+          Here are six real scenarios based on your numbers &mdash; each one shows what it would do
+          to your revenue and which break-even levels you&apos;d hit.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -423,19 +422,19 @@ export default function BreakEvenPage() {
             <h2 className="text-lg font-bold text-red-900">The Hard Truth</h2>
             <div className="mt-3 space-y-3 text-sm text-red-800">
               <p>
-                <strong>Owner works every open hour</strong> at $
-                {ownerEffectiveHourly.toFixed(2)}/hr effective &mdash; below
-                every cook on the team.
+                <strong>You work every open hour</strong> and your effective pay
+                is ${ownerEffectiveHourly.toFixed(2)}/hr &mdash; less than every
+                cook on your team.
               </p>
               <p>
                 <strong>
-                  Revenue down {Math.abs(revenueDecline).toFixed(1)}% since 2023
+                  Your revenue is down {Math.abs(revenueDecline).toFixed(1)}% since 2023
                 </strong>
                 , while Ontario minimum wage rose 11% ($15.50 &rarr; $17.20).
-                The scissors are widening.
+                The gap between what comes in and what goes out keeps widening.
               </p>
               <p>
-                <strong>Without revenue growth, losses will keep growing.</strong>{" "}
+                <strong>Without revenue growth, the losses will keep growing.</strong>{" "}
                 Fixed costs don&apos;t shrink on their own &mdash; they
                 compound. The window to act is now, not next year.
               </p>
@@ -446,11 +445,11 @@ export default function BreakEvenPage() {
 
       {/* Footer */}
       <p className="text-xs text-slate-400 text-center pb-4">
-        Source: QuickBooks P&amp;L + payroll system. All values computed from
-        real data. Break-even calculations use contribution margin analysis with
-        variable costs (COGS + payment processing) at{" "}
-        {(variableRate * 100).toFixed(1)}% and contribution margin at{" "}
-        {(cmRate * 100).toFixed(1)}%.
+        Source: Your QuickBooks P&amp;L + payroll system. For every dollar of
+        sales, about {(variableRate * 100).toFixed(0)} cents goes to variable
+        costs (food + payment processing), leaving{" "}
+        {(cmRate * 100).toFixed(0)} cents to cover everything else &mdash;
+        that&apos;s the math behind every break-even number above.
       </p>
     </div>
   );

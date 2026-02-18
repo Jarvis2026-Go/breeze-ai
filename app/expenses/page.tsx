@@ -152,25 +152,25 @@ const scenarios = [
     name: "Current State",
     payroll: totalPayroll,
     revenue: revenue25,
-    desc: "Where CHOG stands today",
+    desc: "Where you stand today",
   },
   {
     name: "Cut 1 FTE (~$30K)",
     payroll: totalPayroll - 30000,
     revenue: revenue25,
-    desc: "Eliminate one full-time position",
+    desc: "Reduce by one full-time role through cross-training",
   },
   {
     name: "Grow Revenue 10%",
     payroll: totalPayroll,
     revenue: Math.round(revenue25 * 1.1),
-    desc: "Same staff, more customers",
+    desc: "Same team, more customers",
   },
   {
     name: "Hybrid: -$15K + 5% Growth",
     payroll: totalPayroll - 15000,
     revenue: Math.round(revenue25 * 1.05),
-    desc: "Cut $15K payroll and grow revenue 5%",
+    desc: "Trim $15K in payroll and grow revenue 5%",
   },
 ];
 
@@ -196,8 +196,8 @@ export default function ExpensesPage() {
         </h1>
         <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-          Every dollar it costs to run CHOG — categorized by what you can control, what&apos;s locked in,
-          and what&apos;s a pass-through. All from QuickBooks.
+          Every dollar it costs to run your restaurant &mdash; sorted by what you can control, what&apos;s locked in,
+          and what&apos;s a pass-through. All from your QuickBooks.
         </p>
       </div>
 
@@ -214,7 +214,7 @@ export default function ExpensesPage() {
             {trueOpexYoY >= 0 ? "+" : ""}{trueOpexYoY.toFixed(1)}% YoY
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            Excludes tip pass-through — what it actually costs to operate
+            Excludes tip pass-through &mdash; what it actually costs you to operate
           </p>
         </div>
         <div className="p-5 rounded-xl border bg-teal/5 border-teal/20">
@@ -228,7 +228,7 @@ export default function ExpensesPage() {
             {controllablePct}% of true OpEx
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            Expenses management decisions can change — this is where to focus
+            These are the expenses your decisions can change &mdash; your focus area
           </p>
         </div>
         <div className="p-5 rounded-xl border bg-red-50 border-red-200">
@@ -250,10 +250,10 @@ export default function ExpensesPage() {
       {/* Section 2: Controllable vs Fixed vs Pass-through */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
-          Controllable vs. Fixed vs. Pass-through
+          What You Can Control vs. What&apos;s Locked In
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Not all expenses are equal — some you can cut, some you can&apos;t, and tips are a pass-through
+          Not all expenses are equal &mdash; some you can cut, some you can&apos;t, and tips are a pass-through
           (offset by tip income).
         </p>
 
@@ -327,10 +327,10 @@ export default function ExpensesPage() {
       {/* Section 3: Full Expense YoY Table */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
-          Full Expense Breakdown — Year over Year
+          Full Expense Breakdown &mdash; Year over Year
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Every GL account from QuickBooks, sorted by 2025 spend. Real numbers, real changes.
+          Every expense from your QuickBooks, sorted by 2025 spend. Real numbers, real changes.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -411,10 +411,10 @@ export default function ExpensesPage() {
       {/* Section 5: Labor Cost Deep Dive */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
-          Labor Cost Deep Dive
+          Your Team, Your Biggest Cost
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Payroll is the single biggest expense. Real data from the payroll system for all 3 years.
+          Payroll is your single biggest expense. Here&apos;s the real data from your payroll system for all 3 years.
         </p>
 
         {/* Cents per dollar chart */}
@@ -774,11 +774,11 @@ export default function ExpensesPage() {
       {/* Section 6: Payroll Scenario Modeler */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
-          What-If Scenarios — Payroll Ratio
+          What If You Changed the Staffing Math?
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Click a scenario to see how changes to payroll or revenue would move the labor cost ratio
-          toward the 34&#162; industry target.
+          Click a scenario to see how changes to payroll or revenue would move your labor cost
+          toward the 34-cent industry target.
         </p>
 
         {/* Scenario selector */}
@@ -909,8 +909,8 @@ export default function ExpensesPage() {
       {/* Footer */}
       <div className="text-xs text-slate-400 text-center pb-4">
         <p>
-          Source: QuickBooks P&amp;L export + payroll system (Jan–Dec 2025). All expense and wage values are exact.
-          Industry benchmarks: Canadian full-service restaurants, Toronto market (2024–2025).
+          Source: Your QuickBooks P&amp;L + payroll system (Jan&ndash;Dec 2025). All expense and wage values are exact.
+          Industry benchmarks: Canadian full-service restaurants, Toronto market (2024&ndash;2025).
         </p>
       </div>
     </div>

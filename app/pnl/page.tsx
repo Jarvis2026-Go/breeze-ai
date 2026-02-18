@@ -74,20 +74,20 @@ function getBookkeepingNote(item: typeof pnlLineItems[number]): string | null {
 
   // Items that appear/disappear — one year is $0 but adjacent years have >$1K
   if (v24 === 0 && (v23 > 1000 || v25 > 1000)) {
-    return "Dropped to $0 in 2024 — possible reallocation to another GL";
+    return "Dropped to $0 in 2024 — worth checking if it was moved to another account";
   }
   if (v23 === 0 && v24 > 1000 && v25 === 0) {
-    return "Only appears in 2024 — may be a one-time reclassification";
+    return "Only appears in 2024 — might be a one-time reclassification";
   }
 
   // Massive YoY swing (>3x increase)
   if (v23 > 500 && v24 > 500) {
     const ratio24 = v24 / v23;
-    if (ratio24 > 3) return `Jumped ${ratio24.toFixed(1)}x from 2023 to 2024 — verify GL coding`;
+    if (ratio24 > 3) return `Jumped ${ratio24.toFixed(1)}x from 2023 to 2024 — worth double-checking`;
   }
   if (v24 > 500 && v25 > 500) {
     const ratio25 = v25 / v24;
-    if (ratio25 > 3) return `Jumped ${ratio25.toFixed(1)}x from 2024 to 2025 — verify GL coding`;
+    if (ratio25 > 3) return `Jumped ${ratio25.toFixed(1)}x from 2024 to 2025 — worth double-checking`;
   }
 
   // Items well above industry high (>2x the high end of range)
@@ -96,7 +96,7 @@ function getBookkeepingNote(item: typeof pnlLineItems[number]): string | null {
     if (range && range.hi > 0) {
       const pctOfSales = (v25 / revenue2025) * 100;
       if (pctOfSales > range.hi * 2.5 && v25 > 1000) {
-        return `At ${pctOfSales.toFixed(1)}% — well above the ${item.industryPctMedian} range. Verify nothing is miscoded here`;
+        return `At ${pctOfSales.toFixed(1)}% — well above the ${item.industryPctMedian} range. Worth checking if something is miscoded here`;
       }
     }
   }
@@ -152,16 +152,16 @@ export default function PnLPage() {
         <h1 className="text-4xl font-black tracking-tight text-slate-900">Profit & Loss</h1>
         <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-          Every GL account from your books for 2023–2025, with industry benchmarks and dollar targets. Click any subtotal to expand or collapse.
+          Your full income and expense picture for 2023&ndash;2025, with industry benchmarks and dollar targets. Click any subtotal to expand or collapse.
         </p>
       </div>
 
       {/* Section 2: Full P&L Table */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900">Complete Profit & Loss Statement</h2>
+        <h2 className="text-lg font-bold text-slate-900">The Full Picture</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Pulled directly from QuickBooks. The &quot;2025 Target&quot; column shows the max dollar amount for
-          any expense that&apos;s above the industry range — your concrete goal to aim for.
+          Pulled straight from your QuickBooks. The &quot;2025 Target&quot; column shows the most you should
+          be spending on any line that&apos;s above the industry range &mdash; a concrete goal to aim for.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -287,7 +287,7 @@ export default function PnLPage() {
           </p>
           <div className="flex items-center gap-1.5 shrink-0 text-amber-600">
             <AlertTriangle className="w-3.5 h-3.5" />
-            <span>= possible bookkeeping misallocation — verify GL coding with bookkeeper</span>
+            <span>= something that looks off — worth checking with your bookkeeper</span>
           </div>
         </div>
       </div>
@@ -296,7 +296,8 @@ export default function PnLPage() {
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">Prime Cost Health Check</h2>
         <p className="text-sm text-slate-500 mt-1 mb-6">
-          Prime cost (COGS + Labor) as a percentage of revenue — the #1 metric in restaurant finance.
+          Prime cost is what you spend on food plus what you spend on staff &mdash; the two biggest costs
+          in any restaurant. The industry rule of thumb: keep it under 65 cents of every dollar.
         </p>
 
         <div className="flex justify-center">
@@ -356,17 +357,17 @@ export default function PnLPage() {
         {/* Callout */}
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-800">
-            <strong>Your prime cost is {primeCostData[2].primeCostPct}&cent; of every dollar</strong> — the industry
-            target is under 65&cent;. The gap costs you ~${Math.round((primeCostData[2].primeCostPct - 65) / 100 * revenue2025 / 1000)}K/year.
+            <strong>You&apos;re spending {primeCostData[2].primeCostPct} cents of every dollar on food + staff</strong> &mdash; the industry
+            target is under 65 cents. That gap is costing you roughly ${Math.round((primeCostData[2].primeCostPct - 65) / 100 * revenue2025 / 1000)}K a year.
           </p>
         </div>
       </div>
 
       {/* Section 4: Your Savings Roadmap */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900">Your Savings Roadmap</h2>
+        <h2 className="text-lg font-bold text-slate-900">Where You&apos;re Overspending</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          The top 5 expenses above industry targets — ranked by the dollars you could save.
+          These are your top 5 expenses above industry targets &mdash; ranked by how much you could save.
         </p>
 
         <div className="space-y-4">
@@ -402,10 +403,10 @@ export default function PnLPage() {
         <div className="flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
           <div>
-            <h2 className="text-base font-bold text-amber-800">A Note on Bookkeeping Quality</h2>
+            <h2 className="text-base font-bold text-amber-800">A Few Things to Double-Check with Your Bookkeeper</h2>
             <p className="text-sm text-amber-700 mt-1">
-              We don&apos;t have access to the bookkeeper&apos;s process, and some GL allocations look
-              questionable — items flagged with a warning icon above. Common patterns we see:
+              We don&apos;t have access to the bookkeeper&apos;s process, and a few line items look
+              like they might be miscategorized &mdash; anything flagged with a warning icon above. Here&apos;s what stood out:
             </p>
             <ul className="text-sm text-amber-700 mt-2 space-y-1 list-disc pl-5">
               <li><strong>Cleaning Expenses</strong>: $18.5K in 2023, then $0 in 2024 — was this recoded to another GL?</li>
@@ -415,9 +416,9 @@ export default function PnLPage() {
               <li><strong>Office Supplies at 1.6%</strong>: High for a restaurant — may include items that belong in COGS (Restaurant Supplies)</li>
             </ul>
             <p className="text-sm text-amber-700 mt-2">
-              We&apos;d recommend a quick GL review with the bookkeeper to confirm these allocations before
-              using the targets above to set budget goals. The totals are accurate — it&apos;s the categorization
-              that may need cleanup.
+              A quick review with your bookkeeper would help confirm these before
+              using the targets above to set budget goals. The totals are accurate &mdash; it&apos;s just the
+              categorization that may need a cleanup.
             </p>
           </div>
         </div>
@@ -425,11 +426,11 @@ export default function PnLPage() {
 
       {/* Section 7: Benchmark Sources */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h2 className="text-lg font-bold text-slate-900">Industry Benchmark Sources</h2>
+        <h2 className="text-lg font-bold text-slate-900">Where the Benchmarks Come From</h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          All &quot;Industry Avg&quot; figures are based on Canadian full-service restaurant data, adjusted for the Toronto market
-          and organic/Mexican food niche. Organic ingredients typically carry a 10-30% premium over conventional, which is
-          reflected in the COGS benchmarks.
+          All &quot;Industry Avg&quot; figures come from Canadian full-service restaurant data, adjusted for the Toronto market
+          and for your organic/Mexican niche. Organic ingredients typically carry a 10&ndash;30% premium over conventional, which is
+          already factored into the COGS benchmarks.
         </p>
         <div className="space-y-2">
           {benchmarkSources.map((src) => (

@@ -198,11 +198,11 @@ export default function CashFlowPage() {
       {/* Section 1: Header */}
       <div>
         <h1 className="text-4xl font-black tracking-tight text-slate-900">
-          Cash Flow Bridge
+          Where the Money Actually Went
         </h1>
         <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-          Where the money actually went — connecting P&amp;L profit to the bank account change.
+          Connecting your P&amp;L profit to the actual change in your bank account.
         </p>
       </div>
 
@@ -339,10 +339,10 @@ export default function CashFlowPage() {
       {/* Section 4: Detailed Cash Flow Table */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-900">
-          Detailed Cash Flow Statement
+          The Full Cash Flow Breakdown
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          Every line item derived from real P&amp;L and Balance Sheet data.
+          Every line item, derived from your real P&amp;L and Balance Sheet data.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -507,20 +507,20 @@ export default function CashFlowPage() {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-4 rounded-xl border bg-amber-50 border-amber-200">
-            <p className="text-sm font-bold text-amber-800">2024: Profitable but cash-drained</p>
+            <p className="text-sm font-bold text-amber-800">2024: You were profitable but cash-drained</p>
             <p className="text-xs text-amber-700 mt-1">
               Operations generated +{formatCurrency(Math.round(cf2024.operatingCash))} in
-              cash — the business was self-sustaining. But the $46K loan repayment consumed
-              all of it and then some. This was a <em>good</em> use of cash: eliminating
-              debt permanently.
+              cash &mdash; the business was self-sustaining. But the $46K loan repayment consumed
+              all of it and then some. That was actually a <em>good</em> use of cash: you eliminated
+              the debt permanently.
             </p>
           </div>
           <div className="p-4 rounded-xl border bg-red-50 border-red-200">
             <p className="text-sm font-bold text-red-800">2025: Losing money and paying it out</p>
             <p className="text-xs text-red-700 mt-1">
               Operations <em>consumed</em> {formatCurrency(Math.round(Math.abs(cf2025.operatingCash)))} in
-              cash — the business can no longer fund itself. On top of that, $15K was
-              paid out as dividends. The bank account dropped to $39K and the clock
+              cash &mdash; the business can no longer fund itself. On top of that, $15K went
+              out as dividends. Your bank account dropped to $39K and the clock
               is ticking.
             </p>
           </div>
@@ -530,9 +530,9 @@ export default function CashFlowPage() {
       {/* Section 6: Footer */}
       <div className="text-xs text-slate-400 text-center pb-4">
         <p>
-          Derived from QuickBooks P&amp;L and Balance Sheet exports (Dec 31 each year).
-          All values in CAD. This is a simplified indirect-method cash flow statement —
-          no investing activities are shown as CHOG had no asset purchases in 2024 or 2025.
+          Derived from your QuickBooks P&amp;L and Balance Sheet (Dec 31 each year).
+          All values in CAD. This is a simplified cash flow statement &mdash;
+          no investing activities are shown since there were no asset purchases in 2024 or 2025.
         </p>
       </div>
     </div>

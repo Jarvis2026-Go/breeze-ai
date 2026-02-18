@@ -57,7 +57,7 @@ export default function RevenuePage() {
         <h1 className="text-4xl font-black tracking-tight text-slate-900">Sales & Food Costs</h1>
         <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-          How much is coming in the door, what it costs to buy ingredients, and how much is left after food costs.
+          How much is coming in the door, what you&apos;re spending on ingredients, and how much is left after food costs.
         </p>
       </div>
 
@@ -169,7 +169,7 @@ export default function RevenuePage() {
           <h2 className="text-lg font-bold text-slate-900">Food Cost Per Dollar of Sales</h2>
           <p className="text-sm text-slate-500 mt-1 mb-4">
             This shows how many cents of each sales dollar goes to buying food and supplies.
-            Lower is better — and CHOG is doing great here, well below the 32-cent average.
+            Lower is better &mdash; and you&apos;re doing great here, well below the 32-cent average.
           </p>
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart data={foodCostPctData}>
@@ -206,8 +206,8 @@ export default function RevenuePage() {
             <div className="flex gap-2">
               <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
               <p className="text-sm text-slate-600">
-                Huge improvement — from 34 cents down to 23 cents per dollar. That means the restaurant
-                is saving about $11 on every $100 in sales compared to 2023. For an organic/local restaurant, this is excellent.
+                Huge improvement &mdash; from 34 cents down to 23 cents per dollar. That means you&apos;re
+                saving about $11 on every $100 in sales compared to 2023. For an organic/local restaurant, this is excellent.
               </p>
             </div>
           </div>
@@ -269,9 +269,9 @@ export default function RevenuePage() {
         </ResponsiveContainer>
         <div className="mt-3 p-4 bg-slate-50 rounded-lg">
           <p className="text-sm text-slate-600">
-            <strong>The good news:</strong> CHOG keeps about 77 cents of every dollar after food costs — up from 66 cents in 2023.
+            <strong>The good news:</strong> You keep about 77 cents of every dollar after food costs &mdash; up from 66 cents in 2023.
             The average restaurant only keeps about 68 cents. The challenge is that staff costs and other bills eat up
-            more than what&apos;s left, which is why the restaurant still loses money overall.
+            more than what&apos;s left, which is why you&apos;re still losing money overall.
           </p>
         </div>
       </div>

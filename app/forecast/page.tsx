@@ -56,9 +56,9 @@ export default function ForecastPage() {
         </h1>
         <div className="h-1 w-16 bg-gradient-to-r from-teal to-teal-dark rounded-full mt-2 mb-3" />
         <p className="text-sm font-medium bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-          Based on the last 3 years of data, here&apos;s where the restaurant
-          is heading if nothing changes — and what it would take to turn things
-          around.
+          Based on your last 3 years of numbers, here&apos;s where things are heading
+          if nothing changes &mdash; and what you can do to change the story.
+          Some of this is tough to read, but it&apos;s actually motivating once you see how close the turnaround is.
         </p>
       </div>
 
@@ -81,7 +81,7 @@ export default function ForecastPage() {
             </span>
           </div>
           <p className="text-sm text-slate-500">
-            If the current downward trend continues, sales could fall below
+            If the current trend continues, your sales could fall below
             $300K by 2027. That would be a 14% drop from the 2024 peak.
           </p>
         </div>
@@ -105,8 +105,8 @@ export default function ForecastPage() {
             </span>
           </div>
           <p className="text-sm text-slate-500">
-            The trajectory is clear: $18K profit in 2023, $7.5K in 2024, -$7.4K
-            in 2025, and heading toward -$22K by 2027. Each year gets harder.
+            The trajectory is clear: you made $18K in 2023, $7.5K in 2024, lost $7.4K
+            in 2025, and the trend points toward -$22K by 2027. Each year gets harder.
           </p>
         </div>
 
@@ -121,9 +121,9 @@ export default function ForecastPage() {
             </div>
           </div>
           <p className="text-sm text-slate-500 mt-2">
-            CHOG would need about <strong>$360K in annual sales</strong> at
-            current cost levels to stop losing money — that&apos;s $41K more
-            than 2025. Alternatively, cut costs by ~$27K at current sales.
+            You&apos;d need about <strong>$360K in annual sales</strong> at
+            current cost levels to stop losing money &mdash; that&apos;s $41K more
+            than 2025. Or cut costs by ~$27K at current sales. It&apos;s a projection, not a destiny.
           </p>
         </div>
       </div>
@@ -141,8 +141,8 @@ export default function ForecastPage() {
         <div className="flex items-center gap-2 mb-4">
           <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
           <p className="text-xs text-slate-400">
-            Projections based on the 3-year trend. Real results will depend on
-            what actions the business takes.
+            Projections based on your 3-year trend. What actually happens depends
+            on the actions you take.
           </p>
         </div>
         <ResponsiveContainer width="100%" height={320}>
@@ -232,8 +232,8 @@ export default function ForecastPage() {
           Will the Restaurant Make or Lose Money?
         </h2>
         <p className="text-sm text-slate-500 mt-1 mb-4">
-          This chart shows the bottom line — what&apos;s actually left after
-          paying every bill. Below the dotted line means the restaurant is losing
+          This is your bottom line &mdash; what&apos;s actually left after
+          paying every bill. Below the dotted line means you&apos;re losing
           money.
         </p>
         <ResponsiveContainer width="100%" height={320}>
@@ -313,9 +313,9 @@ export default function ForecastPage() {
           <div className="flex gap-2">
             <TrendingDown className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
             <p className="text-sm text-slate-600">
-              <strong>The trend is clear:</strong> The restaurant went from
+              <strong>The trend is clear:</strong> You went from
               making $18.5K (2023) to losing $7.4K (2025). Without changes, the
-              worst-case scenario by 2027 is a loss of up to $45K in a single
+              worst-case scenario by 2027 is losing up to $45K in a single
               year.
             </p>
           </div>
@@ -330,7 +330,7 @@ export default function ForecastPage() {
             What Could Go Wrong
           </h2>
           <p className="text-sm text-slate-500 mb-4">
-            These are the biggest threats to the business if nothing changes.
+            These are the biggest threats to your business if nothing changes.
           </p>
           <div className="space-y-4">
             {[
@@ -338,25 +338,25 @@ export default function ForecastPage() {
                 icon: TrendingDown,
                 severity: "high" as const,
                 title: "Sales keep falling",
-                desc: "Without action, food sales could drop below $300K by 2027. That means even less money to cover staff and bills — and the losses get deeper every year.",
+                desc: "Without action, your food sales could drop below $300K by 2027. That means even less money to cover staff and bills — and the losses get deeper every year.",
               },
               {
                 icon: AlertTriangle,
                 severity: "high" as const,
                 title: "Staff costs become impossible to sustain",
-                desc: "Staff wages are already 49 cents of every dollar. If sales drop further, that ratio gets even worse. At some point, there isn't enough money coming in to pay the team.",
+                desc: "Your staff wages are already 49 cents of every dollar. If sales drop further, that ratio gets even worse. At some point, there isn't enough money coming in to pay the team.",
               },
               {
                 icon: ShieldAlert,
                 severity: "medium" as const,
                 title: "Tips and subsidies could dry up",
-                desc: "The restaurant depends on $43K+ in tip income and government subsidies just to stay close to break even. This money isn't guaranteed — it dropped from $82K in 2023 to $43K already.",
+                desc: "You're depending on $43K+ in tip income and government subsidies just to stay close to break even. That money isn't guaranteed — it dropped from $82K in 2023 to $43K already.",
               },
               {
                 icon: AlertTriangle,
                 severity: "high" as const,
                 title: "Nothing left for emergencies",
-                desc: "The business's assets dropped 56% in 3 years (from $99K to $44K). If something breaks, there's less and less cushion to fall back on.",
+                desc: "Your assets dropped 56% in 3 years (from $99K to $44K). If something breaks, there's less and less cushion to fall back on.",
               },
             ].map((risk, i) => (
               <div
@@ -399,37 +399,37 @@ export default function ForecastPage() {
           <div className="flex items-center gap-2 mb-1">
             <Lightbulb className="w-5 h-5 text-teal" />
             <h2 className="text-lg font-bold text-slate-900">
-              What Can Be Done
+              What You Can Do About It
             </h2>
           </div>
           <p className="text-sm text-slate-500 mb-4">
-            Practical steps that could change the trajectory. The more of these
-            that happen, the better the outlook.
+            Practical steps that could change your trajectory. The more of these
+            you tackle, the better the outlook.
           </p>
           <div className="space-y-4">
             {[
               {
                 number: 1,
                 title: "Figure out why sales are dropping",
-                desc: "Is it fewer customers, lower prices, or stronger competitors? The answer determines the fix. Look at foot traffic, average check size, and what nearby restaurants are doing.",
+                desc: "Is it fewer customers, lower prices, or stronger competitors? The answer determines your fix. Look at foot traffic, average check size, and what nearby restaurants are doing.",
                 impact: "Could recover $20-30K in annual sales",
               },
               {
                 number: 2,
                 title: "Get staffing costs closer to normal",
-                desc: "The target is about 34-40 cents per dollar on staff. Look at scheduling efficiency, shift optimization, and whether the team size matches the current sales level.",
+                desc: "Your target is about 34-40 cents per dollar on staff. Look at scheduling efficiency, shift optimization, and whether your team size matches the current sales level.",
                 impact: "Could save $22-46K per year",
               },
               {
                 number: 3,
                 title: "Find new ways to bring in money",
-                desc: "Catering, delivery partnerships, private events, meal kits — these can add sales without much extra cost. Even $30-40K from new channels would change the picture.",
+                desc: "Catering, delivery partnerships, private events, meal kits — these can add sales without much extra cost. Even $30-40K from new channels would change your picture.",
                 impact: "Could add $30-50K in revenue",
               },
               {
                 number: 4,
                 title: "Stop depending on tips and subsidies",
-                desc: "Right now, the restaurant needs $43K from tips and government help just to survive. Build a plan to make the core business profitable on its own.",
+                desc: "Right now, you need $43K from tips and government help just to survive. The goal is to make the core business profitable on its own.",
                 impact: "Reduces vulnerability to income shocks",
               },
               {
@@ -466,20 +466,20 @@ export default function ForecastPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <p className="text-slate-300 text-sm leading-relaxed">
-              CHOG is at a crossroads. The restaurant has real strengths — amazing
+              You&apos;re at a crossroads. Your restaurant has real strengths &mdash; amazing
               food cost control (23 cents per dollar vs. the 32-cent average) and a
-              clear identity as a local, organic, seasonal restaurant.
+              clear identity as a local, organic, seasonal spot.
             </p>
             <p className="text-slate-300 text-sm leading-relaxed mt-3">
               But the math doesn&apos;t lie: sales are dropping, staffing costs are
-              too high, and the business depends on outside income to survive. Without
+              too high, and you&apos;re depending on outside income to survive. Without
               changes, the losses will keep getting bigger.
             </p>
           </div>
           <div>
             <p className="text-slate-300 text-sm leading-relaxed">
-              The good news is that the path to profitability is clear. The
-              restaurant doesn&apos;t need a miracle — it needs to either{" "}
+              The good news is that the path to profitability is clear. You
+              don&apos;t need a miracle &mdash; you need to either{" "}
               <strong className="text-white">grow sales to ~$360K</strong> or{" "}
               <strong className="text-white">cut ~$27K in costs</strong> (mostly
               staffing). Ideally, a bit of both.
@@ -495,10 +495,10 @@ export default function ForecastPage() {
       {/* ── Footer ── */}
       <div className="text-xs text-slate-400 pt-4 border-t border-slate-100">
         <p>
-          Projections are based on CHOG&apos;s 3-year financial trend (2023-2025)
-          and assume no major changes to operations. Actual results will depend on
-          management actions, market conditions, and economic factors. The range
-          (best/worst case) reflects the uncertainty inherent in any forecast.
+          These projections are based on your 3-year financial trend (2023&ndash;2025)
+          and assume nothing changes. What actually happens is up to you. The range
+          (best/worst case) reflects the uncertainty in any forecast &mdash; it&apos;s
+          a starting point for planning, not a prediction.
         </p>
       </div>
     </div>
