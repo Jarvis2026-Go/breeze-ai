@@ -18,6 +18,9 @@ import {
   Menu,
   X,
   ChevronDown,
+  SlidersHorizontal,
+  CalendarDays,
+  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -61,6 +64,14 @@ const navGroups: NavGroup[] = [
       { href: "/break-even", label: "Break-Even Analysis", icon: Target },
       { href: "/forecast", label: "Forecast", icon: LineChart },
       { href: "/next-steps", label: "Unlock Profit", icon: Rocket },
+    ],
+  },
+  {
+    label: "Tools",
+    items: [
+      { href: "/scenarios", label: "What-If Planner", icon: SlidersHorizontal },
+      { href: "/daily-targets", label: "Daily Targets", icon: CalendarDays },
+      { href: "/labor", label: "Labor Simulator", icon: Users },
     ],
   },
   {
