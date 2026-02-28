@@ -349,7 +349,7 @@ export default function SummaryPage() {
       {/* Footer */}
       <div className="text-[10px] text-slate-400 text-center pt-2 print:text-gray-500 print:border-t print:border-gray-200 print:pt-2">
         <p>
-          CHOG Financial Dashboard | Powered by Breeze AI | Data from QuickBooks
+          CHOG Financial Dashboard | Powered by Breeze | Data from QuickBooks
           P&L, Balance Sheet, and Wage Reports (2023–2025) | All amounts in CAD
         </p>
       </div>

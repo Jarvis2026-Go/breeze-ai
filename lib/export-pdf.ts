@@ -61,7 +61,7 @@ export async function exportToPDF() {
       doc.setFontSize(7);
       doc.setTextColor(150, 150, 150);
       doc.text(`Page ${i} of ${totalPages}`, margin, pageH - 8);
-      doc.text("CHOG Financial Dashboard | Breeze AI", pageW - margin, pageH - 8, { align: "right" });
+      doc.text("CHOG Financial Dashboard | Breeze", pageW - margin, pageH - 8, { align: "right" });
     }
   };
 

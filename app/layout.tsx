@@ -4,7 +4,7 @@ import { Navbar } from "@/components/navbar";
 import { PasswordGate } from "@/components/password-gate";
 
 export const metadata: Metadata = {
-  title: "CHOG Financial Dashboard | Breeze AI",
+  title: "CHOG Financial Dashboard | Breeze",
   description: "Financial analysis dashboard for CHOG restaurant (2023-2025)",
 };
 

@@ -133,7 +133,7 @@ export function Navbar() {
               <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/60">
                 <span className="text-[11px] text-slate-400">Powered by</span>
                 <span className="text-[11px] font-bold bg-gradient-to-r from-teal to-teal-dark bg-clip-text text-transparent">
-                  Breeze AI
+                  Breeze
                 </span>
               </div>
               <button

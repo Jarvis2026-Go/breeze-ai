@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-const PASSWORD = "chog2025!";
+const PASSWORD = "Xr9$mTq2!vLp";
 const STORAGE_KEY = "breeze-dashboard-auth";
 
 export function PasswordGate({ children }: { children: React.ReactNode }) {
@@ -71,7 +71,7 @@ export function PasswordGate({ children }: { children: React.ReactNode }) {
           Enter
         </button>
 
-        <p className="text-xs text-gray-400 mt-4">Powered by Breeze AI</p>
+        <p className="text-xs text-gray-400 mt-4">Powered by Breeze</p>
       </form>
     </div>
   );
