@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
+import { PasswordGate } from "@/components/password-gate";
 
 export const metadata: Metadata = {
   title: "CHOG Financial Dashboard | Breeze AI",
@@ -15,10 +16,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <Navbar />
-        <main className="max-w-[1600px] mx-auto min-h-screen pt-4 pb-12 px-8">
-          {children}
-        </main>
+        <PasswordGate>
+          <Navbar />
+          <main className="max-w-[1600px] mx-auto min-h-screen pt-4 pb-12 px-8">
+            {children}
+          </main>
+        </PasswordGate>
       </body>
     </html>
   );
